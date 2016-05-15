@@ -6,7 +6,6 @@ import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorBolt;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.CounterBolt;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.OutputResultsBolt;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.SplitterBolt;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.PartialKeyGrouping;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.DynamicKeyGrouping;
 import com.orhundalabasmaz.storm.loadBalancer.spouts.CountrySpout;
 import com.orhundalabasmaz.storm.utils.Logger;
@@ -46,7 +45,15 @@ public class LoadBalancerTopology implements ITopology {
 	 * TODO LIST
 	 * 1. convert task to objects rather than primitives
 	 * 2. should be included to SAMOA? (should use storm-core 0.9.4)
-	 * 3. Use Log4j instead of Logger
+	 * 3. use Log4j instead of Logger
+	 * 4. convert long to BigDecimal
+	 * after a while long/int counts will reach the limits! (BigInteger)
+	 * 5. min load percentage should be calculated with number of bolts
+	 * 6. generic infrastructure for keys and models
+	 * 7. use key as converted toLowerCase(key)
+	 * 8. %25 -> %30
+	 * 8. calc aggregator cost
+	 * 9. to get new task must be more difficult when the tasks reduced
 	 * <p>
 	 * RESULT: should be at least 2 target bolt for beginning and expand the whole..
 	 */
@@ -113,11 +120,7 @@ public class LoadBalancerTopology implements ITopology {
 			Logger.log("topology# submitting topology on cluster");
 //            StormSubmitter.submitTopology(topologyName, conf, topology);
 			StormSubmitter.submitTopologyWithProgressBar(topologyName, conf, topology);
-		} catch (AlreadyAliveException e) {
-			e.printStackTrace();
-		} catch (InvalidTopologyException e) {
-			e.printStackTrace();
-		} catch (AuthorizationException e) {
+		} catch (AlreadyAliveException | InvalidTopologyException | AuthorizationException e) {
 			e.printStackTrace();
 		}
 	}

@@ -6,10 +6,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 /**
- * Created by orhun on 18.10.2015.
+ * @author Orhun Dalabasmaz
  */
 public class Logger {
-	private final static DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS");
+	private final static DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
 	// todo: level
 	private final static boolean LOG_ENABLED = true;

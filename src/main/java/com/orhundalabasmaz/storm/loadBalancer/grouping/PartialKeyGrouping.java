@@ -10,6 +10,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Gianmarco De Francisci Morales
+ * Link: https://github.com/gdfm/partial-key-grouping/
+ *
+ * */
 public class PartialKeyGrouping implements CustomStreamGrouping, Serializable {
 	private static final long serialVersionUID = -447379837314000353L;
 	private List<Integer> targetTasks;

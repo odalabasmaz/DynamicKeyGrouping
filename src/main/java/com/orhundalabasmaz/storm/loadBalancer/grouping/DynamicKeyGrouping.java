@@ -19,11 +19,13 @@ import java.util.Map;
 public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private static final long serialVersionUID = -6900707578779084100L;
 
-	private static final long THRESHOLD_NUMBER_OF_ITEMS = 1000;
-	private static final long THRESHOLD_LOAD_PERCENTAGE = 25;  // %40
-	private static final int NUMBER_OF_INITIAL_TASKS = 2;
-	private static final int NUMBER_OF_MAX_TASKS = Configuration.N_COUNTER_BOLTS;
-	private static final int NUMBER_OF_MAX_RETRY = 10;
+	private final int NUMBER_OF_INITIAL_TASKS = 2;
+	private final int NUMBER_OF_MAX_TASKS = Configuration.N_COUNTER_BOLTS;
+	private final int NUMBER_OF_MAX_RETRY = 10;
+	private final int THRESHOLD_NUMBER_OF_ITEMS = 1000;
+	private final int THRESHOLD_LOAD_PERCENTAGE = 100 / (NUMBER_OF_MAX_TASKS - 1);
+	private final int THRESHOLD_HIGH_LOAD_PERCENTAGE = 40;
+	private final int THRESHOLD_MIN_LOAD_PERCENTAGE = 5;
 
 	private List<Integer> targetTasks;
 	private long[] targetTaskStats;
@@ -32,6 +34,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private final List<Integer> primeNumbers = new ArrayList<>();
 	private final Map<Integer, HashFunction> hashFunctionMap = new HashMap<>();
 	private final Map<String, List<Integer>> keyTargetMap = new HashMap<>();
+	private final Map<String, Integer> keyCountMap = new HashMap<>();
 
 	@Override
 	public void prepare(WorkerTopologyContext context, GlobalStreamId streamId, List<Integer> targetTasks) {
@@ -63,42 +66,25 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 			String key = values.get(0).toString();
 			int chosen = chooseBestTask(key);
 			chosenTasks.add(targetTasks.get(chosen));
-			targetTaskStats[chosen]++;
-			numOfItems++;
+			handleKey(key, chosen);
 		}
 		return chosenTasks;
 	}
 
-	private int chooseBestTaskOrj(String key) {
-		//todo: should choose least loaded bolt if there are multi candidate
-		int h = 0;
-		HashFunction hf = getHashFunction(h);
-		int firstChoose = getTargetTask(hf, key);
-		if (numOfItems < THRESHOLD_NUMBER_OF_ITEMS) {
-			// do nothing, best is chosen already..
-			return firstChoose;
+	private void handleKey(String key, int chosen) {
+		targetTaskStats[chosen]++;
+		numOfItems++;
+		Integer count = keyCountMap.get(key);
+		if (count == null) {
+			count = 0;
 		}
-
-		int chosen = firstChoose;
-		while (true) {
-			if (getCurrentLoadOfTask(chosen) < THRESHOLD_LOAD_PERCENTAGE) {
-				break;
-			}
-
-			hf = getHashFunction(++h);
-			chosen = getTargetTask(hf, key);
-
-			if (h == NUMBER_OF_MAX_RETRY) {
-				break;
-			}
-		}
-		return chosen;
+		keyCountMap.put(key, ++count);
 	}
 
 	private Integer chooseBestTask(String key) {
 		// check if no task is assigned yet
 		List<Integer> targetList = keyTargetMap.get(key);
-		if (targetList == null || targetList.isEmpty()) {
+		if (targetList == null) {
 			targetList = new ArrayList<>();
 			keyTargetMap.put(key, targetList);
 			/*if (NUMBER_OF_INITIAL_TASKS < 1
@@ -126,20 +112,25 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		}
 
 		//todo >> consider key-based load before distribution
-//		int bestTask = getTargetTask(bestTargetTask, key);
-		if (numOfItems > THRESHOLD_NUMBER_OF_ITEMS
-				&&
-				minLoad > THRESHOLD_LOAD_PERCENTAGE
-				&&
-				targetList.size() < NUMBER_OF_MAX_TASKS) {
-			//todo: get another bolt and return if available
+		if (shouldChooseNewTarget(key, targetList, minLoad)) {
 			Integer targetTask = getNewTargetTask(targetList, key);
-			if (targetTask != null) {
+			if (targetTask != null
+					&& getCurrentLoadOfTask(targetTask) < minLoad) {
 				bestTask = targetTask;
 			}
 		}
 
 		return bestTask;
+	}
+
+	private boolean shouldChooseNewTarget(String key, List<Integer> targetList, double minLoad) {
+		return numOfItems > THRESHOLD_NUMBER_OF_ITEMS
+				&& minLoad > THRESHOLD_LOAD_PERCENTAGE
+				&& targetList.size() < NUMBER_OF_MAX_TASKS
+				&& (
+				keyCountMap.get(key) != null && keyCountMap.get(key) > THRESHOLD_NUMBER_OF_ITEMS
+						&& (minLoad > THRESHOLD_HIGH_LOAD_PERCENTAGE || getCurrentLoadOfKey(key) > THRESHOLD_MIN_LOAD_PERCENTAGE)
+		);
 	}
 
 	private Integer getNewTargetTask(List<Integer> targetList, String key) {
@@ -165,22 +156,17 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		return ((double) targetTaskStats[task] / numOfItems) * 100;
 	}
 
-	private HashFunction getHashFunction(int h) {
-//		if (h == NUMBER_OF_MAX_TASKS) {
-//		if (h == NUMBER_OF_MAX_RETRY) {
-		//todo: should return least loaded one
-//			return hashFunctionMap.get(h);
-//			return null;
-//		}
+	private double getCurrentLoadOfKey(String key) {
+		return ((double) keyCountMap.get(key) / numOfItems) * 100;
+	}
 
-		//todo: should control if hash function returns the same key as before xx
+	private HashFunction getHashFunction(int h) {
 		HashFunction hf = hashFunctionMap.get(h);
 		if (hf == null) {
 			int hn = getNextHashSeed(h);
 			hf = Hashing.murmur3_128(hn);
 			hashFunctionMap.put(h, hf);
 		}
-
 		return hf;
 	}
 
@@ -191,17 +177,6 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 			seed += 2;
 		} while (!isPrime(seed));
 		primeNumbers.add(seed);
-		return seed;
-	}
-
-	private int getNextHashSeedOld(int h) {
-		//todo: should be prime ?
-		int seed;
-		do {
-			seed = 13 + 2 * h;
-			h += 2;
-		}
-		while (!isPrime(seed));
 		return seed;
 	}
 
