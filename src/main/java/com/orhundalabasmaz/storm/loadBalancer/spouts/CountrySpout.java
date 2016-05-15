@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.spouts;
 
+import com.orhundalabasmaz.storm.loadBalancer.Configuration;
 import com.orhundalabasmaz.storm.utils.Logger;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -21,8 +22,8 @@ public class CountrySpout extends BaseRichSpout {
 	private Random rand = new Random();
 
 	private List<Values> valuesList;
-	private final DataType DATA_TYPE = DataType.SKEW;
-	private final long SLEEP_DURATION = 10L;
+	private final DataType DATA_TYPE = Configuration.DATA_TYPE;
+	private final long SLEEP_DURATION = Configuration.TIME_INTERVAL_BETWEEN_DATA_STREAMS;
 
 	@Override
 	public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
@@ -35,7 +36,7 @@ public class CountrySpout extends BaseRichSpout {
 	public void nextTuple() {
 		Utils.sleep(SLEEP_DURATION);
 		switch (DATA_TYPE) {
-			case HOMOGEN:
+			case HOMOGENEOUS:
 				sequentialData();
 				break;
 			case RANDOM:

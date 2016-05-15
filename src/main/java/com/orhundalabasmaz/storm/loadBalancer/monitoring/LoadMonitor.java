@@ -149,7 +149,7 @@ public class LoadMonitor {
 				Integer count = boltEntry.getValue();
 				totalCount += count;
 			}
-			sb.append("# ").append(key).append("\n");
+			sb.append("# ").append(key).append("\t[AGG: ").append(boltMap.size()).append("]").append("\n");
 			for (Map.Entry<String, Integer> boltEntry : boltMap.entrySet()) {
 				String boltId = boltEntry.getKey();
 				Integer count = boltEntry.getValue();
