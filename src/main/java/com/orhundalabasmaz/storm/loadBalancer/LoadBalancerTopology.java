@@ -75,6 +75,9 @@ public class LoadBalancerTopology implements ITopology {
 	 * 8. %25 -> %30
 	 * 8. calc aggregator cost
 	 * 9. to get new task must be more difficult when the target tasks reduced
+	 * 10. input country list should vary between 10-1000 distinct values
+	 *     inputs may be numbers rather than country names 100 - 100_000_000
+	 * 11. we'll be using real-world data
 	 * <p>
 	 * RESULT: should be at least 2 target bolt for beginning and expand the whole..
 	 */
