@@ -1,5 +1,8 @@
 package com.orhundalabasmaz.storm.loadBalancer.counter;
 
+import com.orhundalabasmaz.storm.loadBalancer.Configuration;
+import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+
 import java.util.*;
 
 /**
@@ -16,12 +19,13 @@ public class CountryCounter {
         }*/);
 	}
 
-	public void count(String country) {
+	public void count(String key) {
 		int count = 1;
-		if (counter.containsKey(country)) {
-			count = counter.get(country) + 1;
+		if (counter.containsKey(key)) {
+			count = counter.get(key) + 1;
 		}
-		counter.put(country, count);
+		counter.put(key, count);
+		doToughJob(Configuration.PROCESS_DURATION);
 	}
 
 	public SortedMap<String, Integer> getCountsThenAdvanceWindow() {
@@ -37,14 +41,19 @@ public class CountryCounter {
 		return dataClone;
 	}
 
-	public void count(String country, Integer count) {
-		if (counter.containsKey(country)) {
-			count = counter.get(country) + count;
+	public void count(String key, Integer count) {
+		if (counter.containsKey(key)) {
+			doToughJob(Configuration.AGGREGATION_DURATION * (count - 1));
+			count = counter.get(key) + count;
 		}
-		counter.put(country, count);
+		counter.put(key, count);
 	}
 
 	public SortedMap<String, Integer> getCounts() {
 		return counter;
+	}
+
+	private void doToughJob(long duration) {
+		DKGUtils.sleepInMilliseconds(duration);
 	}
 }

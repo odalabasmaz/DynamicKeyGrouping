@@ -12,7 +12,7 @@ import org.apache.storm.tuple.Values;
 import java.util.Map;
 
 /**
- * Created by orhun on 17.10.2015.
+ * @author Orhun Dalabasmaz
  */
 public class SplitterBolt extends BaseRichBolt {
 	private OutputCollector collector;
@@ -25,15 +25,15 @@ public class SplitterBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		String country = tuple.getString(0);
-		Logger.info("bolt# emitting new value: " + country);
-		collector.emit(tuple, new Values(country));
+		String key = tuple.getString(0);
+		Logger.info("bolt# emitting new value: " + key);
+		collector.emit(tuple, new Values(key));
 		collector.ack(tuple);
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 		Logger.log("bolt# output field declared: " + "splitter");
-		outputFieldsDeclarer.declare(new Fields("country"));
+		outputFieldsDeclarer.declare(new Fields("key"));
 	}
 }

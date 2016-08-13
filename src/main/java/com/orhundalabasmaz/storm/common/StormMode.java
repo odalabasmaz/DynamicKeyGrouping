@@ -1,7 +1,7 @@
 package com.orhundalabasmaz.storm.common;
 
 /**
- * Created by orhun on 31.10.2015.
+ * @author Orhun Dalabasmaz
  */
 public enum StormMode {
 	LOCAL, CLUSTER

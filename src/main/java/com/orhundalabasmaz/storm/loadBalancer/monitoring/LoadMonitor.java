@@ -3,24 +3,28 @@ package com.orhundalabasmaz.storm.loadBalancer.monitoring;
 import com.orhundalabasmaz.storm.loadBalancer.Configuration;
 import com.orhundalabasmaz.storm.utils.Logger;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Orhun Dalabasmaz
  */
-public class LoadMonitor {
-
+public class LoadMonitor implements Serializable {
 	private static long INFO_COUNT = 0;
 	private int boltCount = 0;
-	private final int N_BOLTS = Configuration.N_COUNTER_BOLTS;  // N_COUNTER_BOLTS
+	private final int N_BOLTS = Configuration.N_WORKER_BOLTS;  // N_WORKER_BOLTS
+	private final String NL = "\n";
 
 	private Map<String, Map<String, Integer>> valueLoadMap = new HashMap<>();
 	private Map<String, Integer> relativeLoadMap = new HashMap<>(N_BOLTS);
 	private Map<String, Map<String, Integer>> boltLoadMap = new HashMap<>(N_BOLTS);
 
-	synchronized
+	//	synchronized
 	public void load(String boltId, Map<String, Integer> countMap) {
+		if (!Configuration.LOG_ENABLED) {
+			return;
+		}
 		for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
 			String key = entry.getKey();
 			Integer value = entry.getValue();
@@ -37,6 +41,14 @@ public class LoadMonitor {
 		}
 	}
 
+	private void init() {
+		boltCount = 0;
+	}
+
+	/**
+	 * distributed bolts for each key
+	 * k1 -> {b1: 234, b2: 324, b3: 123}
+	 */
 	private void handleValueLoad(String boltId, String key, Integer value) {
 		Map<String, Integer> boltMap = valueLoadMap.get(key);
 		if (boltMap == null) {
@@ -50,6 +62,10 @@ public class LoadMonitor {
 		boltMap.put(boltId, count + value);
 	}
 
+	/**
+	 * total key consumed within each bolt
+	 * b1 -> 124
+	 */
 	private void handleRelativeBoltLoad(String boltId, Integer value) {
 		Integer load = relativeLoadMap.get(boltId);
 		if (load == null) {
@@ -59,6 +75,10 @@ public class LoadMonitor {
 		relativeLoadMap.put(boltId, load);
 	}
 
+	/**
+	 * key based load for each bolt
+	 * b1 -> {k1: 12, k2: 34, k3: 54}
+	 */
 	private void handleBoltLoad(String boltId, String key, Integer value) {
 		Map<String, Integer> valueMap = boltLoadMap.get(boltId);
 		if (valueMap == null) {
@@ -75,20 +95,21 @@ public class LoadMonitor {
 
 	private void printLoadInfo() {
 		Logger.log(
-				"\n\n\n\n\n" +
-						"#############################" + "\n" +
-						"### PRINTING LOAD INFO: #" + INFO_COUNT++ + "\n" +
+				NL + NL + NL + NL + NL +
+						"#############################" + NL +
+						"### PRINTING LOAD INFO: #" + INFO_COUNT++ + NL +
 						"#############################");
 		printRelativeBoltLoadInfo();
 		printBoltLoadInfo();
 		printValueLoadInfo();
+		printMemoryConsumptionInfo();
 	}
 
 	private void printRelativeBoltLoadInfo() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\n")
-				.append("##############################################").append("\n")
-				.append("## RELATIVE LOAD ON BOLTS  (cumulative)     ##").append("\n");
+		sb.append(NL)
+				.append("##############################################").append(NL)
+				.append("## RELATIVE LOAD ON BOLTS  (cumulative)     ##").append(NL);
 		int totalLoad = 0;
 		for (Map.Entry<String, Integer> entry : relativeLoadMap.entrySet()) {
 			Integer load = entry.getValue();
@@ -102,16 +123,16 @@ public class LoadMonitor {
 			sb.append("bolt: ").append(boltId)
 					.append(" >> %").append(loadPercent).append(" ")
 					.append(" [").append(load).append("/").append(totalLoad).append("]")
-					.append("\n");
+					.append(NL);
 		}
 		Logger.log(sb.toString());
 	}
 
 	private void printBoltLoadInfo() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\n")
-				.append("#####################################").append("\n")
-				.append("## LOAD BY BOLTS  (cumulative)     ##").append("\n");
+		sb.append(NL)
+				.append("#####################################").append(NL)
+				.append("## LOAD BY BOLTS  (cumulative)     ##").append(NL);
 		for (Map.Entry<String, Map<String, Integer>> entry : boltLoadMap.entrySet()) {
 			String boltId = entry.getKey();
 			Map<String, Integer> valueMap = entry.getValue();
@@ -120,7 +141,7 @@ public class LoadMonitor {
 				Integer count = valueEntry.getValue();
 				totalCount += count;
 			}
-			sb.append("bolt: ").append(boltId).append("\n");
+			sb.append("bolt: ").append(boltId).append(NL);
 			for (Map.Entry<String, Integer> valueEntry : valueMap.entrySet()) {
 				String value = valueEntry.getKey();
 				Integer count = valueEntry.getValue();
@@ -130,7 +151,7 @@ public class LoadMonitor {
 						.append(value).append(" ")
 						.append("%").append(loadPercent)
 						.append(" [").append(count).append("/").append(totalCount).append("]")
-						.append("\n");
+						.append(NL);
 			}
 		}
 		Logger.log(sb.toString());
@@ -138,9 +159,9 @@ public class LoadMonitor {
 
 	private void printValueLoadInfo() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\n")
-				.append("##############################").append("\n")
-				.append("## LOAD BY KEY (cumulative) ##").append("\n");
+		sb.append(NL)
+				.append("##############################").append(NL)
+				.append("## LOAD BY KEY (cumulative) ##").append(NL);
 		for (Map.Entry<String, Map<String, Integer>> loadEntry : valueLoadMap.entrySet()) {
 			String key = loadEntry.getKey();
 			Map<String, Integer> boltMap = loadEntry.getValue();
@@ -149,7 +170,7 @@ public class LoadMonitor {
 				Integer count = boltEntry.getValue();
 				totalCount += count;
 			}
-			sb.append("# ").append(key).append("\t[AGG: ").append(boltMap.size()).append("]").append("\n");
+			sb.append("# ").append(key).append("\t[AGG: ").append(boltMap.size()).append("]").append(NL);
 			for (Map.Entry<String, Integer> boltEntry : boltMap.entrySet()) {
 				String boltId = boltEntry.getKey();
 				Integer count = boltEntry.getValue();
@@ -158,13 +179,26 @@ public class LoadMonitor {
 				sb.append("\t").append("bolt: ").append(boltId)
 						.append(" > %").append(loadPercent)
 						.append(" [").append(count).append("/").append(totalCount).append("]")
-						.append("\n");
+						.append(NL);
 			}
 		}
 		Logger.log(sb.toString());
 	}
 
-	public void init() {
-		boltCount = 0;
+	private void printMemoryConsumptionInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(NL)
+				.append("##############################################").append(NL)
+				.append("## MEMORY CONSUMPTION                       ##").append(NL);
+		int NK = valueLoadMap.size();
+		int NT = 0;
+		for (Map<String, Integer> keys : boltLoadMap.values()) {
+			NT += keys.size();
+		}
+		double MC = NK > 0 ? (double) NT / NK : 0;
+		sb.append("NK: ").append(NK)
+				.append(", NT: ").append(NT).append(" >> ")
+				.append("Memory Consumption ratio is ").append(String.format("%.2f", MC)).append(NL);
+		Logger.log(sb.toString());
 	}
 }

@@ -3,12 +3,11 @@ package com.orhundalabasmaz.storm.loadBalancer;
 import com.orhundalabasmaz.storm.common.ITopology;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorBolt;
-import com.orhundalabasmaz.storm.loadBalancer.bolts.CounterBolt;
+import com.orhundalabasmaz.storm.loadBalancer.bolts.WorkerBolt;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.OutputResultsBolt;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.SplitterBolt;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.DynamicKeyGrouping;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.PartialKeyGrouping;
+import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DynamicKeyGrouping;
+import com.orhundalabasmaz.storm.loadBalancer.grouping.*;
 import com.orhundalabasmaz.storm.loadBalancer.spouts.CountrySpout;
 import com.orhundalabasmaz.storm.utils.Logger;
 import org.apache.storm.Config;
@@ -32,10 +31,10 @@ public class LoadBalancerTopology implements ITopology {
 	private final String topologyName = "load-balancer-topology";
 	private final String spoutName = "load-balancer-spout";
 	private final String splitterBoltName = "splitter-bolt";
-	private final String counterBoltName = "counter-bolt";
+	private final String workerBoltName = "worker-bolt";
 	private final String aggregatorBoltName = "aggregator-bolt";
 	private final String resultBoltName = "result-bolt";
-	private final String dataKey = "country";
+	private final String dataKey = "counts";
 	private final String resultKey = "result";
 
 	private Config conf;
@@ -55,7 +54,7 @@ public class LoadBalancerTopology implements ITopology {
 				.append("DATA TYPE: ").append(Configuration.DATA_TYPE).append("\n")
 				.append("SPLITTER: ").append(Configuration.GROUPING_TYPE).append("\n")
 				.append("AGGREGATOR: ").append(Configuration.AGGREGATOR_TYPE).append("\n")
-				.append("NUMBER OF TARGET BOLTS: ").append(Configuration.N_COUNTER_BOLTS).append("\n")
+				.append("NUMBER OF TARGET BOLTS: ").append(Configuration.N_WORKER_BOLTS).append("\n")
 				.append("RUNTIME DURATION: ").append(Configuration.TOPOLOGY_TIMEOUT / 60000).append(" min").append("\n")
 				.append("STORM MODE: ").append(mode).append("\n")
 				.append("==================================");
@@ -86,6 +85,8 @@ public class LoadBalancerTopology implements ITopology {
 		conf = new Config();
 		conf.setNumWorkers(N_WORKERS);
 		conf.setDebug(false);
+//		conf.setMaxSpoutPending(1);
+//		conf.setMaxTaskParallelism(16);
 
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout(spoutName, new CountrySpout(), N_SPOUTS);   //parallelism hint as number of executor
@@ -96,13 +97,15 @@ public class LoadBalancerTopology implements ITopology {
 				.shuffleGrouping(spoutName);
 
 		// counter
-		BoltDeclarer counterDeclarer = builder.setBolt(counterBoltName, new CounterBolt(T_COUNTER_BOLTS), N_COUNTER_BOLTS);
+		BoltDeclarer counterDeclarer = builder.setBolt(workerBoltName, new WorkerBolt(T_WORKER_BOLTS), N_WORKER_BOLTS);
 		switch (groupingType) {
 			case SHUFFLE:
-				counterDeclarer.shuffleGrouping(splitterBoltName);
+//				counterDeclarer.shuffleGrouping(splitterBoltName);
+				counterDeclarer.customGrouping(splitterBoltName, new ShuffleGrouping());
 				break;
 			case KEY:
-				counterDeclarer.fieldsGrouping(splitterBoltName, new Fields(dataKey));
+//				counterDeclarer.fieldsGrouping(splitterBoltName, new Fields(dataKey));
+				counterDeclarer.customGrouping(splitterBoltName, new KeyGrouping());
 				break;
 			case PARTIAL_KEY:
 				counterDeclarer.customGrouping(splitterBoltName, new PartialKeyGrouping());
@@ -116,7 +119,7 @@ public class LoadBalancerTopology implements ITopology {
 
 		// aggregator
 		builder.setBolt(aggregatorBoltName, new AggregatorBolt(T_AGGREGATOR_BOLTS), N_AGGREGATOR_BOLTS)
-				.fieldsGrouping(counterBoltName, new Fields(dataKey));
+				.fieldsGrouping(workerBoltName, new Fields("boltId", dataKey));
 
 		// result
 		builder.setBolt(resultBoltName, new OutputResultsBolt(), N_RESULT_BOLTS)

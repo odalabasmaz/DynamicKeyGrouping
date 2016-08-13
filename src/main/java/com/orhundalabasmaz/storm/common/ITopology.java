@@ -1,7 +1,7 @@
 package com.orhundalabasmaz.storm.common;
 
 /**
- * Created by orhun on 18.10.2015.
+ * @author Orhun Dalabasmaz
  */
 public interface ITopology {
 	void init();

@@ -21,7 +21,10 @@
 		<guava.version>19.0</guava.version>
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<storm-core.version>1.0.1</storm-core.version>
+		<maven.aspectj.version>1.4</maven.aspectj.version>
+		<maven.compiler.level>1.8</maven.compiler.level>
 		<maven-compiler-plugin-version>3.5.1</maven-compiler-plugin-version>
+		<aspectj.version>1.8.9</aspectj.version>
 		<junit.version>4.12</junit.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -41,6 +44,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
 		</dependency>
 
 		<!-- test -->
@@ -62,6 +70,50 @@
 					<source>${compiler-source.version}</source>
 					<target>${compiler-target.version}</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>${maven.aspectj.version}</version>
+				<configuration>
+					<complianceLevel>${maven.compiler.level}</complianceLevel>
+					<source>${maven.compiler.level}</source>
+					<target>${maven.compiler.level}</target>
+					<includes>
+						<include>**/*.java</include>
+						<include>**/*.aj</include>
+					</includes>
+					<aspectDirectory>src/main/java</aspectDirectory>
+					<testAspectDirectory>src/test/java</testAspectDirectory>
+					<XaddSerialVersionUID>false</XaddSerialVersionUID>
+					<showWeaveInfo>true</showWeaveInfo>
+				</configuration>
+				<executions>
+					<execution>
+						<id>compile_with_aspectj</id>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test-compile_with_aspectj</id>
+						<goals>
+							<goal>test-compile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjrt</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjtools</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
