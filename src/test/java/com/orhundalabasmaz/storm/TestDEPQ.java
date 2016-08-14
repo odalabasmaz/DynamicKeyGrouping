@@ -6,7 +6,9 @@ import com.orhundalabasmaz.storm.utils.IntervalHeap;
 import org.junit.Test;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import static org.junit.Assert.assertTrue;
 

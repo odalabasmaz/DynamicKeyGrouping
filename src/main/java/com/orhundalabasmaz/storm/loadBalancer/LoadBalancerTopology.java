@@ -44,17 +44,17 @@ public class LoadBalancerTopology implements ITopology {
 
 	public LoadBalancerTopology(StormMode mode) {
 		this.mode = mode;
-		logInitialConfig();
 	}
 
 	private void logInitialConfig() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\n")
 				.append("Initializing LoadBalancerTopology!").append("\n")
+				.append("APP VERSION: ").append(Configuration.APP_VERSION).append("\n")
 				.append("DATA TYPE: ").append(Configuration.DATA_TYPE).append("\n")
 				.append("SPLITTER: ").append(Configuration.GROUPING_TYPE).append("\n")
 				.append("AGGREGATOR: ").append(Configuration.AGGREGATOR_TYPE).append("\n")
-				.append("NUMBER OF TARGET BOLTS: ").append(Configuration.N_WORKER_BOLTS).append("\n")
+				.append("NUMBER OF WORKERS: ").append(Configuration.N_WORKER_BOLTS).append("\n")
 				.append("RUNTIME DURATION: ").append(Configuration.TOPOLOGY_TIMEOUT / 60000).append(" min").append("\n")
 				.append("STORM MODE: ").append(mode).append("\n")
 				.append("==================================");
@@ -82,6 +82,9 @@ public class LoadBalancerTopology implements ITopology {
 	 */
 	@Override
 	public void init() {
+		// logs runtime configuration
+		logInitialConfig();
+
 		conf = new Config();
 		conf.setNumWorkers(N_WORKERS);
 		conf.setDebug(false);

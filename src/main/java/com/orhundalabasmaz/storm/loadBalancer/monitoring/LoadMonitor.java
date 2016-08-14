@@ -94,15 +94,19 @@ public class LoadMonitor implements Serializable {
 	}
 
 	private void printLoadInfo() {
+//		printLoadInfoHeader();
+//		printRelativeBoltLoadInfo();
+//		printBoltLoadInfo();
+//		printValueLoadInfo();
+		printMemoryConsumptionInfo();
+	}
+
+	private void printLoadInfoHeader() {
 		Logger.log(
 				NL + NL + NL + NL + NL +
 						"#############################" + NL +
 						"### PRINTING LOAD INFO: #" + INFO_COUNT++ + NL +
 						"#############################");
-		printRelativeBoltLoadInfo();
-		printBoltLoadInfo();
-		printValueLoadInfo();
-		printMemoryConsumptionInfo();
 	}
 
 	private void printRelativeBoltLoadInfo() {
@@ -186,19 +190,22 @@ public class LoadMonitor implements Serializable {
 	}
 
 	private void printMemoryConsumptionInfo() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(NL)
-				.append("##############################################").append(NL)
-				.append("## MEMORY CONSUMPTION                       ##").append(NL);
+		String consumption = NL +
+				"##############################################" + NL +
+				"## MEMORY CONSUMPTION                       ##" + NL +
+				getMemoryConsumptionInfo() + NL;
+		Logger.log(consumption);
+	}
+
+	public String getMemoryConsumptionInfo() {
 		int NK = valueLoadMap.size();
 		int NT = 0;
 		for (Map<String, Integer> keys : boltLoadMap.values()) {
 			NT += keys.size();
 		}
 		double MC = NK > 0 ? (double) NT / NK : 0;
-		sb.append("NK: ").append(NK)
-				.append(", NT: ").append(NT).append(" >> ")
-				.append("Memory Consumption ratio is ").append(String.format("%.2f", MC)).append(NL);
-		Logger.log(sb.toString());
+		return "NK: " + NK +
+				", NT: " + NT + " >> " +
+				"Memory Consumption ratio is " + String.format("%.2f", MC);
 	}
 }

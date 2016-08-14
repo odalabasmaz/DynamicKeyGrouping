@@ -24,7 +24,7 @@ public class OutputResultsBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		Logger.log(":: FINAL :: \n" + tuple.getString(0));
+//		Logger.log(":: FINAL :: \n" + tuple.getString(0));
 	}
 
 	@Override

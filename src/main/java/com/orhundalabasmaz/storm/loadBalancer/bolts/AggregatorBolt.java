@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.bolts;
 
+import com.orhundalabasmaz.storm.loadBalancer.Configuration;
 import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
 import com.orhundalabasmaz.storm.utils.Logger;
@@ -13,9 +14,11 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author Orhun Dalabasmaz
@@ -29,6 +32,7 @@ public class AggregatorBolt extends BaseRichBolt {
 	private DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
 	private long keyCount;
 	private long startTime;
+	private long checkTimeInterval = 10_000;    // ms
 	private int timeDurationFactor, keyCountFactor;
 
 	public AggregatorBolt(int tickFrequencyInSeconds) {
@@ -146,24 +150,26 @@ public class AggregatorBolt extends BaseRichBolt {
 	private void checkLatencyAndThroughput() {
 		long endTime = System.currentTimeMillis();
 		long timeDuration = endTime - startTime;
-		if (timeDuration >= 100_000 * timeDurationFactor) {
+		if (timeDuration >= checkTimeInterval * timeDurationFactor) {
 			++timeDurationFactor;
 			checkOut(keyCount, timeDuration);
 		}
-		if (keyCount >= 100_000 * keyCountFactor) {
+		/*if (keyCount >= 10_000 * keyCountFactor) {
 			++keyCountFactor;
 			checkOut(keyCount, timeDuration);
-		}
+		}*/
 	}
 
 	private void checkOut(long keyCount, long timeDuration) {
-		String date = formatter.format(new Date());
-		System.out.println("## " + date + " ## Emitted " + keyCount + " keys in " + timeDuration + " ms");
-
-		if (timeDuration >= 5 * 60 * 1000) {
-			System.out.println("#### TERMINATING ####");
-			System.exit(-1);
+		if (timeDuration < Configuration.TERMINATION_TIMEOUT) {
+			return;
 		}
+		String date = formatter.format(new Date());
+		Logger.log("#### TERMINATING #### (" + date + ")\n" +
+				"## Emitted " + keyCount + " keys in " + timeDuration + " ms" + "\n" +
+				"## Memory Consumption ## " + loadMonitor.getMemoryConsumptionInfo());
+		Toolkit.getDefaultToolkit().beep();
+//		System.exit(0);
 	}
 
 	/*private void emit(Map<String, Integer> counts) {
