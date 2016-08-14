@@ -1,6 +1,5 @@
 package com.orhundalabasmaz.storm.loadBalancer.counter;
 
-import com.orhundalabasmaz.storm.loadBalancer.Configuration;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
 
 import java.util.*;
@@ -9,11 +8,15 @@ import java.util.*;
  * @author Orhun Dalabasmaz
  */
 public class CountryCounter {
+	private long processDuration;
+	private long aggregationDuration;
 	private SortedMap<String, Integer> counter;
 
-	public CountryCounter() {
+	public CountryCounter(long processDuration, long aggregationDuration) {
+		this.processDuration = 0;
+		this.aggregationDuration = 0;
 		this.counter = new TreeMap<>(/*new Comparator<String>() {
-	        public int compare(String o1, String o2) {
+		    public int compare(String o1, String o2) {
                 return o1.compareTo(o2);
             }
         }*/);
@@ -25,7 +28,7 @@ public class CountryCounter {
 			count = counter.get(key) + 1;
 		}
 		counter.put(key, count);
-		doToughJob(Configuration.PROCESS_DURATION);
+		doToughJob(processDuration);
 	}
 
 	public SortedMap<String, Integer> getCountsThenAdvanceWindow() {
@@ -43,7 +46,7 @@ public class CountryCounter {
 
 	public void count(String key, Integer count) {
 		if (counter.containsKey(key)) {
-			doToughJob(Configuration.AGGREGATION_DURATION * (count - 1));
+			doToughJob(aggregationDuration * (count - 1));
 			count = counter.get(key) + count;
 		}
 		counter.put(key, count);

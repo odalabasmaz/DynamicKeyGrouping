@@ -1,6 +1,5 @@
 package com.orhundalabasmaz.storm.loadBalancer.monitoring;
 
-import com.orhundalabasmaz.storm.loadBalancer.Configuration;
 import com.orhundalabasmaz.storm.utils.Logger;
 
 import java.io.Serializable;
@@ -13,16 +12,22 @@ import java.util.Map;
 public class LoadMonitor implements Serializable {
 	private static long INFO_COUNT = 0;
 	private int boltCount = 0;
-	private final int N_BOLTS = Configuration.N_WORKER_BOLTS;  // N_WORKER_BOLTS
-	private final String NL = "\n";
+	private String NL = "\n";
+	private boolean isLogEnabled;
+	private int numberOfWorkerBolts;
 
 	private Map<String, Map<String, Integer>> valueLoadMap = new HashMap<>();
-	private Map<String, Integer> relativeLoadMap = new HashMap<>(N_BOLTS);
-	private Map<String, Map<String, Integer>> boltLoadMap = new HashMap<>(N_BOLTS);
+	private Map<String, Integer> relativeLoadMap = new HashMap<>(numberOfWorkerBolts);
+	private Map<String, Map<String, Integer>> boltLoadMap = new HashMap<>(numberOfWorkerBolts);
+
+	public LoadMonitor(boolean isLogEnabled, int numberOfWorkerBolts) {
+		this.isLogEnabled = isLogEnabled;
+		this.numberOfWorkerBolts = numberOfWorkerBolts;
+	}
 
 	//	synchronized
 	public void load(String boltId, Map<String, Integer> countMap) {
-		if (!Configuration.LOG_ENABLED) {
+		if (!isLogEnabled) {
 			return;
 		}
 		for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
@@ -35,7 +40,7 @@ public class LoadMonitor implements Serializable {
 			handleBoltLoad(boltId, key, value);
 		}
 
-		if (++boltCount == N_BOLTS) {
+		if (++boltCount == numberOfWorkerBolts) {
 			printLoadInfo();
 			init();
 		}

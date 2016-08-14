@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.bolts;
 
-import com.orhundalabasmaz.storm.loadBalancer.Configuration;
+import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
 import com.orhundalabasmaz.storm.utils.Logger;
@@ -26,24 +26,27 @@ import java.util.List;
 public class AggregatorBolt extends BaseRichBolt {
 	private OutputCollector collector;
 	private CountryCounter counter;
-	private int tickFrequencyInSeconds;
+	private long tickFrequencyInSeconds;
+	private Configuration runtimeConf;
 
-	private LoadMonitor loadMonitor = new LoadMonitor();
-	private DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
 	private long keyCount;
 	private long startTime;
 	private long checkTimeInterval = 10_000;    // ms
 	private int timeDurationFactor, keyCountFactor;
+	private LoadMonitor loadMonitor;
+	private DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
 
-	public AggregatorBolt(int tickFrequencyInSeconds) {
-		this.tickFrequencyInSeconds = tickFrequencyInSeconds;
+	public AggregatorBolt(Configuration runtimeConf) {
+		this.runtimeConf = runtimeConf;
+		this.loadMonitor = new LoadMonitor(runtimeConf.isLogEnabled, runtimeConf.getNumberOfWorkerBolts());
+		this.tickFrequencyInSeconds = runtimeConf.getTimeIntervalOfAggregatorBolts();
 	}
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		Logger.info("bolt# prepare: collector assigned");
 		this.collector = outputCollector;
-		this.counter = new CountryCounter();
+		this.counter = new CountryCounter(runtimeConf.getProcessDuration(), runtimeConf.getAggregationDuration());
 		this.keyCount = 0;
 		this.timeDurationFactor = 1;
 		this.keyCountFactor = 1;
@@ -161,7 +164,7 @@ public class AggregatorBolt extends BaseRichBolt {
 	}
 
 	private void checkOut(long keyCount, long timeDuration) {
-		if (timeDuration < Configuration.TERMINATION_TIMEOUT) {
+		if (timeDuration < runtimeConf.getTerminationTimeout()) {
 			return;
 		}
 		String date = formatter.format(new Date());

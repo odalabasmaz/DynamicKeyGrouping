@@ -1,9 +1,7 @@
 package com.orhundalabasmaz.storm.loadBalancer.spouts;
 
-import com.orhundalabasmaz.storm.loadBalancer.Configuration;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
 import com.orhundalabasmaz.storm.utils.Logger;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -26,14 +24,18 @@ public class CountrySpout extends BaseRichSpout {
 	private Random rand = new Random();
 
 	private List<Values> valuesList;
-	private final DataType DATA_TYPE = Configuration.DATA_TYPE;
-	private final long SLEEP_DURATION = Configuration.TIME_INTERVAL_BETWEEN_DATA_STREAMS;
+	private DataType dataType;
+	//	private long sleepDuration = Configuration.TIME_INTERVAL_BETWEEN_DATA_STREAMS;
 	private BufferedReader reader;
 	private long startTime, endTime;
 	private long keyCount = 0;
 	private List<String> dataset = new LinkedList<>();
 	private Iterator<String> iterator;
 	private DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
+
+	public CountrySpout(DataType dataType) {
+		this.dataType = dataType;
+	}
 
 	@Override
 	public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
@@ -75,7 +77,7 @@ public class CountrySpout extends BaseRichSpout {
 	}
 
 	private void emitSyntheticData() {
-		switch (DATA_TYPE) {
+		switch (dataType) {
 			case HOMOGENEOUS:
 				sequentialData();
 				break;

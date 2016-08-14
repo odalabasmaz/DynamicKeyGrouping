@@ -20,18 +20,22 @@ import java.util.*;
 public class WorkerBolt extends BaseRichBolt {
 	private OutputCollector collector;
 	private CountryCounter counter;
-	private int tickFrequencyInSeconds;
+	private long tickFrequencyInSeconds;
+	private long processDuration;
+	private long aggregationDuration;
 //	private static final LoadMonitor loadMonitor = new LoadMonitor();
 
-	public WorkerBolt(int tickFrequencyInSeconds) {
+	public WorkerBolt(long tickFrequencyInSeconds, long processDuration, long aggregationDuration) {
 		this.tickFrequencyInSeconds = tickFrequencyInSeconds;
+		this.processDuration = processDuration;
+		this.aggregationDuration = aggregationDuration;
 	}
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		Logger.info("bolt# prepare: collector assigned");
 		this.collector = outputCollector;
-		this.counter = new CountryCounter();
+		this.counter = new CountryCounter(processDuration, aggregationDuration);
 	}
 
 	@Override
