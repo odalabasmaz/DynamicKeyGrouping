@@ -55,7 +55,7 @@ public class LoadBalancerTopology implements ITopology {
 		sb.append("\n")
 				.append("Initializing LoadBalancerTopology!").append("\n")
 				.append("APP VERSION: ").append(runtimeConf.getAppVersion()).append("\n")
-				.append("DATA TYPE: ").append(runtimeConf.getDataType()).append("\n")
+				.append("STREAM TYPE: ").append(runtimeConf.getStreamType()).append("\n")
 				.append("SPLITTER: ").append(runtimeConf.getGroupingType()).append("\n")
 				.append("AGGREGATOR: ").append(runtimeConf.getAggregatorType()).append("\n")
 				.append("NUMBER OF WORKER BOLTS: ").append(runtimeConf.getNumberOfWorkerBolts()).append("\n")
@@ -98,7 +98,7 @@ public class LoadBalancerTopology implements ITopology {
 		groupingType = runtimeConf.getGroupingType();
 
 		TopologyBuilder builder = new TopologyBuilder();
-		builder.setSpout(spoutName, new CountrySpout(runtimeConf.getDataType()), runtimeConf.getNumberOfSpouts());   //parallelism hint as number of executor
+		builder.setSpout(spoutName, new CountrySpout(runtimeConf.getStreamType()), runtimeConf.getNumberOfSpouts());   //parallelism hint as number of executor
 
 		// splitter
 		builder.setBolt(splitterBoltName, new SplitterBolt(), runtimeConf.getNumberOfSplitterBolts())

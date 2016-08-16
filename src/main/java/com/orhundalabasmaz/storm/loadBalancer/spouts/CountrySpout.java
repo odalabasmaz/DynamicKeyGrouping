@@ -12,8 +12,6 @@ import org.apache.storm.tuple.Values;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -24,17 +22,16 @@ public class CountrySpout extends BaseRichSpout {
 	private Random rand = new Random();
 
 	private List<Values> valuesList;
-	private DataType dataType;
+	private StreamType streamType;
 	//	private long sleepDuration = Configuration.TIME_INTERVAL_BETWEEN_DATA_STREAMS;
 	private BufferedReader reader;
 	private long startTime, endTime;
 	private long keyCount = 0;
 	private List<String> dataset = new LinkedList<>();
 	private Iterator<String> iterator;
-	private DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
 
-	public CountrySpout(DataType dataType) {
-		this.dataType = dataType;
+	public CountrySpout(StreamType streamType) {
+		this.streamType = streamType;
 	}
 
 	@Override
@@ -72,12 +69,12 @@ public class CountrySpout extends BaseRichSpout {
 		}
 		String key = iterator.next();
 		keyCount++;
-		Logger.info("### KeyCount: " + keyCount + " " + formatter.format(new Date()));
+		Logger.info("### KeyCount: " + keyCount + " " + DKGUtils.getCurrentDatetime());
 		collector.emit(new Values(key));
 	}
 
 	private void emitSyntheticData() {
-		switch (dataType) {
+		switch (streamType) {
 			case HOMOGENEOUS:
 				sequentialData();
 				break;

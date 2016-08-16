@@ -2,7 +2,7 @@ package com.orhundalabasmaz.storm.config;
 
 import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorType;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.DataType;
+import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
 
 import java.io.Serializable;
 
@@ -32,7 +32,7 @@ public class Configuration implements Serializable {
 	public long topologyTimeout = terminationTimeout + 10_000;      // ms
 
 	// RUNTIME PROPS
-	public DataType dataType = DataType.HOMOGENEOUS;
+	public StreamType streamType = StreamType.HOMOGENEOUS;
 	public GroupingType groupingType = GroupingType.DYNAMIC_KEY;
 	public AggregatorType aggregatorType = AggregatorType.CUMULATIVE;
 	public long processDuration = 10; //ms
@@ -144,12 +144,12 @@ public class Configuration implements Serializable {
 		this.timeIntervalOfDataStreams = timeIntervalOfDataStreams;
 	}
 
-	public DataType getDataType() {
-		return dataType;
+	public StreamType getStreamType() {
+		return streamType;
 	}
 
-	public void setDataType(DataType dataType) {
-		this.dataType = dataType;
+	public void setStreamType(StreamType streamType) {
+		this.streamType = streamType;
 	}
 
 	public GroupingType getGroupingType() {

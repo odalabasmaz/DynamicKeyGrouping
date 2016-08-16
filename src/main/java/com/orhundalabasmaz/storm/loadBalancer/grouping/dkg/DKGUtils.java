@@ -3,6 +3,8 @@ package com.orhundalabasmaz.storm.loadBalancer.grouping.dkg;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @author Orhun Dalabasmaz
  */
 public class DKGUtils {
+	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 	private static final HashFunction HF = Hashing.murmur3_128(13);
 
 	public static long calculateHash(String key) {
@@ -64,5 +67,9 @@ public class DKGUtils {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String getCurrentDatetime() {
+		return DATE_FORMATTER.format(System.currentTimeMillis());
 	}
 }

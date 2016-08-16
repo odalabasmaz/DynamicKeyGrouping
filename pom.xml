@@ -26,6 +26,7 @@
 		<maven-compiler-plugin-version>3.5.1</maven-compiler-plugin-version>
 		<aspectj.version>1.8.9</aspectj.version>
 		<junit.version>4.12</junit.version>
+		<cucumber-junit.version>1.2.4</cucumber-junit.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -56,6 +57,18 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>info.cukes</groupId>
+			<artifactId>cucumber-junit</artifactId>
+			<version>${cucumber-junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>info.cukes</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>${cucumber-junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

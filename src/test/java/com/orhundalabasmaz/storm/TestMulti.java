@@ -4,7 +4,7 @@ import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorType;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.DataType;
+import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
 import org.junit.*;
 
 /**
@@ -14,6 +14,7 @@ public class TestMulti {
 	private TestLoadBalancerTopology DKP = new TestLoadBalancerTopology();
 	private Configuration runtimeConf;
 	private int testCase = 0;
+	private boolean logEnabled = true;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -42,12 +43,12 @@ public class TestMulti {
 				.timeIntervalOfAggregatorBolts(15)
 				.terminationTimeout(1 * 60 * 1000)
 				.topologyTimeout(1 * 60 * 1000 + 10_000)
-				.dataType(DataType.HOMOGENEOUS)
+				.streamType(StreamType.HOMOGENEOUS)
 				.groupingType(GroupingType.DYNAMIC_KEY)
 				.aggregatorType(AggregatorType.CUMULATIVE)
 				.processDuration(10)
 				.aggregationDuration(0)
-				.setLogEnabled(true)
+				.setLogEnabled(logEnabled)
 				.build();
 	}
 

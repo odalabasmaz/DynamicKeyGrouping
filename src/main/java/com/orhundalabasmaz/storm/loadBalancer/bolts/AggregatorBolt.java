@@ -2,6 +2,7 @@ package com.orhundalabasmaz.storm.loadBalancer.bolts;
 
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
+import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
 import com.orhundalabasmaz.storm.utils.Logger;
 import org.apache.storm.Config;
@@ -15,8 +16,6 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import java.awt.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -34,7 +33,6 @@ public class AggregatorBolt extends BaseRichBolt {
 	private long checkTimeInterval = 10_000;    // ms
 	private int timeDurationFactor, keyCountFactor;
 	private LoadMonitor loadMonitor;
-	private DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
 
 	public AggregatorBolt(Configuration runtimeConf) {
 		this.runtimeConf = runtimeConf;
@@ -167,7 +165,7 @@ public class AggregatorBolt extends BaseRichBolt {
 		if (timeDuration < runtimeConf.getTerminationTimeout()) {
 			return;
 		}
-		String date = formatter.format(new Date());
+		String date = DKGUtils.getCurrentDatetime();
 		Logger.log("#### TERMINATING #### (" + date + ")\n" +
 				"## Emitted " + keyCount + " keys in " + timeDuration + " ms" + "\n" +
 				"## Memory Consumption ## " + loadMonitor.getMemoryConsumptionInfo());

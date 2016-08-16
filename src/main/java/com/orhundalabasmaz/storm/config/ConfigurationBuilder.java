@@ -2,7 +2,7 @@ package com.orhundalabasmaz.storm.config;
 
 import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorType;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.DataType;
+import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
 
 /**
  * @author Orhun Dalabasmaz
@@ -12,6 +12,21 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder() {
 		conf = new Configuration();
+	}
+
+	public void defaultSet() {
+		conf.setLogEnabled(true);
+		conf.setNumberOfWorkers(1);
+		conf.setNumberOfTasks(2);
+		conf.setNumberOfSplitterBolts(3);
+		conf.setNumberOfAggregatorBolts(1);
+		conf.setNumberOfResultBolts(1);
+		conf.setTimeIntervalOfDataStreams(1);
+		conf.setTimeIntervalOfWorkerBolts(5);
+		conf.setTimeIntervalOfAggregatorBolts(15);
+		conf.setAggregationDuration(0);
+		conf.setAggregatorType(AggregatorType.CUMULATIVE);
+
 	}
 
 	public ConfigurationBuilder appVersion(String appVersion) {
@@ -54,12 +69,12 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder timeIntervalOfWorkerBolts(int timeIntervalOfWorkerBolts) {
+	public ConfigurationBuilder timeIntervalOfWorkerBolts(long timeIntervalOfWorkerBolts) {
 		conf.setTimeIntervalOfWorkerBolts(timeIntervalOfWorkerBolts);
 		return this;
 	}
 
-	public ConfigurationBuilder timeIntervalOfAggregatorBolts(int timeIntervalOfAggregatorBolts) {
+	public ConfigurationBuilder timeIntervalOfAggregatorBolts(long timeIntervalOfAggregatorBolts) {
 		conf.setTimeIntervalOfAggregatorBolts(timeIntervalOfAggregatorBolts);
 		return this;
 	}
@@ -69,7 +84,7 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder topologyTimeout(int topologyTimeout) {
+	public ConfigurationBuilder topologyTimeout(long topologyTimeout) {
 		conf.setTopologyTimeout(topologyTimeout);
 		return this;
 	}
@@ -79,8 +94,8 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder dataType(DataType dataType) {
-		conf.setDataType(dataType);
+	public ConfigurationBuilder streamType(StreamType streamType) {
+		conf.setStreamType(streamType);
 		return this;
 	}
 
