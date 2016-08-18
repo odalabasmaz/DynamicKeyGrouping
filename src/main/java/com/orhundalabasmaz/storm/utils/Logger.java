@@ -29,8 +29,6 @@ public class Logger {
 			return;
 		}
 		String time = DKGUtils.getCurrentDatetime();
-		StringBuilder sb = new StringBuilder();
-		sb.append("MyStorm_").append(time).append("_$ ").append(msg);
-		System.out.println(sb.toString());
+		System.out.println("MyStorm_" + time + "_$ " + msg);
 	}
 }

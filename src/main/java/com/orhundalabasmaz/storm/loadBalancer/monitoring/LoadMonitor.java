@@ -203,14 +203,23 @@ public class LoadMonitor implements Serializable {
 	}
 
 	public String getMemoryConsumptionInfo() {
-		int NK = valueLoadMap.size();
-		int NT = 0;
-		for (Map<String, Integer> keys : boltLoadMap.values()) {
-			NT += keys.size();
-		}
+		long NK = getNumberOfDistinctKeys();
+		long NT = getNumberOfConsumedKeys();
 		double MC = NK > 0 ? (double) NT / NK : 0;
 		return "NK: " + NK +
 				", NT: " + NT + " >> " +
 				"Memory Consumption ratio is " + String.format("%.2f", MC);
+	}
+
+	public long getNumberOfDistinctKeys() {
+		return valueLoadMap.size();
+	}
+
+	public long getNumberOfConsumedKeys() {
+		int numberOfKeys = 0;
+		for (Map<String, Integer> keys : boltLoadMap.values()) {
+			numberOfKeys += keys.size();
+		}
+		return numberOfKeys;
 	}
 }

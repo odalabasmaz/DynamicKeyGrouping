@@ -24,6 +24,7 @@ public class ConfigurationBuilder {
 		conf.setTimeIntervalOfDataStreams(1);
 		conf.setTimeIntervalOfWorkerBolts(5);
 		conf.setTimeIntervalOfAggregatorBolts(15);
+		conf.setTimeIntervalOfCheck(10_000);
 		conf.setAggregationDuration(0);
 		conf.setAggregatorType(AggregatorType.CUMULATIVE);
 
@@ -31,6 +32,11 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder appVersion(String appVersion) {
 		conf.setAppVersion(appVersion);
+		return this;
+	}
+
+	public ConfigurationBuilder testId(String testId) {
+		conf.setTestId(testId);
 		return this;
 	}
 
@@ -69,6 +75,11 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
+	public ConfigurationBuilder timeIntervalOfDataStreams(long timeIntervalOfDataStreams) {
+		conf.setTimeIntervalOfDataStreams(timeIntervalOfDataStreams);
+		return this;
+	}
+
 	public ConfigurationBuilder timeIntervalOfWorkerBolts(long timeIntervalOfWorkerBolts) {
 		conf.setTimeIntervalOfWorkerBolts(timeIntervalOfWorkerBolts);
 		return this;
@@ -79,6 +90,11 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
+	public ConfigurationBuilder timeIntervalOfCheck(long timeIntervalOfCheck) {
+		conf.setTimeIntervalOfCheck(timeIntervalOfCheck);
+		return this;
+	}
+
 	public ConfigurationBuilder terminationTimeout(long terminationTimeout) {
 		conf.setTerminationTimeout(terminationTimeout);
 		return this;
@@ -86,11 +102,6 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder topologyTimeout(long topologyTimeout) {
 		conf.setTopologyTimeout(topologyTimeout);
-		return this;
-	}
-
-	public ConfigurationBuilder timeIntervalOfDataStreams(long timeIntervalOfDataStreams) {
-		conf.setTimeIntervalOfDataStreams(timeIntervalOfDataStreams);
 		return this;
 	}
 
@@ -119,7 +130,7 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder setLogEnabled(boolean isLogEnabled) {
+	public ConfigurationBuilder enableLogging(boolean isLogEnabled) {
 		conf.setLogEnabled(isLogEnabled);
 		return this;
 	}

@@ -7,13 +7,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class DKGUtils {
-	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private static final HashFunction HF = Hashing.murmur3_128(13);
 
 	public static long calculateHash(String key) {
@@ -71,5 +72,9 @@ public class DKGUtils {
 
 	public static String getCurrentDatetime() {
 		return DATE_FORMATTER.format(System.currentTimeMillis());
+	}
+
+	public static String generateTestId() {
+		return UUID.randomUUID().toString();
 	}
 }

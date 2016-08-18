@@ -18,12 +18,11 @@ public class TestSpout {
 
 	@Test
 	public void createData() {
-		String data = null;
 		Writer writer;
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data.txt"), "utf-8"));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/data.txt"), "utf-8"));
 			for (int count = 0; count < 10_000_000; ++count) {
-				data = skewnessData();
+				String data = skewnessData();
 				writer.write(data + " \n");
 			}
 			writer.close();

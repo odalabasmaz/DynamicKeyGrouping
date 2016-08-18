@@ -39,7 +39,7 @@ public class CountrySpout extends BaseRichSpout {
 		Logger.info("spout# open: collector assigned");
 		this.collector = spoutOutputCollector;
 		this.valuesList = Data.getValuesList();
-		this.reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("data.txt")));
+		this.reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("data/data.txt")));
 //		initDataset();  // if emitStaticData enabled
 		this.startTime = System.currentTimeMillis();
 	}

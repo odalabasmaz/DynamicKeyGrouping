@@ -11,33 +11,34 @@ import java.io.Serializable;
  */
 public class Configuration implements Serializable {
 	// APP VERSION
-	public String appVersion = "v1.0";
+	private String appVersion = "v1.0";
+	private String testId;
 
 	// NUMBER OF PROCESS UNITS
-	public int numberOfWorkers = 1;
-	public int numberOfSpouts = 1;
-	public int numberOfSplitterBolts = 3;
-	public int numberOfWorkerBolts = 50;
-	public int numberOfAggregatorBolts = 1;
-	public int numberOfResultBolts = 1;
-	public int numberOfTasks = 2;
+	private int numberOfWorkers;
+	private int numberOfSpouts;
+	private int numberOfSplitterBolts;
+	private int numberOfWorkerBolts;
+	private int numberOfAggregatorBolts;
+	private int numberOfResultBolts;
+	private int numberOfTasks;
 
 	// TIME INTERVAL
-	public long timeIntervalOfDataStreams = 1;          // ms (default 1 ms)
-	public long timeIntervalOfWorkerBolts = 5;          // sec
-	public long timeIntervalOfAggregatorBolts = 15;     // sec
+	private long timeIntervalOfDataStreams;         // ms (default 1 ms)
+	private long timeIntervalOfWorkerBolts;         // sec
+	private long timeIntervalOfAggregatorBolts;     // sec
+	private long timeIntervalOfCheck;               // ms
 
-	public long terminationTimeout = 1 * 60 * 1000;                 // ms
-	//	public long TOPOLOGY_TIMEOUT = 5 * 10 * 60 * 1000;          // ms
-	public long topologyTimeout = terminationTimeout + 10_000;      // ms
+	private long terminationTimeout;                // ms
+	private long topologyTimeout;                   // ms
 
 	// RUNTIME PROPS
-	public StreamType streamType = StreamType.HOMOGENEOUS;
-	public GroupingType groupingType = GroupingType.DYNAMIC_KEY;
-	public AggregatorType aggregatorType = AggregatorType.CUMULATIVE;
-	public long processDuration = 10; //ms
-	public long aggregationDuration = 0; //ms
-	public boolean isLogEnabled = true;
+	private StreamType streamType;
+	private GroupingType groupingType;
+	private AggregatorType aggregatorType;
+	private long processDuration; //ms
+	private long aggregationDuration; //ms
+	private boolean isLogEnabled;
 
 	/* getters & setters */
 	public String getAppVersion() {
@@ -46,6 +47,14 @@ public class Configuration implements Serializable {
 
 	public void setAppVersion(String appVersion) {
 		this.appVersion = appVersion;
+	}
+
+	public String getTestId() {
+		return testId;
+	}
+
+	public void setTestId(String testId) {
+		this.testId = testId;
 	}
 
 	public int getNumberOfWorkers() {
@@ -118,6 +127,14 @@ public class Configuration implements Serializable {
 
 	public void setTimeIntervalOfAggregatorBolts(long timeIntervalOfAggregatorBolts) {
 		this.timeIntervalOfAggregatorBolts = timeIntervalOfAggregatorBolts;
+	}
+
+	public long getTimeIntervalOfCheck() {
+		return timeIntervalOfCheck;
+	}
+
+	public void setTimeIntervalOfCheck(long timeIntervalOfCheck) {
+		this.timeIntervalOfCheck = timeIntervalOfCheck;
 	}
 
 	public long getTerminationTimeout() {

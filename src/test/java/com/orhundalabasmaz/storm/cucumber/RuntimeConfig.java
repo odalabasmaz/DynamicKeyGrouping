@@ -15,6 +15,7 @@ public class RuntimeConfig {
 	private Long terminationTimeout;
 	private Integer spoutCount;
 	private Integer workerCount;
+	private Integer retryCount;
 
 	/* getters & setters */
 	public String getDataType() {
@@ -79,5 +80,13 @@ public class RuntimeConfig {
 
 	public void setWorkerCount(Integer workerCount) {
 		this.workerCount = workerCount;
+	}
+
+	public Integer getRetryCount() {
+		return retryCount;
+	}
+
+	public void setRetryCount(Integer retryCount) {
+		this.retryCount = retryCount;
 	}
 }

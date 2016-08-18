@@ -5,6 +5,7 @@ import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
 import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.ResultLogger;
 import org.apache.storm.Config;
 import org.apache.storm.Constants;
 import org.apache.storm.task.OutputCollector;
@@ -28,16 +29,21 @@ public class AggregatorBolt extends BaseRichBolt {
 	private long tickFrequencyInSeconds;
 	private Configuration runtimeConf;
 
+	private String testId;
 	private long keyCount;
 	private long startTime;
-	private long checkTimeInterval = 10_000;    // ms
+	private long checkTimeInterval;
 	private int timeDurationFactor, keyCountFactor;
 	private LoadMonitor loadMonitor;
+	private ResultLogger resultLogger;
 
 	public AggregatorBolt(Configuration runtimeConf) {
 		this.runtimeConf = runtimeConf;
-		this.loadMonitor = new LoadMonitor(runtimeConf.isLogEnabled, runtimeConf.getNumberOfWorkerBolts());
+		this.testId = runtimeConf.getTestId();
+		this.loadMonitor = new LoadMonitor(runtimeConf.isLogEnabled(), runtimeConf.getNumberOfWorkerBolts());
+		this.resultLogger = new ResultLogger();
 		this.tickFrequencyInSeconds = runtimeConf.getTimeIntervalOfAggregatorBolts();
+		this.checkTimeInterval = runtimeConf.getTimeIntervalOfCheck();
 	}
 
 	@Override
@@ -171,6 +177,10 @@ public class AggregatorBolt extends BaseRichBolt {
 				"## Memory Consumption ## " + loadMonitor.getMemoryConsumptionInfo());
 		Toolkit.getDefaultToolkit().beep();
 //		System.exit(0);
+
+		String resultValue = testId + "," + keyCount + "," + timeDuration + "," +
+				loadMonitor.getNumberOfDistinctKeys() + "," + loadMonitor.getNumberOfConsumedKeys();
+		resultLogger.log(resultValue);
 	}
 
 	/*private void emit(Map<String, Integer> counts) {

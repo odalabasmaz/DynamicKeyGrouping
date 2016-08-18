@@ -48,7 +48,7 @@ public class TestMulti {
 				.aggregatorType(AggregatorType.CUMULATIVE)
 				.processDuration(10)
 				.aggregationDuration(0)
-				.setLogEnabled(logEnabled)
+				.enableLogging(logEnabled)
 				.build();
 	}
 
