@@ -95,8 +95,8 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder terminationTimeout(long terminationTimeout) {
-		conf.setTerminationTimeout(terminationTimeout);
+	public ConfigurationBuilder terminationDuration(long terminationDuration) {
+		conf.setTerminationDuration(terminationDuration);
 		return this;
 	}
 

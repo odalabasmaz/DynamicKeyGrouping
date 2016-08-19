@@ -12,7 +12,7 @@ public class RuntimeConfig {
 	private GroupingType groupingType;
 	private Long processDuration;
 	private Long aggregationDuration;
-	private Long terminationTimeout;
+	private Long terminationDuration;
 	private Integer spoutCount;
 	private Integer workerCount;
 	private Integer retryCount;
@@ -58,12 +58,12 @@ public class RuntimeConfig {
 		this.aggregationDuration = aggregationDuration;
 	}
 
-	public Long getTerminationTimeout() {
-		return terminationTimeout;
+	public Long getTerminationDuration() {
+		return terminationDuration;
 	}
 
-	public void setTerminationTimeout(Long terminationTimeout) {
-		this.terminationTimeout = terminationTimeout;
+	public void setTerminationDuration(Long terminationDuration) {
+		this.terminationDuration = terminationDuration;
 	}
 
 	public Integer getSpoutCount() {

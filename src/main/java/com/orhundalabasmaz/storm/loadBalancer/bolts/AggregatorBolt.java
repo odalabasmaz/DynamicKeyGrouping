@@ -166,7 +166,7 @@ public class AggregatorBolt extends BaseRichBolt {
 	}
 
 	private void checkOut(long keyCount, long timeDuration) {
-		if (timeDuration < runtimeConf.getTerminationTimeout()) {
+		if (timeDuration < runtimeConf.getTerminationDuration()) {
 			return;
 		}
 		String date = DKGUtils.getCurrentDatetime();

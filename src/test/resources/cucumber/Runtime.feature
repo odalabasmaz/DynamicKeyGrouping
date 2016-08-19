@@ -3,8 +3,8 @@ Feature: Run all tests
 
   Scenario Outline: Run tests with Country data set
     Given Data type and process duration
-      | dataType | processDuration | terminationTimeout |
-      | COUNTRY  | 10              | 10000              |
+      | dataType | processDuration | terminationDuration |
+      | COUNTRY  | 10              | 10000               |
     When Grouping type is <GROUPING TYPE>
     And Stream type is <STREAM TYPE>
     And Spout count is <SPOUT COUNT>

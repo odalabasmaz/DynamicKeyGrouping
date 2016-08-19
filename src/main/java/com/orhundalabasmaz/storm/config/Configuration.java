@@ -29,7 +29,7 @@ public class Configuration implements Serializable {
 	private long timeIntervalOfAggregatorBolts;     // sec
 	private long timeIntervalOfCheck;               // ms
 
-	private long terminationTimeout;                // ms
+	private long terminationDuration;               // ms
 	private long topologyTimeout;                   // ms
 
 	// RUNTIME PROPS
@@ -137,12 +137,12 @@ public class Configuration implements Serializable {
 		this.timeIntervalOfCheck = timeIntervalOfCheck;
 	}
 
-	public long getTerminationTimeout() {
-		return terminationTimeout;
+	public long getTerminationDuration() {
+		return terminationDuration;
 	}
 
-	public void setTerminationTimeout(long terminationTimeout) {
-		this.terminationTimeout = terminationTimeout;
+	public void setTerminationDuration(long terminationDuration) {
+		this.terminationDuration = terminationDuration;
 	}
 
 	public long getTopologyTimeout() {

@@ -34,13 +34,15 @@ public class TestStepDefinitions {
 	public void dataTypeAndProcessDuration(List<RuntimeConfig> runtimeConfigList) throws Throwable {
 		configBuilder.defaultSet();
 		RuntimeConfig config = runtimeConfigList.get(0);
-		Logger.log("dataType is: " + config.getDataType() + ", process duration is: " + config.getProcessDuration());
+		Logger.log("dataType is: " + config.getDataType() +
+				", process duration is: " + config.getProcessDuration() +
+				", termination duration is: " + config.getTerminationDuration());
 		configBuilder
 				.testId(testId)
 				.enableLogging(true)
 				.processDuration(config.getProcessDuration())
-				.terminationTimeout(config.getTerminationTimeout())
-				.topologyTimeout(config.getTerminationTimeout() + 10_000);
+				.terminationDuration(config.getTerminationDuration())
+				.topologyTimeout(config.getTerminationDuration() + 10_000);
 	}
 
 	@When("^Grouping type is (\\w+)$")

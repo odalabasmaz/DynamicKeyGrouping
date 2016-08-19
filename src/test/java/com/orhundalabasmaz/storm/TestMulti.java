@@ -41,7 +41,7 @@ public class TestMulti {
 				.timeIntervalOfDataStreams(1)
 				.timeIntervalOfWorkerBolts(5)
 				.timeIntervalOfAggregatorBolts(15)
-				.terminationTimeout(1 * 60 * 1000)
+				.terminationDuration(1 * 60 * 1000)
 				.topologyTimeout(1 * 60 * 1000 + 10_000)
 				.streamType(StreamType.HOMOGENEOUS)
 				.groupingType(GroupingType.DYNAMIC_KEY)
