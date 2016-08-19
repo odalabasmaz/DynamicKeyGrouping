@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.grouping.dkg;
 
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.apache.storm.generated.GlobalStreamId;
 import org.apache.storm.grouping.CustomStreamGrouping;
 import org.apache.storm.task.WorkerTopologyContext;

@@ -1,9 +1,16 @@
 package com.orhundalabasmaz.storm;
 
+import com.orhundalabasmaz.storm.utils.FileService;
+import com.orhundalabasmaz.storm.utils.FinalResultReducer;
 import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.ResultLogger;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static com.orhundalabasmaz.storm.utils.Constants.OUTPUT_DIR;
 
 /**
  * @author Orhun Dalabasmaz
@@ -45,5 +52,21 @@ public class TestFileOutput {
 		} catch (IOException /*| URISyntaxException */ e) {
 			Logger.log(e.getMessage() + " [filename: " + filename + "]");
 		}
+	}
+
+	@Test
+	public void finalizeResults() throws IOException {
+		// remove finalResults.csv if exists
+		FileService.deleteFile("output/finalResults.csv");
+		ResultLogger resultLogger = new ResultLogger("finalResults.csv");
+		String header = "test id,test count,time consumption,throughput,number of distinct keys,number of consumed keys,memory consumption ratio";
+		resultLogger.log(header);
+
+		// read and reduce results.csv
+		FinalResultReducer reducer = new FinalResultReducer();
+		Files.lines(Paths.get(OUTPUT_DIR + "/" + "results.csv"))
+				.skip(1)
+				.forEach(reducer::reduce);
+		reducer.eof();
 	}
 }

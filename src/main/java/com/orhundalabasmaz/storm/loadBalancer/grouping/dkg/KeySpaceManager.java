@@ -1,5 +1,7 @@
 package com.orhundalabasmaz.storm.loadBalancer.grouping.dkg;
 
+import com.orhundalabasmaz.storm.utils.DKGUtils;
+
 /**
  * @author Orhun Dalabasmaz
  */

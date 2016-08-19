@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.counter;
 
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 
 import java.util.*;
 

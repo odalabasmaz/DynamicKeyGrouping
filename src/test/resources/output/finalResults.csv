@@ -1,0 +1,5 @@
+test id,test count,time consumption,throughput,number of distinct keys,number of consumed keys,memory consumption ratio
+a09c8bec-860f-40ff-80b2-a08eb5eb4d9c,5,9333,14051,30,149,4.99
+e64aaa0c-2d96-4b01-a594-d3b6d54e201d,5,12432,14001,30,30,1.00
+88fffff5-5eec-4df4-9d5c-64d51efac5fb,5,10770,13987,30,38,1.27
+7fc64c54-20da-41da-8633-a5f0cd2e6ccb,5,10649,13984,30,45,1.52

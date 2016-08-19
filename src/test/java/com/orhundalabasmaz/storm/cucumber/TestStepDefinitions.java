@@ -4,7 +4,7 @@ import com.orhundalabasmaz.storm.TestLoadBalancerTopology;
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
 import com.orhundalabasmaz.storm.utils.Logger;
 import cucumber.api.java.After;

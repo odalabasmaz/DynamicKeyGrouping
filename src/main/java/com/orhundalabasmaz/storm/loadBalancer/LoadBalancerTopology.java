@@ -11,7 +11,7 @@ import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.KeyGrouping;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.PartialKeyGrouping;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.ShuffleGrouping;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DynamicKeyGrouping;
 import com.orhundalabasmaz.storm.loadBalancer.spouts.CountrySpout;
 import com.orhundalabasmaz.storm.utils.Logger;

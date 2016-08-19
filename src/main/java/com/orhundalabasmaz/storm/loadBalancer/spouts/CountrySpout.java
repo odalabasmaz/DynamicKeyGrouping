@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.spouts;
 
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.utils.Logger;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;

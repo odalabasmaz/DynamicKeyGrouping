@@ -1,4 +1,4 @@
-package com.orhundalabasmaz.storm.loadBalancer.grouping.dkg;
+package com.orhundalabasmaz.storm.utils;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -76,5 +77,9 @@ public class DKGUtils {
 
 	public static String generateTestId() {
 		return UUID.randomUUID().toString();
+	}
+
+	public static String formatDoubleValue(double value) {
+		return String.format(Locale.US, "%.2f", value);
 	}
 }

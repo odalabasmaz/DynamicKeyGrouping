@@ -1,23 +1,32 @@
 package com.orhundalabasmaz.storm.utils;
 
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
-
 import java.io.*;
+
+import static com.orhundalabasmaz.storm.utils.Constants.OUTPUT_DIR;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class ResultLogger implements Serializable {
-	private static File dir = new File("src/test/resources/output");
-	private static String filename = "results.csv";
-	private static String filePath = dir + "/" + filename;
-	private static boolean append = true;
+	private String filename;
+	private String filePath;
+	private boolean append;
 
-	public static void log(String value) {
-		log(value, true);
+	public ResultLogger(String filename) {
+		this(filename, true);
 	}
 
-	public static void log(String value, boolean timestamp) {
+	public ResultLogger(String filename, boolean append) {
+		this.filename = filename;
+		this.append = append;
+		this.filePath = OUTPUT_DIR + "/" + filename;
+	}
+
+	public void log(String value) {
+		log(value, false);
+	}
+
+	public void log(String value, boolean timestamp) {
 		try (
 				OutputStream os = new FileOutputStream(filePath, append);
 				PrintStream printStream = new PrintStream(os);
@@ -27,7 +36,7 @@ public class ResultLogger implements Serializable {
 			}
 			printStream.println(value);
 		} catch (IOException e) {
-			Logger.log(e.getMessage() + " [file: " + filePath + "]");
+			Logger.log(e.getMessage() + " [file: " + filename + "]");
 		}
 	}
 }

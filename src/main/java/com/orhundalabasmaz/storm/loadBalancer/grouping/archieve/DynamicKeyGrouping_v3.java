@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.loadBalancer.grouping.archieve;
 
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.KeySpace;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.KeySpaceGC;
 import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.KeySpaceManager;

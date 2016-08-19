@@ -2,7 +2,7 @@ package com.orhundalabasmaz.storm.loadBalancer.bolts;
 
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.DKGUtils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
 import com.orhundalabasmaz.storm.utils.Logger;
 import com.orhundalabasmaz.storm.utils.ResultLogger;
@@ -35,6 +35,7 @@ public class AggregatorBolt extends BaseRichBolt {
 	private long checkTimeInterval;
 	private int timeDurationFactor, keyCountFactor;
 	private LoadMonitor loadMonitor;
+	private ResultLogger resultLogger;
 
 	public AggregatorBolt(Configuration runtimeConf) {
 		this.runtimeConf = runtimeConf;
@@ -42,6 +43,7 @@ public class AggregatorBolt extends BaseRichBolt {
 		this.loadMonitor = new LoadMonitor(runtimeConf.isLogEnabled(), runtimeConf.getNumberOfWorkerBolts());
 		this.tickFrequencyInSeconds = runtimeConf.getTimeIntervalOfAggregatorBolts();
 		this.checkTimeInterval = runtimeConf.getTimeIntervalOfCheck();
+		this.resultLogger = new ResultLogger("results.csv");
 	}
 
 	@Override
@@ -178,7 +180,7 @@ public class AggregatorBolt extends BaseRichBolt {
 
 		String resultValue = testId + "," + keyCount + "," + timeDuration + "," +
 				loadMonitor.getNumberOfDistinctKeys() + "," + loadMonitor.getNumberOfConsumedKeys();
-		ResultLogger.log(resultValue);
+		resultLogger.log(resultValue, true);
 	}
 
 	/*private void emit(Map<String, Integer> counts) {
