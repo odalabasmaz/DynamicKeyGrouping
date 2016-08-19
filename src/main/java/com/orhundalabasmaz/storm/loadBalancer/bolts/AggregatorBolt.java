@@ -35,13 +35,11 @@ public class AggregatorBolt extends BaseRichBolt {
 	private long checkTimeInterval;
 	private int timeDurationFactor, keyCountFactor;
 	private LoadMonitor loadMonitor;
-	private ResultLogger resultLogger;
 
 	public AggregatorBolt(Configuration runtimeConf) {
 		this.runtimeConf = runtimeConf;
 		this.testId = runtimeConf.getTestId();
 		this.loadMonitor = new LoadMonitor(runtimeConf.isLogEnabled(), runtimeConf.getNumberOfWorkerBolts());
-		this.resultLogger = new ResultLogger();
 		this.tickFrequencyInSeconds = runtimeConf.getTimeIntervalOfAggregatorBolts();
 		this.checkTimeInterval = runtimeConf.getTimeIntervalOfCheck();
 	}
@@ -180,7 +178,7 @@ public class AggregatorBolt extends BaseRichBolt {
 
 		String resultValue = testId + "," + keyCount + "," + timeDuration + "," +
 				loadMonitor.getNumberOfDistinctKeys() + "," + loadMonitor.getNumberOfConsumedKeys();
-		resultLogger.log(resultValue);
+		ResultLogger.log(resultValue);
 	}
 
 	/*private void emit(Map<String, Integer> counts) {

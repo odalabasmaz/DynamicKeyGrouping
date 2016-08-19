@@ -7,18 +7,25 @@ import java.io.*;
 /**
  * @author Orhun Dalabasmaz
  */
-public class ResultLogger {
-	private File dir = new File("src/test/resources/output");
-	private String filename = "results.csv";
-	private String filePath = dir + "/" + filename;
-	private boolean append = true;
+public class ResultLogger implements Serializable {
+	private static File dir = new File("src/test/resources/output");
+	private static String filename = "results.csv";
+	private static String filePath = dir + "/" + filename;
+	private static boolean append = true;
 
-	public void log(String value) {
+	public static void log(String value) {
+		log(value, true);
+	}
+
+	public static void log(String value, boolean timestamp) {
 		try (
 				OutputStream os = new FileOutputStream(filePath, append);
 				PrintStream printStream = new PrintStream(os);
 		) {
-			printStream.println(DKGUtils.getCurrentDatetime() + "," + value);
+			if (timestamp) {
+				value = DKGUtils.getCurrentDatetime() + "," + value;
+			}
+			printStream.println(value);
 		} catch (IOException e) {
 			Logger.log(e.getMessage() + " [file: " + filePath + "]");
 		}

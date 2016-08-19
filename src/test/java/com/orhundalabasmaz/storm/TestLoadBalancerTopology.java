@@ -12,15 +12,15 @@ import org.junit.Test;
 public class TestLoadBalancerTopology {
 
 	@Test
-	public void testOnLocal(Configuration runtimeConf) {
-		final ITopology topology = new LoadBalancerTopology(StormMode.LOCAL, runtimeConf);
+	public static void testOnLocal(Configuration runtimeConf) {
+		ITopology topology = new LoadBalancerTopology(StormMode.LOCAL, runtimeConf);
 		topology.init();
 		topology.run();
 	}
 
 	@Test
-	public void testOnCluster(Configuration runtimeConf) {
-		final ITopology topology = new LoadBalancerTopology(StormMode.CLUSTER, runtimeConf);
+	public static void testOnCluster(Configuration runtimeConf) {
+		ITopology topology = new LoadBalancerTopology(StormMode.CLUSTER, runtimeConf);
 		topology.init();
 		topology.run();
 	}
