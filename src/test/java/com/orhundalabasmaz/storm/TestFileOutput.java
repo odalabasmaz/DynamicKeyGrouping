@@ -10,6 +10,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static com.orhundalabasmaz.storm.utils.Constants.FINAL_RESULT_FILE_HEADER;
 import static com.orhundalabasmaz.storm.utils.Constants.OUTPUT_DIR;
 
 /**
@@ -59,8 +60,7 @@ public class TestFileOutput {
 		// remove finalResults.csv if exists
 		FileService.deleteFile("output/finalResults.csv");
 		ResultLogger resultLogger = new ResultLogger("finalResults.csv");
-		String header = "test id,test count,time consumption,throughput,number of distinct keys,number of consumed keys,memory consumption ratio";
-		resultLogger.log(header);
+		resultLogger.log(FINAL_RESULT_FILE_HEADER);
 
 		// read and reduce results.csv
 		FinalResultReducer reducer = new FinalResultReducer();

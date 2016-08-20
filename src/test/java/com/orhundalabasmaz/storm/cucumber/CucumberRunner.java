@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static com.orhundalabasmaz.storm.utils.Constants.FINAL_RESULT_FILE_HEADER;
 import static com.orhundalabasmaz.storm.utils.Constants.OUTPUT_DIR;
+import static com.orhundalabasmaz.storm.utils.Constants.RESULT_FILE_HEADER;
 
 /**
  * @author Orhun Dalabasmaz
@@ -37,8 +39,7 @@ public class CucumberRunner {
 		FileService.deleteFile("output/results.csv");
 		// init header of content
 		ResultLogger resultLogger = new ResultLogger("results.csv");
-		String header = "date time,test id,time consumption,throughput,number of distinct keys,number of consumed keys";
-		resultLogger.log(header);
+		resultLogger.log(RESULT_FILE_HEADER);
 	}
 
 	@AfterClass
@@ -51,8 +52,7 @@ public class CucumberRunner {
 		// remove finalResults.csv if exists
 		FileService.deleteFile("output/finalResults.csv");
 		ResultLogger resultLogger = new ResultLogger("finalResults.csv");
-		String header = "test id,test count,time consumption,throughput,number of distinct keys,number of consumed keys,memory consumption ratio";
-		resultLogger.log(header);
+		resultLogger.log(FINAL_RESULT_FILE_HEADER);
 
 		// read and reduce results.csv
 		FinalResultReducer reducer = new FinalResultReducer();

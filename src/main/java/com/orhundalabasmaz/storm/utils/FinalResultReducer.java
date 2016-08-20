@@ -5,12 +5,13 @@ package com.orhundalabasmaz.storm.utils;
  */
 public class FinalResultReducer {
 	private String currentTestId;
-	private int count;
-	private long totalTimeConsumption;
+	private int testCount;
+	private long totalLatency;
 	private long totalThroughput;
 	private long totalNumberOfDistinctKeys;
 	private long totalNumberOfConsumedKeys;
 	private ResultLogger resultLogger;
+	private ResultResolver resultResolver;
 
 	public FinalResultReducer() {
 		resultLogger = new ResultLogger("finalResults.csv");
@@ -18,32 +19,33 @@ public class FinalResultReducer {
 	}
 
 	private void initialize() {
-		count = 0;
-		totalTimeConsumption = 0;
+		testCount = 0;
+		totalLatency = 0;
 		totalThroughput = 0;
 		totalNumberOfDistinctKeys = 0;
 		totalNumberOfConsumedKeys = 0;
 	}
 
 	public void reduce(String line) {
-		String[] token = line.split(",");
-		// ignore datetime token[0]
-		String testId = token[1];
-		long timeConsumption = Long.valueOf(token[2]);
-		long throughput = Long.valueOf(token[3]);
-		int numberOfDistinctKeys = Integer.valueOf(token[4]);
-		int numberOfConsumedKeys = Integer.valueOf(token[5]);
+		resultResolver = new ResultResolver(line);
+		String testId = resultResolver.getTestId();
+		//"test id,date time,grouping type,data set,stream type,process duration (ms),aggregation duration (ms),number of spouts,number of worker bolts," +
+		//"latency (ms),throughput (tuple),throughput ratio (tuple/sec),number of distinct keys,number of consumed keys";
+		long latency = resultResolver.getLatency();
+		long throughput = resultResolver.getThroughput();
+		long numberOfDistinctKeys = resultResolver.getNumberOfDistinctKeys();
+		long numberOfConsumedKeys = resultResolver.getNumberOfConsumedKeys();
 
 		if (currentTestId == null) {  // first line
 			setCurrentTestId(testId);
 		}
 		if (testId.equals(currentTestId)) {
-			aggregate(timeConsumption, throughput, numberOfDistinctKeys, numberOfConsumedKeys);
+			aggregate(latency, throughput, numberOfDistinctKeys, numberOfConsumedKeys);
 		} else {
 			calculateAndLogResult();
 			initialize();
 			setCurrentTestId(testId);
-			aggregate(timeConsumption, throughput, numberOfDistinctKeys, numberOfConsumedKeys);
+			aggregate(latency, throughput, numberOfDistinctKeys, numberOfConsumedKeys);
 		}
 	}
 
@@ -51,23 +53,38 @@ public class FinalResultReducer {
 		currentTestId = testId;
 	}
 
-	private void aggregate(long timeConsumption, long throughput, int numberOfDistinctKeys, int numberOfConsumedKeys) {
-		count++;
-		totalTimeConsumption += timeConsumption;
+	private void aggregate(long latency, long throughput, long numberOfDistinctKeys, long numberOfConsumedKeys) {
+		testCount++;
+		totalLatency += latency;
 		totalThroughput += throughput;
 		totalNumberOfDistinctKeys += numberOfDistinctKeys;
 		totalNumberOfConsumedKeys += numberOfConsumedKeys;
 	}
 
 	private void calculateAndLogResult() {
-		long averageTimeConsumption = totalTimeConsumption / count;
-		long averageThroughput = totalThroughput / count;
-		long averageNumberOfDistinctKeys = totalNumberOfDistinctKeys / count;
-		long averageNumberOfConsumedKeys = totalNumberOfConsumedKeys / count;
+		long averageLatency = totalLatency / testCount;
+		long averageThroughput = totalThroughput / testCount;
+		long averageNumberOfDistinctKeys = totalNumberOfDistinctKeys / testCount;
+		long averageNumberOfConsumedKeys = totalNumberOfConsumedKeys / testCount;
+		double averageThroughputRatio = averageLatency > 0 ? (double) 1000 * averageThroughput / averageLatency : 0;
 		double memoryConsumptionRatio = totalNumberOfDistinctKeys > 0 ? (double) totalNumberOfConsumedKeys / totalNumberOfDistinctKeys : 0;
-		String value = currentTestId + "," + count + "," + averageTimeConsumption + "," + averageThroughput + "," +
-				averageNumberOfDistinctKeys + "," + averageNumberOfConsumedKeys + "," +
-				DKGUtils.formatDoubleValue(memoryConsumptionRatio);
+		String value = ResultBuilder.getInstance()
+				.testId(currentTestId)
+				.testCount(testCount)
+				.groupingType(resultResolver.getGroupingType())
+				.dataSet(resultResolver.getDataSet())
+				.streamType(resultResolver.getStreamType())
+				.processDuration(resultResolver.getProcessDuration())
+				.aggregationDuration(resultResolver.getAggregationDuration())
+				.numberOfSpouts(resultResolver.getNumberOfSpouts())
+				.numberOfWorkerBolts(resultResolver.getNumberOfWorkerBolts())
+				.latency(averageLatency)
+				.throughput(averageThroughput)
+				.throughputRatio(DKGUtils.formatDoubleValue(averageThroughputRatio))
+				.numberOfDistinctKeys(averageNumberOfDistinctKeys)
+				.numberOfConsumedKeys(averageNumberOfConsumedKeys)
+				.memoryConsumptionRatio(DKGUtils.formatDoubleValue(memoryConsumptionRatio))
+				.build();
 		resultLogger.log(value);
 	}
 

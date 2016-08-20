@@ -7,7 +7,7 @@ import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
  * @author Orhun Dalabasmaz
  */
 public class RuntimeConfig {
-	private String dataType;
+	private String dataSet;
 	private StreamType streamType;
 	private GroupingType groupingType;
 	private Long processDuration;
@@ -18,12 +18,12 @@ public class RuntimeConfig {
 	private Integer retryCount;
 
 	/* getters & setters */
-	public String getDataType() {
-		return dataType;
+	public String getDataSet() {
+		return dataSet;
 	}
 
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
+	public void setDataSet(String dataSet) {
+		this.dataSet = dataSet;
 	}
 
 	public StreamType getStreamType() {

@@ -29,15 +29,17 @@ public class Configuration implements Serializable {
 	private long timeIntervalOfAggregatorBolts;     // sec
 	private long timeIntervalOfCheck;               // ms
 
+	// TIMEOUTS
 	private long terminationDuration;               // ms
 	private long topologyTimeout;                   // ms
 
 	// RUNTIME PROPS
+	private String dataSet;
 	private StreamType streamType;
 	private GroupingType groupingType;
 	private AggregatorType aggregatorType;
-	private long processDuration; //ms
-	private long aggregationDuration; //ms
+	private long processDuration;                   //ms
+	private long aggregationDuration;               //ms
 	private boolean isLogEnabled;
 
 	/* getters & setters */
@@ -159,6 +161,14 @@ public class Configuration implements Serializable {
 
 	public void setTimeIntervalOfDataStreams(long timeIntervalOfDataStreams) {
 		this.timeIntervalOfDataStreams = timeIntervalOfDataStreams;
+	}
+
+	public String getDataSet() {
+		return dataSet;
+	}
+
+	public void setDataSet(String dataSet) {
+		this.dataSet = dataSet;
 	}
 
 	public StreamType getStreamType() {

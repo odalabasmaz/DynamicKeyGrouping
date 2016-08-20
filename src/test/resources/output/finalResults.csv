@@ -1,5 +1,5 @@
-test id,test count,time consumption,throughput,number of distinct keys,number of consumed keys,memory consumption ratio
-a09c8bec-860f-40ff-80b2-a08eb5eb4d9c,5,9333,14051,30,149,4.99
-e64aaa0c-2d96-4b01-a594-d3b6d54e201d,5,12432,14001,30,30,1.00
-88fffff5-5eec-4df4-9d5c-64d51efac5fb,5,10770,13987,30,38,1.27
-7fc64c54-20da-41da-8633-a5f0cd2e6ccb,5,10649,13984,30,45,1.52
+test id,test count,grouping type,data set,stream type,process duration (ms),aggregation duration (ms),number of spouts,number of worker bolts,latency (ms),throughput (tuple),throughput ratio (tuple/sec),number of distinct keys,number of consumed keys,memory consumption ratio
+24a96ed4-af81-46ff-a0ae-26b96623a7f4,5,KEY,COUNTRY,SKEW,10,0,1,5,14028,9775,696.82,30,149,4.99
+c2776d74-dd8b-42ca-8607-e9bc6e9e2b88,5,PARTIAL_KEY,COUNTRY,SKEW,10,0,1,5,13987,13009,930.08,30,30,1.00
+4f799f71-2d22-4f67-82a3-b0bff82f75d4,5,DYNAMIC_KEY,COUNTRY,SKEW,10,0,1,5,13984,11156,797.77,30,38,1.28
+9e29b3b9-14fe-4689-8b75-075b645078c3,5,DYNAMIC_KEY,COUNTRY,SKEW,10,0,1,5,13990,10967,783.92,30,45,1.52

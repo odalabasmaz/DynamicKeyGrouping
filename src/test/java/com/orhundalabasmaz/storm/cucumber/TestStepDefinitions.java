@@ -34,12 +34,13 @@ public class TestStepDefinitions {
 	public void dataTypeAndProcessDuration(List<RuntimeConfig> runtimeConfigList) throws Throwable {
 		configBuilder.defaultSet();
 		RuntimeConfig config = runtimeConfigList.get(0);
-		Logger.log("dataType is: " + config.getDataType() +
+		Logger.log("dataSet is: " + config.getDataSet() +
 				", process duration is: " + config.getProcessDuration() +
 				", termination duration is: " + config.getTerminationDuration());
 		configBuilder
 				.testId(testId)
 				.enableLogging(true)
+				.dataSet(config.getDataSet())
 				.processDuration(config.getProcessDuration())
 				.terminationDuration(config.getTerminationDuration())
 				.topologyTimeout(config.getTerminationDuration() + 10_000);

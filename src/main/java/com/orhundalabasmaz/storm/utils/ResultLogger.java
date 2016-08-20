@@ -23,17 +23,10 @@ public class ResultLogger implements Serializable {
 	}
 
 	public void log(String value) {
-		log(value, false);
-	}
-
-	public void log(String value, boolean timestamp) {
 		try (
 				OutputStream os = new FileOutputStream(filePath, append);
 				PrintStream printStream = new PrintStream(os);
 		) {
-			if (timestamp) {
-				value = DKGUtils.getCurrentDatetime() + "," + value;
-			}
 			printStream.println(value);
 		} catch (IOException e) {
 			Logger.log(e.getMessage() + " [file: " + filename + "]");

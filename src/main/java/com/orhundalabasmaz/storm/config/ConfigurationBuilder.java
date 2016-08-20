@@ -40,6 +40,11 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
+	public ConfigurationBuilder dataSet(String dataSet) {
+		conf.setDataSet(dataSet);
+		return this;
+	}
+
 	public ConfigurationBuilder numberOfWorkers(int numberOfWorkers) {
 		conf.setNumberOfWorkers(numberOfWorkers);
 		return this;

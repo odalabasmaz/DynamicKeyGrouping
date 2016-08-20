@@ -1,9 +1,10 @@
 package com.orhundalabasmaz.storm.loadBalancer.bolts;
 
 import com.orhundalabasmaz.storm.config.Configuration;
+import com.orhundalabasmaz.storm.utils.ResultBuilder;
 import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
-import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.utils.Logger;
 import com.orhundalabasmaz.storm.utils.ResultLogger;
 import org.apache.storm.Config;
@@ -171,16 +172,30 @@ public class AggregatorBolt extends BaseRichBolt {
 		if (timeDuration < runtimeConf.getTerminationDuration()) {
 			return;
 		}
-		String date = DKGUtils.getCurrentDatetime();
-		Logger.log("#### TERMINATING #### (" + date + ")\n" +
+		String datetime = DKGUtils.getCurrentDatetime();
+		Logger.log("#### TERMINATING #### (" + datetime + ")\n" +
 				"## Emitted " + keyCount + " keys in " + timeDuration + " ms" + "\n" +
 				"## Memory Consumption ## " + loadMonitor.getMemoryConsumptionInfo());
 		Toolkit.getDefaultToolkit().beep();
-//		System.exit(0);
 
-		String resultValue = testId + "," + keyCount + "," + timeDuration + "," +
-				loadMonitor.getNumberOfDistinctKeys() + "," + loadMonitor.getNumberOfConsumedKeys();
-		resultLogger.log(resultValue, true);
+		double throughputRatio = timeDuration > 0 ? (double) 1000 * keyCount / timeDuration : 0;
+		String resultValue = ResultBuilder.getInstance()
+				.testId(testId)
+				.datetime(datetime)
+				.groupingType(runtimeConf.getGroupingType())
+				.dataSet(runtimeConf.getDataSet())
+				.streamType(runtimeConf.getStreamType())
+				.processDuration(runtimeConf.getProcessDuration())
+				.aggregationDuration(runtimeConf.getAggregationDuration())
+				.numberOfSpouts(runtimeConf.getNumberOfSpouts())
+				.numberOfWorkerBolts(runtimeConf.getNumberOfWorkerBolts())
+				.latency(timeDuration)
+				.throughput(keyCount)
+				.throughputRatio(DKGUtils.formatDoubleValue(throughputRatio))
+				.numberOfDistinctKeys(loadMonitor.getNumberOfDistinctKeys())
+				.numberOfConsumedKeys(loadMonitor.getNumberOfConsumedKeys())
+				.build();
+		resultLogger.log(resultValue);
 	}
 
 	/*private void emit(Map<String, Integer> counts) {
