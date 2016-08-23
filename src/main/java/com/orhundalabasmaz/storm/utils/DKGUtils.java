@@ -3,6 +3,7 @@ package com.orhundalabasmaz.storm.utils;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,5 +82,15 @@ public class DKGUtils {
 
 	public static String formatDoubleValue(double value) {
 		return String.format(Locale.US, "%.2f", value);
+	}
+
+	public static void beep() {
+		beep(1);
+	}
+
+	public static void beep(int count) {
+		for (int i = 0; i < count; ++i) {
+			Toolkit.getDefaultToolkit().beep();
+		}
 	}
 }

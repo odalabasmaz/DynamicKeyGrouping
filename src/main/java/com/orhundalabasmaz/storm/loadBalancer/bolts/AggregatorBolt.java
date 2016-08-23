@@ -1,11 +1,11 @@
 package com.orhundalabasmaz.storm.loadBalancer.bolts;
 
 import com.orhundalabasmaz.storm.config.Configuration;
-import com.orhundalabasmaz.storm.utils.ResultBuilder;
 import com.orhundalabasmaz.storm.loadBalancer.counter.CountryCounter;
 import com.orhundalabasmaz.storm.loadBalancer.monitoring.LoadMonitor;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.ResultBuilder;
 import com.orhundalabasmaz.storm.utils.ResultLogger;
 import org.apache.storm.Config;
 import org.apache.storm.Constants;
@@ -17,9 +17,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 /**
  * @author Orhun Dalabasmaz
@@ -176,7 +174,7 @@ public class AggregatorBolt extends BaseRichBolt {
 		Logger.log("#### TERMINATING #### (" + datetime + ")\n" +
 				"## Emitted " + keyCount + " keys in " + timeDuration + " ms" + "\n" +
 				"## Memory Consumption ## " + loadMonitor.getMemoryConsumptionInfo());
-		Toolkit.getDefaultToolkit().beep();
+		DKGUtils.beep();
 
 		double throughputRatio = timeDuration > 0 ? (double) 1000 * keyCount / timeDuration : 0;
 		String resultValue = ResultBuilder.getInstance()

@@ -1,9 +1,6 @@
 package com.orhundalabasmaz.storm.cucumber;
 
-import com.orhundalabasmaz.storm.utils.FileService;
-import com.orhundalabasmaz.storm.utils.FinalResultReducer;
-import com.orhundalabasmaz.storm.utils.Logger;
-import com.orhundalabasmaz.storm.utils.ResultLogger;
+import com.orhundalabasmaz.storm.utils.*;
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 import org.junit.AfterClass;
@@ -46,6 +43,7 @@ public class CucumberRunner {
 	public static void cleanUp() {
 		Logger.log("Cucumber tests completed.");
 		finalizeResults();
+		DKGUtils.beep(3);
 	}
 
 	private static void finalizeResults() {
