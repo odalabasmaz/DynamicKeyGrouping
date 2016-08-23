@@ -1,17 +1,19 @@
 package com.orhundalabasmaz.storm.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author Orhun Dalabasmaz
  */
 public class FinalResultReducer {
-	private String currentTestId;
+	private String previousTestId;
 	private int testCount;
 	private long totalLatency;
 	private long totalThroughput;
 	private long totalNumberOfDistinctKeys;
 	private long totalNumberOfConsumedKeys;
 	private ResultLogger resultLogger;
-	private ResultResolver resultResolver;
+	private ResultResolver previousResultResolver, currentResultResolver;
 
 	public FinalResultReducer() {
 		resultLogger = new ResultLogger("finalResults.csv");
@@ -27,30 +29,34 @@ public class FinalResultReducer {
 	}
 
 	public void reduce(String line) {
-		resultResolver = new ResultResolver(line);
-		String testId = resultResolver.getTestId();
+		if (StringUtils.isBlank(line)) {
+			return;
+		}
+		currentResultResolver = new ResultResolver(line);
+		String currTestId = currentResultResolver.getTestId();
 		//"test id,date time,grouping type,data set,stream type,process duration (ms),aggregation duration (ms),number of spouts,number of worker bolts," +
 		//"latency (ms),throughput (tuple),throughput ratio (tuple/sec),number of distinct keys,number of consumed keys";
-		long latency = resultResolver.getLatency();
-		long throughput = resultResolver.getThroughput();
-		long numberOfDistinctKeys = resultResolver.getNumberOfDistinctKeys();
-		long numberOfConsumedKeys = resultResolver.getNumberOfConsumedKeys();
+		long latency = currentResultResolver.getLatency();
+		long throughput = currentResultResolver.getThroughput();
+		long numberOfDistinctKeys = currentResultResolver.getNumberOfDistinctKeys();
+		long numberOfConsumedKeys = currentResultResolver.getNumberOfConsumedKeys();
 
-		if (currentTestId == null) {  // first line
-			setCurrentTestId(testId);
+		if (previousTestId == null) {  // first line
+			setPreviousTestId(currTestId, currentResultResolver);
 		}
-		if (testId.equals(currentTestId)) {
+		if (currTestId.equals(previousTestId)) {
 			aggregate(latency, throughput, numberOfDistinctKeys, numberOfConsumedKeys);
 		} else {
 			calculateAndLogResult();
 			initialize();
-			setCurrentTestId(testId);
+			setPreviousTestId(currTestId, currentResultResolver);
 			aggregate(latency, throughput, numberOfDistinctKeys, numberOfConsumedKeys);
 		}
 	}
 
-	private void setCurrentTestId(String testId) {
-		currentTestId = testId;
+	private void setPreviousTestId(String testId, ResultResolver resultResolver) {
+		previousTestId = testId;
+		previousResultResolver = resultResolver;
 	}
 
 	private void aggregate(long latency, long throughput, long numberOfDistinctKeys, long numberOfConsumedKeys) {
@@ -69,15 +75,15 @@ public class FinalResultReducer {
 		double averageThroughputRatio = averageLatency > 0 ? (double) 1000 * averageThroughput / averageLatency : 0;
 		double memoryConsumptionRatio = totalNumberOfDistinctKeys > 0 ? (double) totalNumberOfConsumedKeys / totalNumberOfDistinctKeys : 0;
 		String value = ResultBuilder.getInstance()
-				.testId(currentTestId)
+				.testId(previousTestId)
 				.testCount(testCount)
-				.groupingType(resultResolver.getGroupingType())
-				.dataSet(resultResolver.getDataSet())
-				.streamType(resultResolver.getStreamType())
-				.processDuration(resultResolver.getProcessDuration())
-				.aggregationDuration(resultResolver.getAggregationDuration())
-				.numberOfSpouts(resultResolver.getNumberOfSpouts())
-				.numberOfWorkerBolts(resultResolver.getNumberOfWorkerBolts())
+				.groupingType(previousResultResolver.getGroupingType())
+				.dataSet(previousResultResolver.getDataSet())
+				.streamType(previousResultResolver.getStreamType())
+				.processDuration(previousResultResolver.getProcessDuration())
+				.aggregationDuration(previousResultResolver.getAggregationDuration())
+				.numberOfSpouts(previousResultResolver.getNumberOfSpouts())
+				.numberOfWorkerBolts(previousResultResolver.getNumberOfWorkerBolts())
 				.latency(averageLatency)
 				.throughput(averageThroughput)
 				.throughputRatio(DKGUtils.formatDoubleValue(averageThroughputRatio))

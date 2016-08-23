@@ -5,7 +5,7 @@ Feature: Dynamic Key Grouping
   Scenario Outline: Run tests with Country data set
     Given Data type and process duration
       | dataSet | processDuration | terminationDuration |
-      | COUNTRY | 10              | 300000               |
+      | COUNTRY | 10              | 300000              |
     When Grouping type is <GROUPING TYPE>
     And Stream type is <STREAM TYPE>
     And Spout count is <SPOUT COUNT>

@@ -2,6 +2,7 @@ package com.orhundalabasmaz.storm.utils;
 
 import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Orhun Dalabasmaz
@@ -29,6 +30,9 @@ public class ResultResolver {
 	}
 
 	private void resolve(String line) {
+		if (StringUtils.isBlank(line)) {
+			return;
+		}
 		String[] token = line.split(",");
 		testId = token[0];
 		datetime = token[1];
