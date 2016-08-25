@@ -35,10 +35,6 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private final KeySpace keySpace = new KeySpace();
 	private final Map<String, Integer> workerDepthMap = new HashMap<>();
 
-	public DynamicKeyGrouping() {
-		System.out.println("DynamicKeyGrouping constructor");
-	}
-
 	@Override
 	public void prepare(WorkerTopologyContext context, GlobalStreamId streamId, List<Integer> targetTasks) {
 		this.targetTasks = targetTasks;
@@ -72,7 +68,6 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private boolean isWarmUp() {
 		long now = System.currentTimeMillis();
 		long timePassed = now - STARTING_TIME;
-//		System.out.println("## time passed: " + timePassed + " ms");
 		return timePassed > WARM_UP_DURATION;
 	}
 

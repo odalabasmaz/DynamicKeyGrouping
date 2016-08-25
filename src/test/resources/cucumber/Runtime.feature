@@ -15,6 +15,7 @@ Feature: Dynamic Key Grouping
       | 5          |
     And Test successfully completed
 
+  @skew
     Examples:
       | GROUPING TYPE | STREAM TYPE | SPOUT COUNT | WORKER COUNT |
       | SHUFFLE       | SKEW        | 1           | 5            |
@@ -41,6 +42,34 @@ Feature: Dynamic Key Grouping
       | KEY           | SKEW        | 1           | 100          |
       | PARTIAL_KEY   | SKEW        | 1           | 100          |
       | DYNAMIC_KEY   | SKEW        | 1           | 100          |
+
+  @homogenous
+    Examples:
+      | GROUPING TYPE | STREAM TYPE | SPOUT COUNT | WORKER COUNT |
+      | SHUFFLE       | HOMOGENEOUS | 1           | 5            |
+      | KEY           | HOMOGENEOUS | 1           | 5            |
+      | PARTIAL_KEY   | HOMOGENEOUS | 1           | 5            |
+      | DYNAMIC_KEY   | HOMOGENEOUS | 1           | 5            |
+
+      | SHUFFLE       | HOMOGENEOUS | 1           | 10           |
+      | KEY           | HOMOGENEOUS | 1           | 10           |
+      | PARTIAL_KEY   | HOMOGENEOUS | 1           | 10           |
+      | DYNAMIC_KEY   | HOMOGENEOUS | 1           | 10           |
+
+      | SHUFFLE       | HOMOGENEOUS | 1           | 20           |
+      | KEY           | HOMOGENEOUS | 1           | 20           |
+      | PARTIAL_KEY   | HOMOGENEOUS | 1           | 20           |
+      | DYNAMIC_KEY   | HOMOGENEOUS | 1           | 20           |
+
+      | SHUFFLE       | HOMOGENEOUS | 1           | 50           |
+      | KEY           | HOMOGENEOUS | 1           | 50           |
+      | PARTIAL_KEY   | HOMOGENEOUS | 1           | 50           |
+      | DYNAMIC_KEY   | HOMOGENEOUS | 1           | 50           |
+
+      | SHUFFLE       | HOMOGENEOUS | 1           | 100          |
+      | KEY           | HOMOGENEOUS | 1           | 100          |
+      | PARTIAL_KEY   | HOMOGENEOUS | 1           | 100          |
+      | DYNAMIC_KEY   | HOMOGENEOUS | 1           | 100          |
 
 
 #  @realDataSet

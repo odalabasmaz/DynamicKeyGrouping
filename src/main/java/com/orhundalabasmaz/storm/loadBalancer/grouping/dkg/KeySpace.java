@@ -1,7 +1,13 @@
 package com.orhundalabasmaz.storm.loadBalancer.grouping.dkg;
 
+import com.orhundalabasmaz.storm.utils.Logger;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Orhun Dalabasmaz
@@ -47,8 +53,15 @@ public class KeySpace implements Serializable {
 	}
 
 	private KeyItem findKeyItemInList(String key, List<KeyItem> keyItemList) {
+		if (StringUtils.isBlank(key)) {
+			return null;
+		}
 		for (KeyItem item : keyItemList) {
-			if (item.getKey().equals(key)) {
+			if (item == null) {
+				Logger.error("item cannot be null!");
+				continue;
+			}
+			if (key.equals(item.getKey())) {
 				return item;
 			}
 		}

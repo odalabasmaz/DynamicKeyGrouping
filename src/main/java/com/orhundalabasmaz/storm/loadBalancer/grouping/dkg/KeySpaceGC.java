@@ -1,5 +1,7 @@
 package com.orhundalabasmaz.storm.loadBalancer.grouping.dkg;
 
+import com.orhundalabasmaz.storm.utils.Logger;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -17,7 +19,7 @@ public class KeySpaceGC implements Runnable {
 	public void run() {
 		while (true) {
 			// garbage collecting: retiring
-			System.out.println("######## garbage collecting");
+			Logger.info("######## garbage collecting");
 
 			try {
 				TimeUnit.SECONDS.sleep(TIME_INTERVAL);
