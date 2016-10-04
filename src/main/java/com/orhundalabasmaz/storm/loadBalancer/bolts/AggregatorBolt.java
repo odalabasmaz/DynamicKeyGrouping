@@ -35,6 +35,7 @@ public class AggregatorBolt extends BaseRichBolt {
 	private int timeDurationFactor, keyCountFactor;
 	private LoadMonitor loadMonitor;
 	private ResultLogger resultLogger;
+	private boolean enabled;
 
 	public AggregatorBolt(Configuration runtimeConf) {
 		this.runtimeConf = runtimeConf;
@@ -43,6 +44,7 @@ public class AggregatorBolt extends BaseRichBolt {
 		this.tickFrequencyInSeconds = runtimeConf.getTimeIntervalOfAggregatorBolts();
 		this.checkTimeInterval = runtimeConf.getTimeIntervalOfCheck();
 		this.resultLogger = new ResultLogger("results.csv");
+		this.enabled = true;
 	}
 
 	@Override
@@ -167,9 +169,10 @@ public class AggregatorBolt extends BaseRichBolt {
 	}
 
 	private void checkOut(long keyCount, long timeDuration) {
-		if (timeDuration < runtimeConf.getTerminationDuration()) {
+		if (!enabled || timeDuration < runtimeConf.getTerminationDuration()) {
 			return;
 		}
+		enabled = false;
 		String datetime = DKGUtils.getCurrentDatetime();
 		Logger.log("#### TERMINATING #### (" + datetime + ")\n" +
 				"## Emitted " + keyCount + " keys in " + timeDuration + " ms" + "\n" +

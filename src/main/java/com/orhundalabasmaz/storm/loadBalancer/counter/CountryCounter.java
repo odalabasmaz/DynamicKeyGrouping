@@ -13,8 +13,8 @@ public class CountryCounter {
 	private SortedMap<String, Integer> counter;
 
 	public CountryCounter(long processDuration, long aggregationDuration) {
-		this.processDuration = 0;
-		this.aggregationDuration = 0;
+		this.processDuration = processDuration;
+		this.aggregationDuration = aggregationDuration;
 		this.counter = new TreeMap<>(/*new Comparator<String>() {
 		    public int compare(String o1, String o2) {
                 return o1.compareTo(o2);

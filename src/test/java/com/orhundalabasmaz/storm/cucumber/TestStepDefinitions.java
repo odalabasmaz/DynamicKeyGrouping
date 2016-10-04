@@ -76,8 +76,15 @@ public class TestStepDefinitions {
 		int retryCount = runtimeConfigList.get(0).getRetryCount();
 		Configuration config = configBuilder.build();
 		for (int i = 1; i <= retryCount; ++i) {
-			Logger.log("test #" + i);
-			TestLoadBalancerTopology.testOnLocal(config);
+			try {
+				Logger.log("test #" + i + " - running...");
+				TestLoadBalancerTopology.testOnLocal(config);
+			} catch (Exception e) {
+				Logger.log("test #" + i + " - Exception occurred: " + e.getMessage());
+				e.printStackTrace();
+			} finally {
+				Logger.log("test #" + i + " - done.");
+			}
 		}
 		Logger.log("test ends... " + DKGUtils.getCurrentDatetime());
 	}
