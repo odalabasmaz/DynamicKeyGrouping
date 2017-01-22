@@ -3,9 +3,10 @@ package com.orhundalabasmaz.storm.cucumber;
 import com.orhundalabasmaz.storm.TestLoadBalancerTopology;
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
+import com.orhundalabasmaz.storm.config.RuntimeConfig;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 import com.orhundalabasmaz.storm.utils.Logger;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -27,23 +28,21 @@ public class TestStepDefinitions {
 	public void initialize() {
 		Logger.log("scenario initializing...");
 		testId = DKGUtils.generateTestId();
-		configBuilder = new ConfigurationBuilder();
+		configBuilder = ConfigurationBuilder.getInstance();
 	}
 
 	@Given("^Data type and process duration$")
 	public void dataTypeAndProcessDuration(List<RuntimeConfig> runtimeConfigList) throws Throwable {
-		configBuilder.defaultSet();
 		RuntimeConfig config = runtimeConfigList.get(0);
 		Logger.log("dataSet is: " + config.getDataSet() +
 				", process duration is: " + config.getProcessDuration() +
 				", termination duration is: " + config.getTerminationDuration());
 		configBuilder
+				.defaultSet()
 				.testId(testId)
-				.enableLogging(true)
 				.dataSet(config.getDataSet())
 				.processDuration(config.getProcessDuration())
-				.terminationDuration(config.getTerminationDuration())
-				.topologyTimeout(config.getTerminationDuration() + 10_000);
+				.terminationDuration(config.getTerminationDuration());
 	}
 
 	@When("^Grouping type is (\\w+)$")

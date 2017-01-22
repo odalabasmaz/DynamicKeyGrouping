@@ -1,33 +1,39 @@
 package com.orhundalabasmaz.storm.config;
 
-import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorType;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.common.StormMode;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
+import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class ConfigurationBuilder {
 	private Configuration conf;
+	private long additionalDuration = 10_000;
 
-	public ConfigurationBuilder() {
+	private ConfigurationBuilder() {
 		conf = new Configuration();
 	}
 
-	public void defaultSet() {
+	public static ConfigurationBuilder getInstance() {
+		return new ConfigurationBuilder();
+	}
+
+	public ConfigurationBuilder defaultSet() {
 		conf.setLogEnabled(true);
 		conf.setNumberOfWorkers(1);
 		conf.setNumberOfTasks(2);
 		conf.setNumberOfSplitterBolts(3);
 		conf.setNumberOfAggregatorBolts(1);
-		conf.setNumberOfResultBolts(1);
+		conf.setNumberOfOutputBolts(1);
 		conf.setTimeIntervalOfDataStreams(1);
-		conf.setTimeIntervalOfWorkerBolts(5);
-		conf.setTimeIntervalOfAggregatorBolts(15);
+		conf.setTimeIntervalOfWorkerBolts(2);
+		conf.setTimeIntervalOfAggregatorBolts(5);
 		conf.setTimeIntervalOfCheck(10_000);
 		conf.setAggregationDuration(0);
 		conf.setAggregatorType(AggregatorType.CUMULATIVE);
-
+		return this;
 	}
 
 	public ConfigurationBuilder appVersion(String appVersion) {
@@ -70,8 +76,8 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder numberOfResultBolts(int numberOfResultBolts) {
-		conf.setNumberOfResultBolts(numberOfResultBolts);
+	public ConfigurationBuilder numberOfOutputBolts(int numberOfOutputBolts) {
+		conf.setNumberOfOutputBolts(numberOfOutputBolts);
 		return this;
 	}
 
@@ -102,6 +108,7 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder terminationDuration(long terminationDuration) {
 		conf.setTerminationDuration(terminationDuration);
+		conf.setTopologyTimeout(terminationDuration + additionalDuration);
 		return this;
 	}
 
@@ -137,6 +144,31 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder enableLogging(boolean isLogEnabled) {
 		conf.setLogEnabled(isLogEnabled);
+		return this;
+	}
+
+	public ConfigurationBuilder retryCount(int retryCount) {
+		conf.setRetryCount(retryCount);
+		return this;
+	}
+
+	public ConfigurationBuilder stormMode(StormMode stormMode) {
+		conf.setStormMode(stormMode);
+		return this;
+	}
+
+	public ConfigurationBuilder sourceName(String sourceName) {
+		conf.setSourceName(sourceName);
+		return this;
+	}
+
+	public ConfigurationBuilder sinkName(String sinkName) {
+		conf.setSinkName(sinkName);
+		return this;
+	}
+
+	public ConfigurationBuilder ipAddr(String ipAddr) {
+		conf.setIPAddr(ipAddr);
 		return this;
 	}
 

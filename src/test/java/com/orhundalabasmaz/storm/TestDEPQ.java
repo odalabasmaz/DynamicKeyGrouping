@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm;
 
-import com.orhundalabasmaz.storm.loadBalancer.grouping.dkg.KeyItem;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.dkg.KeyItem;
 import com.orhundalabasmaz.storm.utils.Depque;
 import com.orhundalabasmaz.storm.utils.IntervalHeap;
 import org.junit.Test;
@@ -16,7 +16,6 @@ import static org.junit.Assert.assertTrue;
  * @author Orhun Dalabasmaz
  */
 public class TestDEPQ {
-
 	@Test
 	public void depq() {
 		Depque<Integer> depq = new IntervalHeap<>((n1, n2) -> (n2 - n1));

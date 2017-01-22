@@ -1,8 +1,9 @@
 package com.orhundalabasmaz.storm.config;
 
-import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorType;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.common.StormMode;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
+import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 
 import java.io.Serializable;
 
@@ -20,7 +21,7 @@ public class Configuration implements Serializable {
 	private int numberOfSplitterBolts;
 	private int numberOfWorkerBolts;
 	private int numberOfAggregatorBolts;
-	private int numberOfResultBolts;
+	private int numberOfOutputBolts;
 	private int numberOfTasks;
 
 	// TIME INTERVAL
@@ -41,6 +42,15 @@ public class Configuration implements Serializable {
 	private long processDuration;                   //ms
 	private long aggregationDuration;               //ms
 	private boolean isLogEnabled;
+	private int retryCount;
+	private StormMode stormMode;
+
+	// KAFKA
+	private String sourceName;
+	private String sinkName;
+
+	// SERVER
+	private String IPAddr;
 
 	/* getters & setters */
 	public String getAppVersion() {
@@ -99,12 +109,12 @@ public class Configuration implements Serializable {
 		this.numberOfAggregatorBolts = numberOfAggregatorBolts;
 	}
 
-	public int getNumberOfResultBolts() {
-		return numberOfResultBolts;
+	public int getNumberOfOutputBolts() {
+		return numberOfOutputBolts;
 	}
 
-	public void setNumberOfResultBolts(int numberOfResultBolts) {
-		this.numberOfResultBolts = numberOfResultBolts;
+	public void setNumberOfOutputBolts(int numberOfOutputBolts) {
+		this.numberOfOutputBolts = numberOfOutputBolts;
 	}
 
 	public int getNumberOfTasks() {
@@ -217,5 +227,45 @@ public class Configuration implements Serializable {
 
 	public void setLogEnabled(boolean logEnabled) {
 		isLogEnabled = logEnabled;
+	}
+
+	public int getRetryCount() {
+		return retryCount;
+	}
+
+	public void setRetryCount(int retryCount) {
+		this.retryCount = retryCount;
+	}
+
+	public StormMode getStormMode() {
+		return stormMode;
+	}
+
+	public void setStormMode(StormMode stormMode) {
+		this.stormMode = stormMode;
+	}
+
+	public String getSourceName() {
+		return sourceName;
+	}
+
+	public void setSourceName(String sourceName) {
+		this.sourceName = sourceName;
+	}
+
+	public String getSinkName() {
+		return sinkName;
+	}
+
+	public void setSinkName(String sinkName) {
+		this.sinkName = sinkName;
+	}
+
+	public String getIPAddr() {
+		return IPAddr;
+	}
+
+	public void setIPAddr(String IPAddr) {
+		this.IPAddr = IPAddr;
 	}
 }

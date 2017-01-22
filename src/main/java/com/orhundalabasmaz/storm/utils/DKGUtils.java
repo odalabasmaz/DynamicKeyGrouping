@@ -31,7 +31,7 @@ public class DKGUtils {
 		for (int i = 0; i < taskSize; ++i) {
 			domain.add(i);
 		}
-		calcPerms(hashTaskList, domain, new ArrayList<>(taskSize));
+		calcPerms(hashTaskList, domain, new ArrayList<Integer>(taskSize));
 	}
 
 	private static void calcPerms(List<List<Integer>> hashTaskList, List<Integer> domain, List<Integer> curr) {

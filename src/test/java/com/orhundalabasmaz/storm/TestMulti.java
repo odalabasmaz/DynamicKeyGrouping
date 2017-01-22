@@ -2,9 +2,9 @@ package com.orhundalabasmaz.storm;
 
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
-import com.orhundalabasmaz.storm.loadBalancer.bolts.AggregatorType;
-import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.AggregatorType;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
+import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 import org.junit.*;
 
 /**
@@ -30,13 +30,13 @@ public class TestMulti {
 
 	@Before
 	public void before() {
-		runtimeConf = new ConfigurationBuilder()
+		runtimeConf = ConfigurationBuilder.getInstance()
 				.numberOfWorkers(1)
 				.numberOfSpouts(1)
 				.numberOfSplitterBolts(3)
 				.numberOfWorkerBolts(50)
 				.numberOfAggregatorBolts(1)
-				.numberOfResultBolts(1)
+				.numberOfOutputBolts(1)
 				.numberOfTasks(2)
 				.timeIntervalOfDataStreams(1)
 				.timeIntervalOfWorkerBolts(5)

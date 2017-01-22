@@ -19,7 +19,7 @@ public class ResultLogger implements Serializable {
 	public ResultLogger(String filename, boolean append) {
 		this.filename = filename;
 		this.append = append;
-		this.filePath = OUTPUT_DIR + "/" + filename;
+		this.filePath = "/" + filename;
 	}
 
 	public void log(String value) {
@@ -28,6 +28,7 @@ public class ResultLogger implements Serializable {
 				PrintStream printStream = new PrintStream(os);
 		) {
 			printStream.println(value);
+			System.out.println(">> " + value);
 		} catch (IOException e) {
 			Logger.log(e.getMessage() + " [file: " + filename + "]");
 		}

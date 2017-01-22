@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.orhundalabasmaz.storm</groupId>
 	<artifactId>dynamic-key-grouping</artifactId>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>Dynamic-Key-Grouping</name>
+	<description>Dynamic Key Grouping</description>
 
 	<developers>
 		<developer>
@@ -16,25 +20,51 @@
 	</developers>
 
 	<properties>
-		<compiler-source.version>1.8</compiler-source.version>
-		<compiler-target.version>1.8</compiler-target.version>
+		<maven.compiler.level>1.7</maven.compiler.level>
 		<guava.version>19.0</guava.version>
 		<commons-lang3.version>3.4</commons-lang3.version>
-		<storm-core.version>1.0.1</storm-core.version>
+		<storm.version>0.9.3</storm.version><!-- 1.0.2 -->
+		<!--<kafka.version>0.8.2.2</kafka.version>-->
+		<kafka.version>0.10.1.0</kafka.version>
+		<storm.cassandra.version>1.0.2</storm.cassandra.version>
 		<maven.aspectj.version>1.4</maven.aspectj.version>
-		<maven.compiler.level>1.8</maven.compiler.level>
 		<maven-compiler-plugin-version>3.5.1</maven-compiler-plugin-version>
 		<aspectj.version>1.8.9</aspectj.version>
 		<junit.version>4.12</junit.version>
 		<cucumber-junit.version>1.2.4</cucumber-junit.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<main.class>com.orhundalabasmaz.storm.Application</main.class>
+		<maven.test.skip>true</maven.test.skip>
+		<project.shortName>dkg</project.shortName>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.storm</groupId>
 			<artifactId>storm-core</artifactId>
-			<version>${storm-core.version}</version>
+			<version>${storm.version}</version>
+			<!--<scope>provided</scope>-->
+		</dependency>
+		<dependency>
+			<groupId>org.apache.storm</groupId>
+			<artifactId>storm-kafka</artifactId>
+			<version>${storm.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka_2.11</artifactId>
+			<version>${kafka.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.storm</groupId>
+			<artifactId>storm-cassandra</artifactId>
+			<version>${storm.cassandra.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -50,6 +80,11 @@
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.8.5</version>
 		</dependency>
 
 		<!-- test -->
@@ -74,17 +109,34 @@
 	</dependencies>
 
 	<build>
+		<finalName>${project.shortName}</finalName>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+			</resource>
+		</resources>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>${basedir}/src/test/resources</directory>
+			</testResource>
+		</testResources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin-version}</version>
 				<configuration>
-					<source>${compiler-source.version}</source>
-					<target>${compiler-target.version}</target>
+					<source>${maven.compiler.level}</source>
+					<target>${maven.compiler.level}</target>
+					<excludes>
+						<exclude>**/cucumber/*.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!--<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>aspectj-maven-plugin</artifactId>
 				<version>${maven.aspectj.version}</version>
@@ -127,6 +179,57 @@
 						<version>${aspectj.version}</version>
 					</dependency>
 				</dependencies>
+			</plugin>-->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<finalName>${project.shortName}-wd</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>${main.class}</mainClass>
+						</manifest>
+						<manifestEntries>
+							<App-Version>${project.version}</App-Version>
+							<App-Description>${project.description}</App-Description>
+							<Build-Date>${maven.build.timestamp}</Build-Date>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<executable>java</executable>
+					<includeProjectDependencies>true</includeProjectDependencies>
+					<includePluginDependencies>false</includePluginDependencies>
+					<classpathScope>compile</classpathScope>
+					<mainClass>${main.class}</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -1,7 +1,7 @@
 package com.orhundalabasmaz.storm.utils;
 
-import com.orhundalabasmaz.storm.loadBalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadBalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
+import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 
 /**
  * @author Orhun Dalabasmaz

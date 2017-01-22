@@ -1,7 +1,7 @@
 package com.orhundalabasmaz.storm;
 
-import com.orhundalabasmaz.storm.loadBalancer.spouts.Data;
-import org.apache.storm.tuple.Values;
+import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.loadbalancer.spouts.Data;
 import org.junit.Test;
 
 import java.io.*;

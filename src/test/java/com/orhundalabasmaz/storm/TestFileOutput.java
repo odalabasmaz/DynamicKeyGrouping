@@ -7,8 +7,10 @@ import com.orhundalabasmaz.storm.utils.ResultLogger;
 import org.junit.Test;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import static com.orhundalabasmaz.storm.utils.Constants.FINAL_RESULT_FILE_HEADER;
 import static com.orhundalabasmaz.storm.utils.Constants.OUTPUT_DIR;
@@ -39,7 +41,7 @@ public class TestFileOutput {
 			printStream.println(value);
 			printStream.println(value);
 			printStream.println(value);
-			/*Files.write(Paths.get(fileName), ("#1 - " + value + "\n").getBytes(), StandardOpenOption.APPEND);
+			Files.write(Paths.get(fileName), ("#1 - " + value + "\n").getBytes(), StandardOpenOption.APPEND);
 
 			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/data.txt"), "utf-8"));
 			writer.write("#2 - " + value + "\n");
@@ -48,9 +50,9 @@ public class TestFileOutput {
 				Logger.log("I/O Problem: file does not exist and not able to create one");
 				return;
 			}
-			bufferWriter.write(value + "\n");*/
+			bufferWriter.write(value + "\n");
 
-		} catch (IOException /*| URISyntaxException */ e) {
+		} catch (IOException | URISyntaxException e) {
 			Logger.log(e.getMessage() + " [filename: " + filename + "]");
 		}
 	}

@@ -3,7 +3,7 @@ package com.orhundalabasmaz.storm;
 import com.orhundalabasmaz.storm.common.ITopology;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.config.Configuration;
-import com.orhundalabasmaz.storm.loadBalancer.LoadBalancerTopology;
+import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
 import org.junit.Test;
 
 /**
