@@ -5,7 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 
 import java.util.Map;
 
@@ -19,16 +19,16 @@ public class OutputResultsBolt extends BaseRichBolt {
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-		Logger.log("bolt# prepare: collector assigned");
+		CustomLogger.log("bolt# prepare: collector assigned");
 	}
 
 	@Override
 	public void execute(Tuple tuple) {
-//		Logger.log(":: FINAL :: \n" + tuple.getString(0));
+//		CustomLogger.log(":: FINAL :: \n" + tuple.getString(0));
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-		Logger.log("bolt# outputs the result");
+		CustomLogger.log("bolt# outputs the result");
 	}
 }

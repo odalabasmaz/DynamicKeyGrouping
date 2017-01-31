@@ -9,6 +9,8 @@ import backtype.storm.tuple.Values;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.Aggregator;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.CountryAggregator;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -16,6 +18,7 @@ import java.util.Map;
  * @author Orhun Dalabasmaz
  */
 public class WorkerBolt extends WindowedBolt {
+	private final Logger LOGGER = LoggerFactory.getLogger(WorkerBolt.class);
 	private transient OutputCollector collector;
 	private transient Aggregator aggregator;
 	private long processDuration;
@@ -25,6 +28,8 @@ public class WorkerBolt extends WindowedBolt {
 		super(tickFrequencyInSeconds);
 		this.processDuration = processDuration;
 		this.aggregationDuration = aggregationDuration;
+		LOGGER.info("WorkerBolt created with tickFrequencyInSeconds:{}, processDuration:{}, aggregationDuration:{}",
+				tickFrequencyInSeconds, processDuration, aggregationDuration);
 	}
 
 	@Override
@@ -34,13 +39,8 @@ public class WorkerBolt extends WindowedBolt {
 	}
 
 	@Override
-	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-		outputFieldsDeclarer.declare(new Fields("workerId", "counts"));
-	}
-
-	@Override
 	public void countDataAndAck(Tuple tuple) {
-		String key = tuple.getString(0);
+		String key = (String) tuple.getValueByField("key");
 		doToughJob();
 		aggregator.aggregate(key);
 		collector.ack(tuple);
@@ -50,11 +50,20 @@ public class WorkerBolt extends WindowedBolt {
 	public void emitCurrentWindowAndAdvance() {
 		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
 		String workerId = getWorkerId();
-//		Integer numberOfDistinctKeys = counts.keySet().size();
-		collector.emit(new Values(workerId, counts));
+		long timestamp = DKGUtils.getCurrentTimestamp();
+		for (Map.Entry<String, Long> entry : counts.entrySet()) {
+			String key = entry.getKey();
+			Long count = entry.getValue();
+			collector.emit(new Values(workerId, key, count, timestamp));
+		}
 	}
 
 	private void doToughJob() {
 		DKGUtils.sleepInMilliseconds(processDuration);
+	}
+
+	@Override
+	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+		outputFieldsDeclarer.declare(new Fields("workerId", "key", "count", "timestamp"));
 	}
 }

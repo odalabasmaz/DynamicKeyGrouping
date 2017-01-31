@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.loadbalancer.monitoring;
 
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -107,7 +107,7 @@ public class LoadMonitor implements Serializable {
 	}
 
 	private void printLoadInfoHeader() {
-		Logger.log(
+		CustomLogger.log(
 				NL + NL + NL + NL + NL +
 						"#############################" + NL +
 						"### PRINTING LOAD INFO: #" + INFO_COUNT++ + NL +
@@ -134,7 +134,7 @@ public class LoadMonitor implements Serializable {
 					.append(" [").append(load).append("/").append(totalLoad).append("]")
 					.append(NL);
 		}
-		Logger.log(sb.toString());
+		CustomLogger.log(sb.toString());
 	}
 
 	private void printBoltLoadInfo() {
@@ -163,7 +163,7 @@ public class LoadMonitor implements Serializable {
 						.append(NL);
 			}
 		}
-		Logger.log(sb.toString());
+		CustomLogger.log(sb.toString());
 	}
 
 	private void printValueLoadInfo() {
@@ -191,7 +191,7 @@ public class LoadMonitor implements Serializable {
 						.append(NL);
 			}
 		}
-		Logger.log(sb.toString());
+		CustomLogger.log(sb.toString());
 	}
 
 	private void printMemoryConsumptionInfo() {
@@ -199,7 +199,7 @@ public class LoadMonitor implements Serializable {
 				"##############################################" + NL +
 				"## MEMORY CONSUMPTION                       ##" + NL +
 				getMemoryConsumptionInfo() + NL;
-		Logger.log(consumption);
+		CustomLogger.log(consumption);
 	}
 
 	public String getMemoryConsumptionInfo() {

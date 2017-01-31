@@ -2,9 +2,11 @@ package com.orhundalabasmaz.storm.utils;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.text.DateFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,8 @@ import java.util.concurrent.TimeUnit;
  * @author Orhun Dalabasmaz
  */
 public class DKGUtils {
-	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private static final Logger LOGGER = LoggerFactory.getLogger(DKGUtils.class);
+	private static final Format DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private static final HashFunction HF = Hashing.murmur3_128(13);
 
 	public static long calculateHash(String key) {
@@ -52,7 +55,7 @@ public class DKGUtils {
 		try {
 			TimeUnit.MICROSECONDS.sleep(duration);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception occurred when thread sleeping", e);
 		}
 	}
 
@@ -60,7 +63,7 @@ public class DKGUtils {
 		try {
 			TimeUnit.MILLISECONDS.sleep(duration);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception occurred when thread sleeping", e);
 		}
 	}
 
@@ -68,16 +71,28 @@ public class DKGUtils {
 		try {
 			TimeUnit.SECONDS.sleep(duration);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception occurred when thread sleeping", e);
 		}
+	}
+
+	public static long getCurrentTimestamp() {
+		return System.currentTimeMillis();
 	}
 
 	public static String getCurrentDatetime() {
 		return DATE_FORMATTER.format(System.currentTimeMillis());
 	}
 
+	public static String formattedTime(long time) {
+		return DATE_FORMATTER.format(time);
+	}
+
 	public static String generateTestId() {
 		return UUID.randomUUID().toString();
+	}
+
+	public static String generateUUID() {
+		return UUID.randomUUID().toString().toUpperCase();
 	}
 
 	public static String formatDoubleValue(double value) {
@@ -88,7 +103,7 @@ public class DKGUtils {
 		beep(1);
 	}
 
-	public static void beep(int count) {
+	private static void beep(int count) {
 		for (int i = 0; i < count; ++i) {
 			Toolkit.getDefaultToolkit().beep();
 		}

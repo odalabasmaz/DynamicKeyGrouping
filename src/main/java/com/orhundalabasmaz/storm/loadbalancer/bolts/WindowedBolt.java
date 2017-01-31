@@ -4,7 +4,7 @@ import backtype.storm.Config;
 import backtype.storm.Constants;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public abstract class WindowedBolt extends BaseRichBolt {
 		if (isTickTuple(tuple)) {
 			emitCurrentWindowAndAdvance();
 		} else {
-			Logger.info("countDataAndAck");
+			CustomLogger.info("countDataAndAck");
 			countDataAndAck(tuple);
 		}
 	}

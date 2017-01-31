@@ -15,12 +15,14 @@ import com.orhundalabasmaz.storm.common.StreamingGroupFactory;
 import com.orhundalabasmaz.storm.common.Topology;
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.*;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.monitor.DigestBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.monitor.TotalKeyCountBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.monitor.WorkerDistributionBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.output.KafkaOutputBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.DistributionObserverBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.SpoutObserverBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.WorkerObserverBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.KafkaOutputBolt;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import storm.kafka.*;
 
 import java.util.HashMap;
@@ -32,18 +34,16 @@ import java.util.UUID;
  * @author Orhun Dalabasmaz
  */
 public class LoadBalancerTopology implements Topology {
+	private final Logger LOGGER = LoggerFactory.getLogger(LoadBalancerTopology.class);
 	private final String topologyName = "dkg-topology";
 	private final String spoutName = "load-balancer-spout";
-	private final String splitterBoltName = "splitter-bolt";
-	private final String workerBoltName = "worker-bolt";
-	private final String workerObserverBoltName = "worker-observer-bolt";
-	private final String digestBoltName = "digest-bolt";
-	private final String workerDistributionBoltName = "worker-distribution-bolt";
-	private final String totalKeyCountBoltName = "total-key-count-bolt";
-	private final String aggregatorBoltName = "aggregator-bolt";
-	private final String outputBoltName = "output-bolt";
-	private final String dataKey = "counts";
-	private final String resultKey = "result";
+	private final String splitterName = "splitter";
+	private final String workerName = "worker";
+	private final String spoutObserverName = "spout-observer";
+	private final String workerObserverName = "worker-observer";
+	private final String distributionObserverName = "key-distribution";
+	private final String aggregatorName = "aggregator";
+	private final String outputName = "output";
 
 	private Config conf;
 	private Configuration runtimeConf;
@@ -62,13 +62,13 @@ public class LoadBalancerTopology implements Topology {
 				.append("Initializing LoadBalancerTopology!").append("\n")
 				.append("APP VERSION: ").append(runtimeConf.getAppVersion()).append("\n")
 				.append("STREAM TYPE: ").append(runtimeConf.getStreamType()).append("\n")
-				.append("SPLITTER: ").append(runtimeConf.getGroupingType()).append("\n")
+				.append("GROUPING TYPE: ").append(runtimeConf.getGroupingType()).append("\n")
 				.append("AGGREGATOR: ").append(runtimeConf.getAggregatorType()).append("\n")
 				.append("NUMBER OF WORKER BOLTS: ").append(runtimeConf.getNumberOfWorkerBolts()).append("\n")
 				.append("RUNTIME DURATION: ").append(runtimeConf.getTopologyTimeout() / 60000).append(" min").append("\n")
 				.append("STORM MODE: ").append(stormMode).append("\n")
 				.append("==================================");
-		Logger.log(sb.toString());
+		LOGGER.info(sb.toString());
 	}
 
 	private SpoutConfig getKafkaSpoutConfig() {
@@ -106,7 +106,7 @@ public class LoadBalancerTopology implements Topology {
 	 * TODO LIST
 	 * 1. convert task to objects rather than primitives
 	 * 2. should be included to SAMOA? (should use storm-core 0.9.4)
-	 * 3. use Log4j instead of Logger
+	 * 3. use Log4j instead of CustomLogger
 	 * 4. convert long to BigDecimal
 	 * after a while long/int counts will reach the limits! (BigInteger)
 	 * 5. min load percentage should be calculated with number of bolts
@@ -147,58 +147,54 @@ public class LoadBalancerTopology implements Topology {
 		//builder.setSpout(spoutName, new CountrySpout(runtimeConf.getStreamType()), runtimeConf.getNumberOfSpouts());   //parallelism hint as number of executor
 
 		// splitter
-		builder.setBolt(splitterBoltName,
+		builder.setBolt(splitterName,
 				new SplitterBolt(), runtimeConf.getNumberOfSplitterBolts())
 //				.setNumTasks(2)
 				.shuffleGrouping(spoutName);
 
 		// worker
-		builder.setBolt(workerBoltName,
-				new WorkerBolt(runtimeConf.getTimeIntervalOfWorkerBolts(), runtimeConf.getProcessDuration(), runtimeConf.getAggregationDuration()), runtimeConf.getNumberOfWorkerBolts())
-				.customGrouping(splitterBoltName, streamGrouping);
+		builder.setBolt(workerName,
+				new WorkerBolt(runtimeConf.getTimeIntervalOfWorkerBolts(), runtimeConf.getProcessDuration(),
+						runtimeConf.getAggregationDuration()), runtimeConf.getNumberOfWorkerBolts())
+				.customGrouping(splitterName, streamGrouping);
 
 		// aggregator
-		builder.setBolt(aggregatorBoltName,
-				new AggregatorBolt(runtimeConf.getTimeIntervalOfAggregatorBolts(), runtimeConf.getAggregationDuration()), 1)
-				.fieldsGrouping(workerBoltName, new Fields("workerId", "counts"));
+		builder.setBolt(aggregatorName,
+				new AggregatorBolt(runtimeConf.getTimeIntervalOfAggregatorBolts(), runtimeConf.getAggregationDuration()), 10)
+				.fieldsGrouping(workerName, new Fields("key"));
 
-		// total key count
-		builder.setBolt(totalKeyCountBoltName,
-				new TotalKeyCountBolt(), 1)
-				.noneGrouping(aggregatorBoltName);
+		// spout observer
+		builder.setBolt(spoutObserverName,
+				new SpoutObserverBolt(5), 1)
+				.noneGrouping(spoutName);
 
-		// key digest
-		builder.setBolt(digestBoltName,
-				new DigestBolt(), 1)
-				.noneGrouping(aggregatorBoltName);
+		// worker observer
+		builder.setBolt(workerObserverName,
+				new WorkerObserverBolt(), 1)
+				.noneGrouping(workerName);
 
-		// work distribution
-		builder.setBolt(workerDistributionBoltName,
-				new WorkerDistributionBolt(), 1)
-				.noneGrouping(aggregatorBoltName);
-
-		// workers
-		builder.setBolt(workerObserverBoltName,
-				new WorkerObserverBolt(), 10)
-				.fieldsGrouping(workerBoltName, new Fields("workerId"));
+		// distribution observer
+		builder.setBolt(distributionObserverName,
+				new DistributionObserverBolt(runtimeConf.getTimeIntervalOfAggregatorBolts()), 1)
+				.noneGrouping(workerName);
 
 		// output
-		builder.setBolt(outputBoltName + "-1",
-				new KafkaOutputBolt("total"), 1)
-				.shuffleGrouping(totalKeyCountBoltName);
-		builder.setBolt(outputBoltName + "-2",
-				new KafkaOutputBolt("digest"), 1)
-				.shuffleGrouping(digestBoltName);
-		builder.setBolt(outputBoltName + "-3",
-				new KafkaOutputBolt("worker"), 1)
-				.shuffleGrouping(workerDistributionBoltName);
-		builder.setBolt(outputBoltName + "-4",
-				new KafkaOutputBolt("workers"), 1)
-				.shuffleGrouping(workerObserverBoltName);
+		builder.setBolt(outputName + "-0",
+				new KafkaOutputBolt("incoming"), 1)
+				.shuffleGrouping(spoutObserverName);
+		builder.setBolt(outputName + "-1",
+				new KafkaOutputBolt("result"), 1)
+				.shuffleGrouping(aggregatorName);
+		builder.setBolt(outputName + "-2",
+				new KafkaOutputBolt("key-dist"), 1)
+				.shuffleGrouping(workerObserverName);
+		builder.setBolt(outputName + "-3",
+				new KafkaOutputBolt("dist-cost"), 1)
+				.shuffleGrouping(distributionObserverName);
 
 		// result
-//		builder.setBolt(outputBoltName, new OutputResultsBolt(), runtimeConf.getNumberOfOutputBolts())
-//				.fieldsGrouping(aggregatorBoltName, new Fields(resultKey));
+//		builder.setBolt(outputName, new OutputResultsBolt(), runtimeConf.getNumberOfOutputBolts())
+//				.fieldsGrouping(aggregatorName, new Fields(resultKey));
 
 		topology = builder.createTopology();
 		initialized = true;
@@ -222,20 +218,20 @@ public class LoadBalancerTopology implements Topology {
 	}
 
 	private void runOnLocal() {
-		Logger.log("topology# submitting topology on local");
+		CustomLogger.log("topology# submitting topology on local");
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(topologyName, conf, topology);
 
 		DKGUtils.sleepInMilliseconds(runtimeConf.getTopologyTimeout());
 
-		Logger.log("topology# killing topology");
+		CustomLogger.log("topology# killing topology");
 		cluster.killTopology(topologyName);
 		cluster.shutdown();
 	}
 
 	private void runOnCluster() {
 		try {
-			Logger.log("topology# submitting topology on cluster");
+			CustomLogger.log("topology# submitting topology on cluster");
 //            StormSubmitter.submitTopology(topologyName, conf, topology);
 			StormSubmitter.submitTopologyWithProgressBar(topologyName, conf, topology);
 		} catch (AlreadyAliveException | InvalidTopologyException e) {

@@ -2,8 +2,6 @@ package com.orhundalabasmaz.storm.utils;
 
 import java.io.*;
 
-import static com.orhundalabasmaz.storm.utils.Constants.OUTPUT_DIR;
-
 /**
  * @author Orhun Dalabasmaz
  */
@@ -30,7 +28,7 @@ public class ResultLogger implements Serializable {
 			printStream.println(value);
 			System.out.println(">> " + value);
 		} catch (IOException e) {
-			Logger.log(e.getMessage() + " [file: " + filename + "]");
+			CustomLogger.log(e.getMessage() + " [file: " + filename + "]");
 		}
 	}
 }

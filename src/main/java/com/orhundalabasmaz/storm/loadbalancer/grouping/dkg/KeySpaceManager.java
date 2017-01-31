@@ -1,7 +1,7 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 
 /**
  * @author Orhun Dalabasmaz
@@ -23,7 +23,7 @@ public class KeySpaceManager implements Runnable {
 				++count;
 
 				// rearrange keys in space
-				Logger.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
+				CustomLogger.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
 				keySpace.sortBabySpace();
 				keySpace.truncateBabySpace();
 				keySpace.sortTeenageSpace();
@@ -31,7 +31,7 @@ public class KeySpaceManager implements Runnable {
 
 				if (count == CYCLE_COUNT) {
 					count = 0;
-					Logger.info("######## rearranging keys > teenage space to old space");
+					CustomLogger.info("######## rearranging keys > teenage space to old space");
 					keySpace.sortTeenageSpace();
 					keySpace.sortOldSpace();
 					keySpace.upToOldSpace();

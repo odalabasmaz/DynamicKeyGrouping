@@ -6,8 +6,8 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class CountrySpout extends BaseRichSpout {
 
 	@Override
 	public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-		Logger.info("spout# open: collector assigned");
+		CustomLogger.info("spout# open: collector assigned");
 		this.collector = spoutOutputCollector;
 		this.valuesList = Data.getValuesList();
 		this.reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("data/data.txt")));
@@ -69,7 +69,7 @@ public class CountrySpout extends BaseRichSpout {
 		}
 		String key = iterator.next();
 		keyCount++;
-		Logger.info("### KeyCount: " + keyCount + " " + DKGUtils.getCurrentDatetime());
+		CustomLogger.info("### KeyCount: " + keyCount + " " + DKGUtils.getCurrentDatetime());
 		collector.emit(new Values(key));
 	}
 
@@ -92,7 +92,7 @@ public class CountrySpout extends BaseRichSpout {
 	/* emit randomly data */
 	private void randomData() {
 		int index = rand.nextInt(valuesList.size());
-		Logger.info("spout# emitting new value: " + valuesList.get(index));
+		CustomLogger.info("spout# emitting new value: " + valuesList.get(index));
 		collector.emit(valuesList.get(index));
 	}
 
@@ -102,7 +102,7 @@ public class CountrySpout extends BaseRichSpout {
 	private void sequentialData() {
 		seqIndex %= valuesList.size();
 		int index = seqIndex++;
-		Logger.info("spout# emitting new value: " + valuesList.get(index));
+		CustomLogger.info("spout# emitting new value: " + valuesList.get(index));
 		collector.emit(valuesList.get(index));
 	}
 
@@ -112,11 +112,11 @@ public class CountrySpout extends BaseRichSpout {
 		int randNum = rand.nextInt(100);
 		if (randNum < 80) { //80
 			value = new Values("turkey");
-			Logger.info("spout# emitting new value: " + value);
+			CustomLogger.info("spout# emitting new value: " + value);
 			collector.emit(value);
 		} else if (randNum < 90) {
 			value = new Values("spain");
-			Logger.info("spout# emitting new value: " + value);
+			CustomLogger.info("spout# emitting new value: " + value);
 			collector.emit(value);
 		} else {
 			randomData();
@@ -125,7 +125,7 @@ public class CountrySpout extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-		Logger.info("spout# output field declared: " + "spout");
+		CustomLogger.info("spout# output field declared: " + "spout");
 		outputFieldsDeclarer.declare(new Fields("key"));
 	}
 }

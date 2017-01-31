@@ -7,34 +7,53 @@ import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class Application {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
+	private Application() {
+	}
+
+	/**
+	 * $ java -jar dkg-wd.jar SHUFFLE|KEY|PARTIAL_KEY|DYNAMIC_KEY 10 1
+	 * */
 	public static void main(String... args) {
+		if (args.length < 3) {
+			LOGGER.error("groupingType, workerCount and processDuration must be specified!\n" +
+					"i.e. $ java -jar dkg-wd.jar DYNAMIC_KEY 50 1");
+			throw new UnsupportedOperationException("groupingType, workerCount and processDuration must be specified!");
+		}
+
+		GroupingType groupingType = GroupingType.valueOf(args[0]);
+		int numberOfWorkerBolts = Integer.parseInt(args[1]);
+		long processDuration = Long.parseLong(args[2]);
+
 		String testId = DKGUtils.generateTestId();
 		String dataSet = "COUNTRY";
-		long processDuration = 10;
-		long terminationDuration = 300_000 * 10L;
-		GroupingType groupingType = GroupingType.DYNAMIC_KEY;
+//		long processDuration = 1;
+		long terminationDuration = 1000 * 60 * 1000L;
+//		GroupingType groupingType = GroupingType.DYNAMIC_KEY;
 		StreamType streamType = StreamType.SKEW;
 		int numberOfWorkers = 1;
-		int numberOfSpouts = 1;
+		int numberOfSpouts = 5;
 		int numberOfSplitterBolts = 10;
-		int numberOfWorkerBolts = 10;
+//		int numberOfWorkerBolts = 10;
 		int numberOfAggregatorBolts = 10;
 		int numberOfOutputBolts = 1;
 		int retryCount = 1;
 		StormMode stormMode = StormMode.LOCAL;
-		String sourceName = "source1";
+		String sourceName = "source-country";
 		String sinkName = "sink1";
-		String IPAddr = "85.110.34.250"; //"localhost"
+		String IPAddr = "localhost"; //"localhost 85.110.34.250"
 
-		Logger.log("begin...");
+		CustomLogger.log("begin...");
 		Configuration config =
 				ConfigurationBuilder.getInstance()
 						.defaultSet()
@@ -57,18 +76,18 @@ public class Application {
 						.ipAddr(IPAddr)
 						.build();
 		execute(config);
-		Logger.log("end...");
+		CustomLogger.log("end...");
 	}
 
 	private static void execute(Configuration config) {
-		Logger.log("test begins... " + DKGUtils.getCurrentDatetime());
+		CustomLogger.log("test begins... " + DKGUtils.getCurrentDatetime());
 		int retryCount = config.getRetryCount();
 		for (int i = 1; i <= retryCount; ++i) {
-			Logger.log("test #" + i + " - running...");
+			CustomLogger.log("test #" + i + " - running...");
 			run(config);
-			Logger.log("test #" + i + " - done.");
+			CustomLogger.log("test #" + i + " - done.");
 		}
-		Logger.log("test ends... " + DKGUtils.getCurrentDatetime());
+		CustomLogger.log("test ends... " + DKGUtils.getCurrentDatetime());
 	}
 
 	private static void run(Configuration runtimeConf) {

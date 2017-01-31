@@ -23,8 +23,8 @@ public class CucumberRunner {
 
 	@BeforeClass
 	public static void initialize() {
-		Logger.log("Cucumber tests started.");
-		Logger.log("initializing output...");
+		CustomLogger.log("Cucumber tests started.");
+		CustomLogger.log("initializing output...");
 		initializeOutput();
 	}
 
@@ -40,7 +40,7 @@ public class CucumberRunner {
 
 	@AfterClass
 	public static void cleanUp() {
-		Logger.log("Cucumber tests completed.");
+		CustomLogger.log("Cucumber tests completed.");
 		finalizeResults();
 		DKGUtils.beep(3);
 	}

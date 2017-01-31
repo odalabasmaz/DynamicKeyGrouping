@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.model;
 
-import com.orhundalabasmaz.storm.utils.Utils;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,15 +20,15 @@ public class Message {
 	}
 
 	public Message(String key) {
-		this(key, Utils.generateUUID(), Utils.getCurrentTimestamp());
+		this(key, DKGUtils.generateUUID(), DKGUtils.getCurrentTimestamp());
 	}
 
 	public Message(String key, long timestamp) {
-		this(key, Utils.generateUUID(), timestamp);
+		this(key, DKGUtils.generateUUID(), timestamp);
 	}
 
 	public Message(String key, String messageId) {
-		this(key, messageId, Utils.getCurrentTimestamp());
+		this(key, messageId, DKGUtils.getCurrentTimestamp());
 	}
 
 	public Message(String key, String messageId, long timestamp) {
@@ -65,7 +65,6 @@ public class Message {
 
 	public void addTag(String key, String value) {
 		this.tags.put(key, value);
-		this.addField(key, value);
 	}
 
 	public Map<String, Object> getFields() {

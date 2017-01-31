@@ -13,7 +13,6 @@ public class AggregationDetail {
 	private SortedMap<String, CountInfo> keyCounts;
 
 	public AggregationDetail() {
-		totalKeyCount = 0L;
 		workerCounts = new TreeMap<>();
 		keyCounts = new TreeMap<>();
 	}

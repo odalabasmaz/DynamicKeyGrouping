@@ -12,8 +12,8 @@ import backtype.storm.tuple.Values;
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.CountryAggregator;
 import com.orhundalabasmaz.storm.loadbalancer.monitoring.LoadMonitor;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.Logger;
 import com.orhundalabasmaz.storm.utils.ResultBuilder;
 import com.orhundalabasmaz.storm.utils.ResultLogger;
 
@@ -49,7 +49,7 @@ public class AggregatorBoltOld extends BaseRichBolt {
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-		Logger.info("bolt# prepare: collector assigned");
+		CustomLogger.info("bolt# prepare: collector assigned");
 		this.collector = outputCollector;
 //		this.counter = new CountryAggregator(runtimeConf.getProcessDuration(), runtimeConf.getAggregationDuration());
 		this.keyCount = 0;
@@ -64,7 +64,7 @@ public class AggregatorBoltOld extends BaseRichBolt {
 		if (isTickTuple(tuple)) {
 			emitCurrentWindowCounts();
 		} else {
-			Logger.info("countDataAndAck");
+			CustomLogger.info("countDataAndAck");
 			countDataAndAck(tuple);
 		}
 		checkLatencyAndThroughput();
@@ -72,7 +72,7 @@ public class AggregatorBoltOld extends BaseRichBolt {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-		Logger.log("bolt# output field declared: " + "frequency");
+		CustomLogger.log("bolt# output field declared: " + "frequency");
 		outputFieldsDeclarer.declare(new Fields("result"));
 	}
 
@@ -93,7 +93,7 @@ public class AggregatorBoltOld extends BaseRichBolt {
 //		String key = tuple.getString(0);
 //		String boltId = tuple.getString(1);
 //		Long count = tuple.getLong(2);
-//		Logger.info("countDataAndAck by " + key + " - " + count + " via bolt: " + boltId);
+//		CustomLogger.info("countDataAndAck by " + key + " - " + count + " via bolt: " + boltId);
 		String boltId = tuple.getString(0);
 		Map<String, Long> counts = (Map<String, Long>) tuple.getValue(1);
 		aggregateValues(counts);
@@ -174,7 +174,7 @@ public class AggregatorBoltOld extends BaseRichBolt {
 		}
 		enabled = false;
 		String datetime = DKGUtils.getCurrentDatetime();
-		Logger.log("#### TERMINATING #### (" + datetime + ")\n" +
+		CustomLogger.log("#### TERMINATING #### (" + datetime + ")\n" +
 				"## Emitted " + keyCount + " keys in " + timeDuration + " ms" + "\n" +
 				"## Memory Consumption ## " + loadMonitor.getMemoryConsumptionInfo());
 		DKGUtils.beep();

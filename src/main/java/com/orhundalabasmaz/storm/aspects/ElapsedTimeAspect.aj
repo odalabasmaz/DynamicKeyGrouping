@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.aspects;
 
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 
@@ -25,7 +25,7 @@ public class ElapsedTimeAspect {
 		totalTime += elapsedTime;
 		totalCount++;
 		double avgElapsedTime = (double) totalTime / totalCount;
-		Logger.log(String.format(
+		CustomLogger.log(String.format(
 				"Curr elapsed time: %7.2f mics -- Avg elapsed time: %7.2f mics\n",
 				(double) elapsedTime / 1000, avgElapsedTime / 1000));
 		return returnObject;

@@ -1,0 +1,100 @@
+package com.orhundalabasmaz.storm.loadbalancer.bolts.observer;
+
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.WindowedBolt;
+import com.orhundalabasmaz.storm.model.Message;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
+
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * @author Orhun Dalabasmaz
+ */
+public class DistributionObserverBolt extends WindowedBolt {
+	private transient OutputCollector collector;
+	private Map<String, Set<String>> keyWorkers;
+	private long startTime;
+	private long totalCount;
+
+	public DistributionObserverBolt(long tickFrequencyInSeconds) {
+		super(tickFrequencyInSeconds);
+	}
+
+	@Override
+	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+		this.collector = outputCollector;
+		this.keyWorkers = new LinkedHashMap<>();
+		this.startTime = DKGUtils.getCurrentTimestamp();
+	}
+
+	@Override
+	protected void countDataAndAck(Tuple tuple) {
+		String workerId = (String) tuple.getValueByField("workerId");
+		String key = (String) tuple.getValueByField("key");
+		Long count = (Long) tuple.getValueByField("count");
+//		Long timestamp = (Long) tuple.getValueByField("timestamp");
+
+		// aggregate total count
+		totalCount += count;
+
+		if (!keyWorkers.containsKey(key)) {
+			keyWorkers.put(key, new HashSet<String>());
+		}
+		Set<String> workerSet = keyWorkers.get(key);
+		workerSet.add(workerId);
+		collector.ack(tuple);
+	}
+
+	@Override
+	protected void emitCurrentWindowAndAdvance() {
+		long timestamp = DKGUtils.getCurrentTimestamp();
+		int totalKeys = 0;
+		int distinctKeys = keyWorkers.keySet().size();
+		for (Map.Entry<String, Set<String>> entry : keyWorkers.entrySet()) {
+			String key = entry.getKey();
+			int numberOfWorkers = entry.getValue().size();
+			totalKeys += numberOfWorkers;
+			Message message = new Message(key, timestamp);
+			message.addTag("country", key);
+			message.addField("numberOfWorkers", numberOfWorkers);
+			collector.emit(new Values(message.getKey(), message));
+		}
+
+		// calculated distribution cost
+		emitCalculatedDistributionCost(timestamp, totalKeys, distinctKeys);
+
+		// total emitted count & total time consumption
+		emitTotalCountsAndTimeConsumption(timestamp);
+	}
+
+	private void emitCalculatedDistributionCost(long timestamp, int totalKeys, double distinctKeys) {
+		String key = "calc_dist_cost";
+		double distCost = totalKeys / distinctKeys;
+		Message message = new Message(key, timestamp);
+		message.addField(key, distCost);
+		collector.emit(new Values(message.getKey(), message));
+	}
+
+	private void emitTotalCountsAndTimeConsumption(long timestamp) {
+		Message message = new Message("EVENT_INFO", timestamp);
+		message.addTag("EVENT_TYPE", "EVENT_ONGOING");
+		message.addField("EVENT_TIME", timestamp);
+		message.addField("EVENT_TIME_FORMATTED", DKGUtils.formattedTime(timestamp));
+		message.addField("TOTAL_TIME_CONSUMPTION", timestamp - startTime);
+		message.addField("TOTAL_COUNT", totalCount);
+		collector.emit(new Values(message.getKey(), message));
+	}
+
+	@Override
+	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+		outputFieldsDeclarer.declare(new Fields("key", "message"));
+	}
+}

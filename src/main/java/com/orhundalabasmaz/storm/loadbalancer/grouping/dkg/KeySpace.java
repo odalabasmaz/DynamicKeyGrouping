@@ -1,6 +1,6 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -63,7 +63,7 @@ public class KeySpace implements Serializable {
 		}
 		for (KeyItem item : keyItemList) {
 			if (item == null) {
-				Logger.error("item cannot be null!");
+				CustomLogger.error("item cannot be null!");
 				continue;
 			}
 			if (key.equals(item.getKey())) {

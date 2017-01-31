@@ -11,28 +11,34 @@ public class CountryAggregator implements Aggregator {
 	private long aggregationDuration;
 
 	// basic
-	private SortedMap<String, Long> counter;
+	private final SortedMap<String, Long> counter;
 
 	// detailed
 	private long totalKeyCount;
-	private SortedMap<String, Long> workerCounts;
-	private SortedMap<String, CountInfo> keyCounts;
+	private final SortedMap<String, Long> workerCounts;
+	private final SortedMap<String, CountInfo> keyCounts;
 
-	public CountryAggregator(long aggregationDuration) {
-		this.aggregationDuration = aggregationDuration;
+	public CountryAggregator() {
 		this.counter = new TreeMap<>();
 		this.totalKeyCount = 0L;
 		this.workerCounts = new TreeMap<>();
 		this.keyCounts = new TreeMap<>();
 	}
 
+	public CountryAggregator(long aggregationDuration) {
+		this();
+		this.aggregationDuration = aggregationDuration;
+	}
+
 	@Override
 	public void aggregate(String key) {
-		long count = 1;
-		if (counter.containsKey(key)) {
-			count = counter.get(key) + 1;
-		}
-		counter.put(key, count);
+		aggregate(key, 1);
+	}
+
+	@Override
+	public void aggregate(String key, long count) {
+		long curr = counter.containsKey(key) ? counter.get(key) : 0;
+		counter.put(key, curr + count);
 	}
 
 	@Override
@@ -48,12 +54,14 @@ public class CountryAggregator implements Aggregator {
 	public SortedMap<String, Long> getCountsThenAdvanceWindow() {
 		final SortedMap<String, Long> dataClone = new TreeMap<>();
 		final List<String> deleted = new ArrayList<>();
-		for (Map.Entry<String, Long> entry : counter.entrySet()) {
-			dataClone.put(entry.getKey(), entry.getValue());
-			deleted.add(entry.getKey());
-		}
-		for (String d : deleted) {
-			counter.remove(d);
+		synchronized (counter) {
+			for (Map.Entry<String, Long> entry : counter.entrySet()) {
+				dataClone.put(entry.getKey(), entry.getValue());
+				deleted.add(entry.getKey());
+			}
+			for (String d : deleted) {
+				counter.remove(d);
+			}
 		}
 		return dataClone;
 	}
@@ -81,8 +89,8 @@ public class CountryAggregator implements Aggregator {
 
 	private void resetDetailedCounts() {
 		this.totalKeyCount = 0L;
-		this.workerCounts = new TreeMap<>();
-		this.keyCounts = new TreeMap<>();
+		this.workerCounts.clear();
+		this.keyCounts.clear();
 	}
 
 	private void count(String workerId, String key, Long count) {

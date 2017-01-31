@@ -10,7 +10,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.CountryAggregator;
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 
 import java.util.*;
 
@@ -33,7 +33,7 @@ public class WorkerBoltOld extends BaseRichBolt {
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-		Logger.info("bolt# prepare: collector assigned");
+		CustomLogger.info("bolt# prepare: collector assigned");
 		this.collector = outputCollector;
 //		this.counter = new CountryAggregator(processDuration, aggregationDuration);
 	}
@@ -45,14 +45,14 @@ public class WorkerBoltOld extends BaseRichBolt {
 			handleLoadInfo();
 			emitCurrentWindowCounts();
 		} else {
-			Logger.info("countDataAndAck");
+			CustomLogger.info("countDataAndAck");
 			countDataAndAck(tuple);
 		}
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-		Logger.log("bolt# output field declared: " + "frequency");
+		CustomLogger.log("bolt# output field declared: " + "frequency");
 //		outputFieldsDeclarer.declare(new Fields("country", "boltId", "count"));
 		outputFieldsDeclarer.declare(new Fields("boltId", "counts"));
 	}
@@ -71,7 +71,7 @@ public class WorkerBoltOld extends BaseRichBolt {
 
 	private void countDataAndAck(Tuple tuple) {
 		String key = tuple.getString(0);
-		Logger.info("countDataAndAck by " + key);
+		CustomLogger.info("countDataAndAck by " + key);
 		countKey(key);
 		collector.ack(tuple);
 	}
@@ -91,7 +91,7 @@ public class WorkerBoltOld extends BaseRichBolt {
 			Long count = entry.getValue();
 			String boltId = getBoltId();
 			collector.emit(new Values(key, boltId, count));
-			Logger.info("WorkerBolt: " + key + " - " + count);
+			CustomLogger.info("WorkerBolt: " + key + " - " + count);
 		}*/
 		String boltId = getBoltId();
 		collector.emit(new Values(boltId, counts));
@@ -123,7 +123,7 @@ public class WorkerBoltOld extends BaseRichBolt {
 			sb.append("#  ").append(entry.getKey()).append(" - ").append(entry.getValue()).append("\n");
 		}
 		sb.append("\n");
-//		Logger.log(sb.toString());
+//		CustomLogger.log(sb.toString());
 	}
 
 	private String getBoltId() {

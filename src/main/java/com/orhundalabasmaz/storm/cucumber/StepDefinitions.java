@@ -9,7 +9,7 @@ import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.Logger;
+import com.orhundalabasmaz.storm.utils.CustomLogger;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -29,7 +29,7 @@ public class StepDefinitions {
 
 	@Before
 	public void initialize() {
-		Logger.log("scenario initializing...");
+		CustomLogger.log("scenario initializing...");
 		testId = DKGUtils.generateTestId();
 		configBuilder = ConfigurationBuilder.getInstance();
 	}
@@ -37,7 +37,7 @@ public class StepDefinitions {
 	@Given("^Data type and process duration$")
 	public void dataTypeAndProcessDuration(List<RuntimeConfig> runtimeConfigList) throws Throwable {
 		RuntimeConfig config = runtimeConfigList.get(0);
-		Logger.log("dataSet is: " + config.getDataSet() +
+		CustomLogger.log("dataSet is: " + config.getDataSet() +
 				", process duration is: " + config.getProcessDuration() +
 				", termination duration is: " + config.getTerminationDuration());
 		configBuilder
@@ -50,58 +50,58 @@ public class StepDefinitions {
 
 	@When("^Grouping type is (\\w+)$")
 	public void groupingType(GroupingType groupingType) throws Throwable {
-		Logger.log("methodType is: " + groupingType);
+		CustomLogger.log("methodType is: " + groupingType);
 		configBuilder.groupingType(groupingType);
 	}
 
 	@And("^Stream type is (\\w+)$")
 	public void streamType(StreamType streamType) throws Throwable {
-		Logger.log("streamType is: " + streamType);
+		CustomLogger.log("streamType is: " + streamType);
 		configBuilder.streamType(streamType);
 	}
 
 	@And("^Spout count is (\\d+)$")
 	public void spoutCount(Integer spoutCount) throws Throwable {
-		Logger.log("spoutCount is: " + spoutCount);
+		CustomLogger.log("spoutCount is: " + spoutCount);
 		configBuilder.numberOfSpouts(spoutCount);
 	}
 
-	@And("^Worker count is (\\d+)$")
+	@And("^WorkerBolt count is (\\d+)$")
 	public void workerCount(Integer workerCount) throws Throwable {
-		Logger.log("workerCount is: " + workerCount);
+		CustomLogger.log("workerCount is: " + workerCount);
 		configBuilder.numberOfWorkerBolts(workerCount);
 	}
 
 	@Then("^Execute test$")
 	public void executeTest(List<RuntimeConfig> runtimeConfigList) throws Throwable {
-		Logger.log("test begins... " + DKGUtils.getCurrentDatetime());
+		CustomLogger.log("test begins... " + DKGUtils.getCurrentDatetime());
 		int retryCount = runtimeConfigList.get(0).getRetryCount();
 		Configuration config = configBuilder.build();
 		for (int i = 1; i <= retryCount; ++i) {
 			try {
-				Logger.log("test #" + i + " - running...");
+				CustomLogger.log("test #" + i + " - running...");
 				Topology topology = new LoadBalancerTopology(StormMode.CLUSTER, config);
 				topology.init();
 				topology.run();
 			} catch (Exception e) {
-				Logger.log("test #" + i + " - Exception occurred: " + e.getMessage());
+				CustomLogger.log("test #" + i + " - Exception occurred: " + e.getMessage());
 				e.printStackTrace();
 			} finally {
-				Logger.log("test #" + i + " - done.");
+				CustomLogger.log("test #" + i + " - done.");
 			}
 		}
-		Logger.log("test ends... " + DKGUtils.getCurrentDatetime());
+		CustomLogger.log("test ends... " + DKGUtils.getCurrentDatetime());
 	}
 
 	@And("^Test successfully completed$")
 	public void testSuccessfullyCompleted() throws Throwable {
-		Logger.log("successfully completed.");
+		CustomLogger.log("successfully completed.");
 	}
 
 	@After
 	public void cleanUp() {
-		Logger.log("scenario cleaning up.");
-		Logger.log("waiting for 5 secs.");
+		CustomLogger.log("scenario cleaning up.");
+		CustomLogger.log("waiting for 5 secs.");
 		DKGUtils.sleepInSeconds(5);
 	}
 }
