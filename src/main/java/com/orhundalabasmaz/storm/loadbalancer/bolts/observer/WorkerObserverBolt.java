@@ -28,7 +28,7 @@ public class WorkerObserverBolt extends BaseRichBolt {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void execute(Tuple tuple) {
+	public synchronized void execute(Tuple tuple) {
 		String workerId = convertWorkerId((String) tuple.getValueByField("workerId"));
 		String key = (String) tuple.getValueByField("key");
 		Long count = (Long) tuple.getValueByField("count");

@@ -77,6 +77,8 @@ public class SpoutObserverBolt extends WindowedBolt {
 		message.addField("EVENT_TIME_FORMATTED", DKGUtils.formattedTime(timestamp));
 		message.addField("TOTAL_TIME_CONSUMPTION", timestamp - startTime);
 		message.addField("TOTAL_COUNT", totalCount);
+		double incomingRatio = (double) totalCount / (timestamp - startTime);
+		message.addField("INCOMING_RATIO", incomingRatio);
 		collector.emit(new Values(message.getKey(), message));
 	}
 

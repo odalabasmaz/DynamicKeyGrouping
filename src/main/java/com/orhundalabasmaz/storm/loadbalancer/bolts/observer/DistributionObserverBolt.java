@@ -90,6 +90,8 @@ public class DistributionObserverBolt extends WindowedBolt {
 		message.addField("EVENT_TIME_FORMATTED", DKGUtils.formattedTime(timestamp));
 		message.addField("TOTAL_TIME_CONSUMPTION", timestamp - startTime);
 		message.addField("TOTAL_COUNT", totalCount);
+		double throughputRatio = (double) totalCount / (timestamp - startTime);
+		message.addField("THROUGHPUT_RATIO", throughputRatio);
 		collector.emit(new Values(message.getKey(), message));
 	}
 
