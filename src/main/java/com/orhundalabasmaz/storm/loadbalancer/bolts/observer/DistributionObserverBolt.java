@@ -6,6 +6,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.loadbalancer.aggregator.DistributionAggregator;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.WindowedBolt;
 import com.orhundalabasmaz.storm.model.Message;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
@@ -21,6 +22,7 @@ import java.util.Set;
 public class DistributionObserverBolt extends WindowedBolt {
 	private transient OutputCollector collector;
 	private Map<String, Set<String>> keyWorkers;
+	private DistributionAggregator distributionAggregator;
 	private long startTime;
 	private long totalCount;
 
@@ -31,6 +33,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.collector = outputCollector;
+		this.distributionAggregator = new DistributionAggregator();
 		this.keyWorkers = new LinkedHashMap<>();
 		this.startTime = DKGUtils.getCurrentTimestamp();
 	}
@@ -41,6 +44,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 		String key = (String) tuple.getValueByField("key");
 		Long count = (Long) tuple.getValueByField("count");
 //		Long timestamp = (Long) tuple.getValueByField("timestamp");
+		distributionAggregator.aggregate(workerId, count);
 
 		// aggregate total count
 		totalCount += count;
@@ -68,11 +72,24 @@ public class DistributionObserverBolt extends WindowedBolt {
 			collector.emit(new Values(message.getKey(), message));
 		}
 
+		// emit stddev
+		emitStandardDeviation(timestamp);
+
 		// calculated distribution cost
 		emitCalculatedDistributionCost(timestamp, totalKeys, distinctKeys);
 
 		// total emitted count & total time consumption
 		emitTotalCountsAndTimeConsumption(timestamp);
+	}
+
+	private void emitStandardDeviation(long timestamp) {
+		double stdDev = distributionAggregator.stdDev();
+		Message message = new Message("EVENT_INFO", timestamp);
+		message.addTag("EVENT_TYPE", "STD_DEV");
+		message.addField("EVENT_TIME", timestamp);
+		message.addField("EVENT_TIME_FORMATTED", DKGUtils.formattedTime(timestamp));
+		message.addField("STD_DEV", stdDev);
+		collector.emit(new Values(message.getKey(), message));
 	}
 
 	private void emitCalculatedDistributionCost(long timestamp, int totalKeys, double distinctKeys) {
@@ -90,7 +107,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 		message.addField("EVENT_TIME_FORMATTED", DKGUtils.formattedTime(timestamp));
 		message.addField("TOTAL_TIME_CONSUMPTION", timestamp - startTime);
 		message.addField("TOTAL_COUNT", totalCount);
-		double throughputRatio = (double) totalCount / (timestamp - startTime);
+		double throughputRatio = (double) totalCount / ((timestamp - startTime) / 1000);
 		message.addField("THROUGHPUT_RATIO", throughputRatio);
 		collector.emit(new Values(message.getKey(), message));
 	}
