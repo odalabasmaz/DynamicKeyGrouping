@@ -35,13 +35,15 @@ public class SpoutObserverBolt extends WindowedBolt {
 
 	@Override
 	public void countDataAndAck(Tuple tuple) {
-		if (startTime == 0) {
-			emitFirstTime();
+		synchronized (this) {
+			if (startTime == 0) {
+				emitFirstTime();
+			}
+			String key = tuple.getString(0);
+			aggregator.aggregate(key);
+			++totalCount;
+			collector.ack(tuple);
 		}
-		String key = tuple.getString(0);
-		aggregator.aggregate(key);
-		++totalCount;
-		collector.ack(tuple);
 	}
 
 	private void emitFirstTime() {
@@ -57,20 +59,22 @@ public class SpoutObserverBolt extends WindowedBolt {
 
 	@Override
 	public void emitCurrentWindowAndAdvance() {
-		long timestamp = DKGUtils.getCurrentTimestamp();
-		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
-		for (Map.Entry<String, Long> entry : counts.entrySet()) {
-			String key = entry.getKey();
-			Long count = entry.getValue();
-			Message message = new Message(key, timestamp);
-			message.addTag("country", key);
-			message.addField("count", count);
-			collector.emit(new Values(message.getKey(), message));
+		synchronized (this) {
+			long timestamp = DKGUtils.getCurrentTimestamp();
+			Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
+			for (Map.Entry<String, Long> entry : counts.entrySet()) {
+				String key = entry.getKey();
+				Long count = entry.getValue();
+				Message message = new Message(key, timestamp);
+				message.addTag("country", key);
+				message.addField("count", count);
+				collector.emit(new Values(message.getKey(), message));
+			}
+			emitOngoingTimeConsumption(totalCount, timestamp);
 		}
-		emitOngoingTimeConsumption(timestamp);
 	}
 
-	private void emitOngoingTimeConsumption(long timestamp) {
+	private void emitOngoingTimeConsumption(long totalCount, long timestamp) {
 		Message message = new Message("EVENT_INFO", timestamp);
 		message.addTag("EVENT_TYPE", "EVENT_ONGOING");
 		message.addField("EVENT_TIME", timestamp);

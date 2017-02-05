@@ -140,7 +140,7 @@ public class LoadBalancerTopology implements Topology {
 		// stream grouping
 		CustomStreamGrouping streamGrouping = StreamingGroupFactory
 				.getInstance()
-				.getStreamGrouping(runtimeConf.getGroupingType());
+				.getStreamGrouping(runtimeConf.getGroupingType(), runtimeConf.getGroupingProps());
 
 		//todo: parallelism hint must match with the number of kafka partitions
 		builder.setSpout(spoutName, new KafkaSpout(getKafkaSpoutConfig()), runtimeConf.getNumberOfSpouts());

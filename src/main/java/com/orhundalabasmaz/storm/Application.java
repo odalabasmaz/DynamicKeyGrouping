@@ -12,6 +12,9 @@ import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Orhun Dalabasmaz
  */
@@ -52,6 +55,8 @@ public class Application {
 		String sourceName = "source-country";
 		String sinkName = "sink1";
 		String IPAddr = "localhost"; //"localhost 85.110.34.250"
+		Map<String, String> groupingProps = new HashMap<>();
+		groupingProps.put("distinctKeyCount", "30");
 
 		CustomLogger.log("begin...");
 		Configuration config =
@@ -62,6 +67,7 @@ public class Application {
 						.processDuration(processDuration)
 						.terminationDuration(terminationDuration)
 						.groupingType(groupingType)
+						.groupingProps(groupingProps)
 						.streamType(streamType)
 						.numberOfWorkers(numberOfWorkers)
 						.numberOfSpouts(numberOfSpouts * numberOfWorkers)

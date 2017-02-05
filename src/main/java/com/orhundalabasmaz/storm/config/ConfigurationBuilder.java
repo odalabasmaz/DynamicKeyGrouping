@@ -5,6 +5,8 @@ import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 
+import java.util.Map;
+
 /**
  * @author Orhun Dalabasmaz
  */
@@ -124,6 +126,11 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder groupingType(GroupingType groupingType) {
 		conf.setGroupingType(groupingType);
+		return this;
+	}
+
+	public ConfigurationBuilder groupingProps(Map<String, String> props) {
+		conf.addGroupingProps(props);
 		return this;
 	}
 

@@ -28,12 +28,21 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private long[] targetTaskStats;
 	private List<Integer> targetTasks;
 
-	private double idealLoad;
 	private double loadToScaleUp;
 	private double loadToScaleDown;
 
-	private final KeySpace keySpace = new KeySpace();
-	private final Map<String, Integer> workerDepthMap = new HashMap<>();
+	private final KeySpace keySpace;
+	private final Map<String, Integer> workerCountSizeMap;
+
+	public DynamicKeyGrouping() {
+		keySpace = new KeySpace();
+		workerCountSizeMap = new HashMap<>();
+	}
+
+	public DynamicKeyGrouping(int distinctKeyCounts) {
+		keySpace = new KeySpace(distinctKeyCounts);
+		workerCountSizeMap = new HashMap<>();
+	}
 
 	@Override
 	public void prepare(WorkerTopologyContext context, GlobalStreamId streamId, List<Integer> targetTasks) {
@@ -46,7 +55,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	}
 
 	private void initThresholds() {
-		idealLoad = (double) 100 / NUMBER_OF_AVAILABLE_TASKS;
+		double idealLoad = (double) 100 / NUMBER_OF_AVAILABLE_TASKS;
 		loadToScaleUp = idealLoad + Math.sqrt(idealLoad);
 		loadToScaleDown = idealLoad - Math.sqrt(idealLoad);
 	}
@@ -58,8 +67,6 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	}
 
 	private void initKeySpaceManagement() {
-//		new Thread(new KeySpaceManager(keySpace)).start();
-//		new Thread(new KeySpaceGC(keySpace)).start();
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(new KeySpaceManager(keySpace));
 		executor.submit(new KeySpaceGC(keySpace));
@@ -92,22 +99,19 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private Integer chooseBestTask(String key) {
 		long hashOfKey = DKGUtils.calculateHash(key);
 		int targetWorkerIndex = normalizeIndex(hashOfKey);
-		Integer workerDepth = workerDepthMap.get(key);
-		if (workerDepth == null) {
-			workerDepth = NUMBER_OF_INITIAL_TASKS;      //i.e. 2 tasks available in startup
+		Integer workerCount = workerCountSizeMap.get(key);
+		if (workerCount == null) {
+			workerCount = NUMBER_OF_INITIAL_TASKS;      //i.e. 2 tasks available in startup
 		}
 
 		// select least loaded task as the best
-		Integer bestTask = null;
 		Integer bestTaskIndex = null;
 		double minLoad = Double.MAX_VALUE;
-		for (int i = 0; i < workerDepth; ++i) {
+		for (int i = 0; i < workerCount; ++i) {
 			int taskIndex = normalizeIndex(targetWorkerIndex + i);
-			int task = targetTasks.get(taskIndex);
 			double load = getCurrentLoadOfTask(taskIndex);
 			if (load < minLoad) {
 				minLoad = load;
-				bestTask = task;
 				bestTaskIndex = taskIndex;
 			}
 		}
@@ -115,19 +119,16 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		// check if it should scale up
 		boolean scaleUp = shouldScaleUp(key, minLoad);
 		if (scaleUp) {
-			int newTaskIndex = normalizeIndex(targetWorkerIndex + workerDepth);
-			int newTask = targetTasks.get(newTaskIndex);
+			int newTaskIndex = normalizeIndex(targetWorkerIndex + workerCount);
 			double newTaskLoad = getCurrentLoadOfTask(newTaskIndex);
 			if (newTaskLoad < minLoad) {
-				bestTask = newTask;
 				bestTaskIndex = newTaskIndex;
 				if (newTaskIndex >= NUMBER_OF_INITIAL_TASKS) {
-					workerDepthMap.put(key, workerDepth + 1);
+					workerCountSizeMap.put(key, workerCount + 1);
 				}
 			}
 		}
 
-//		return bestTask;
 		return bestTaskIndex;
 	}
 
@@ -154,16 +155,11 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	 * calculates the local load of the task
 	 */
 	private double getCurrentLoadOfTask(int task) {
-		if (numOfItems == 0) return 0;
-		return ((double) targetTaskStats[task] / numOfItems) * 100;
+		return numOfItems == 0 ? 0 : ((double) targetTaskStats[task] / numOfItems) * 100;
 	}
 
 	private int normalizeIndex(long index) {
 		return (int) (index % NUMBER_OF_AVAILABLE_TASKS);
 	}
-
-	/*private double getCurrentLoadOfKey(String key) {
-		return ((double) keyCountMap.get(key) / numOfItems) * 100;
-	}*/
 
 }

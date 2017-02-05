@@ -1,14 +1,13 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
 import com.orhundalabasmaz.storm.utils.CustomLogger;
-
-import java.util.concurrent.TimeUnit;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class KeySpaceGC implements Runnable {
-	private static final long TIME_INTERVAL = 60 * 10;
+	private static final long TIME_INTERVAL = 1 * 60L;
 	private final KeySpace keySpace;
 
 	public KeySpaceGC(KeySpace keySpace) {
@@ -20,12 +19,7 @@ public class KeySpaceGC implements Runnable {
 		while (true) {
 			// garbage collecting: retiring
 			CustomLogger.info("######## garbage collecting");
-
-			try {
-				TimeUnit.SECONDS.sleep(TIME_INTERVAL);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			DKGUtils.sleepInSeconds(TIME_INTERVAL);
 		}
 	}
 }

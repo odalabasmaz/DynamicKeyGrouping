@@ -6,6 +6,8 @@ import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Orhun Dalabasmaz
@@ -44,6 +46,7 @@ public class Configuration implements Serializable {
 	private boolean isLogEnabled;
 	private int retryCount;
 	private StormMode stormMode;
+	private Map<String, String> groupingProps = new HashMap<>();
 
 	// KAFKA
 	private String sourceName;
@@ -195,6 +198,18 @@ public class Configuration implements Serializable {
 
 	public void setGroupingType(GroupingType groupingType) {
 		this.groupingType = groupingType;
+	}
+
+	public Map<String, String> getGroupingProps() {
+		return groupingProps;
+	}
+
+	public void addGroupingProps(String key, String value) {
+		this.groupingProps.put(key, value);
+	}
+
+	public void addGroupingProps(Map<String, String> props) {
+		this.groupingProps.putAll(props);
 	}
 
 	public AggregatorType getAggregatorType() {

@@ -33,7 +33,6 @@ public class WorkerObserverBolt extends BaseRichBolt {
 		String key = (String) tuple.getValueByField("key");
 		Long count = (Long) tuple.getValueByField("count");
 		Long timestamp = (Long) tuple.getValueByField("timestamp");
-
 		Message message = new Message(key, timestamp);
 		message.addTag("country", key);
 		message.addTag("workerId", workerId);
@@ -44,10 +43,8 @@ public class WorkerObserverBolt extends BaseRichBolt {
 	}
 
 	private String convertWorkerId(String workerId) {
-		synchronized (workerIds) {
-			if (!workerIds.contains(workerId)) {
-				workerIds.add(workerId);
-			}
+		if (!workerIds.contains(workerId)) {
+			workerIds.add(workerId);
 		}
 		String workerNo = String.valueOf(workerIds.indexOf(workerId) + 1);
 		workerNo = StringUtils.leftPad(workerNo, 3, "0");

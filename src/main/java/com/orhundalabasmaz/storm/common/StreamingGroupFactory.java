@@ -7,6 +7,8 @@ import com.orhundalabasmaz.storm.loadbalancer.grouping.PartialKeyGrouping;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.ShuffleGrouping;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.dkg.DynamicKeyGrouping;
 
+import java.util.Map;
+
 /**
  * @author Orhun Dalabasmaz
  */
@@ -19,7 +21,7 @@ public class StreamingGroupFactory {
 		return new StreamingGroupFactory();
 	}
 
-	public CustomStreamGrouping getStreamGrouping(GroupingType groupingType) {
+	public CustomStreamGrouping getStreamGrouping(GroupingType groupingType, Map<String, String> groupingProps) {
 		CustomStreamGrouping streamGrouping;
 		switch (groupingType) {
 			case SHUFFLE:
@@ -34,7 +36,8 @@ public class StreamingGroupFactory {
 				streamGrouping = new PartialKeyGrouping();
 				break;
 			case DYNAMIC_KEY:
-				streamGrouping = new DynamicKeyGrouping();
+				int distinctKeyCount = Integer.parseInt(groupingProps.get("distinctKeyCount"));
+				streamGrouping = new DynamicKeyGrouping(distinctKeyCount);
 				break;
 			default:
 				throw new UnsupportedOperationException("Unexpected groupingType: " + groupingType);

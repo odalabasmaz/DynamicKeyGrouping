@@ -19,9 +19,9 @@ public class KeySpace implements Serializable {
 	private List<KeyItem> teenageSpace;      // max heap
 	private List<KeyItem> oldSpace;          // max heap
 
-	private final int BABY_MAX_SIZE = 50;
-	private final int TEENAGE_MAX_SIZE = 20;
-	private final int OLD_MAX_SIZE = 10;
+	private final int OLD_MAX_SIZE;
+	private final int TEENAGE_MAX_SIZE;
+	private final int BABY_MAX_SIZE;
 
 	private static final Comparator<KeyItem> DESC_COMPARATOR = new Comparator<KeyItem>() {
 		@Override
@@ -31,9 +31,23 @@ public class KeySpace implements Serializable {
 	};
 
 	public KeySpace() {
-		babySpace = new ArrayList<>(BABY_MAX_SIZE);
-		teenageSpace = new ArrayList<>(TEENAGE_MAX_SIZE);
+		OLD_MAX_SIZE = 10;
+		TEENAGE_MAX_SIZE = 20;
+		BABY_MAX_SIZE = 50;
+
 		oldSpace = new ArrayList<>(OLD_MAX_SIZE);
+		teenageSpace = new ArrayList<>(TEENAGE_MAX_SIZE);
+		babySpace = new ArrayList<>(BABY_MAX_SIZE);
+	}
+
+	public KeySpace(int distinctKeyCounts) {
+		OLD_MAX_SIZE = (int) (distinctKeyCounts * (10 / (double) 100));
+		TEENAGE_MAX_SIZE = (int) (distinctKeyCounts * (40 / (double) 100));
+		BABY_MAX_SIZE = (int) (distinctKeyCounts * (50 / (double) 100));
+
+		oldSpace = new ArrayList<>(OLD_MAX_SIZE);
+		teenageSpace = new ArrayList<>(TEENAGE_MAX_SIZE);
+		babySpace = new ArrayList<>(BABY_MAX_SIZE);
 	}
 
 	public void handleKey(String key) {
