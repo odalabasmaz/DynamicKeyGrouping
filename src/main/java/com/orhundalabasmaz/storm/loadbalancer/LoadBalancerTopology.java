@@ -20,7 +20,7 @@ import com.orhundalabasmaz.storm.loadbalancer.bolts.KafkaOutputBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.WorkerBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.DistributionObserverBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.SpoutObserverBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.SplitterObserverBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.WorkerObserverBolt;
 import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
@@ -42,7 +42,7 @@ public class LoadBalancerTopology implements Topology {
 	private final String spoutName = "load-balancer-spout";
 	private final String splitterName = "splitter";
 	private final String workerName = "worker";
-	private final String spoutObserverName = "spout-observer";
+	private final String splitterObserverName = "splitter-observer";
 	private final String workerObserverName = "worker-observer";
 	private final String distributionObserverName = "key-distribution";
 	private final String aggregatorName = "aggregator";
@@ -171,10 +171,10 @@ public class LoadBalancerTopology implements Topology {
 				new AggregatorBolt(runtimeConf.getTimeIntervalOfAggregatorBolts(), runtimeConf.getAggregationDuration()), 10)
 				.fieldsGrouping(workerName, new Fields("key"));
 
-		// spout observer
-		builder.setBolt(spoutObserverName,
-				new SpoutObserverBolt(5), 1)
-				.noneGrouping(spoutName);
+		// splitter observer
+		builder.setBolt(splitterObserverName,
+				new SplitterObserverBolt(5), 1)
+				.noneGrouping(splitterName);
 
 		// worker observer
 		builder.setBolt(workerObserverName,
@@ -189,7 +189,7 @@ public class LoadBalancerTopology implements Topology {
 		// output
 		builder.setBolt(outputName + "-0",
 				new KafkaOutputBolt("incoming"), 1)
-				.shuffleGrouping(spoutObserverName);
+				.shuffleGrouping(splitterObserverName);
 		builder.setBolt(outputName + "-1",
 				new KafkaOutputBolt("result"), 1)
 				.shuffleGrouping(aggregatorName);
