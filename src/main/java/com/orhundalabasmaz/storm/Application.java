@@ -1,7 +1,7 @@
 package com.orhundalabasmaz.storm;
 
-import com.orhundalabasmaz.storm.common.Topology;
 import com.orhundalabasmaz.storm.common.StormMode;
+import com.orhundalabasmaz.storm.common.Topology;
 import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
@@ -26,35 +26,32 @@ public class Application {
 
 	/**
 	 * $ java -jar dkg-wd.jar SHUFFLE|KEY|PARTIAL_KEY|DYNAMIC_KEY 10 1
-	 * */
+	 */
 	public static void main(String... args) {
-		if (args.length < 3) {
+		if (args.length < 4) {
 			LOGGER.error("groupingType, workerCount and processDuration must be specified!\n" +
-					"i.e. $ java -jar dkg-wd.jar DYNAMIC_KEY 50 1");
-			throw new UnsupportedOperationException("groupingType, workerCount and processDuration must be specified!");
+					"i.e. $ java -jar dkg-wd.jar DYNAMIC_KEY source-country 5 10");
+			throw new UnsupportedOperationException("groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
 		}
 
 		GroupingType groupingType = GroupingType.valueOf(args[0]);
-		int numberOfWorkerBolts = Integer.parseInt(args[1]);
-		long processDuration = Long.parseLong(args[2]);
+		String sourceName = args[1];
+		int numberOfSpouts = Integer.parseInt(args[2]);
+		int numberOfWorkerBolts = Integer.parseInt(args[3]);
 
 		String testId = DKGUtils.generateTestId();
 		String dataSet = "COUNTRY";
-//		long processDuration = 1;
+		long processDuration = 1L;
 		long terminationDuration = 1000 * 60 * 1000L;
-//		GroupingType groupingType = GroupingType.DYNAMIC_KEY;
 		StreamType streamType = StreamType.SKEW;
 		int numberOfWorkers = 1;
-		int numberOfSpouts = 5;
 		int numberOfSplitterBolts = 10;
-//		int numberOfWorkerBolts = 10;
 		int numberOfAggregatorBolts = 10;
 		int numberOfOutputBolts = 1;
 		int retryCount = 1;
 		StormMode stormMode = StormMode.LOCAL;
-		String sourceName = "source-country";
 		String sinkName = "sink1";
-		String IPAddr = "localhost"; //"localhost 85.110.34.250"
+		String IPAddr = "localhost"; //localhost 78.165.170.40
 		Map<String, String> groupingProps = new HashMap<>();
 		groupingProps.put("distinctKeyCount", "30");
 
@@ -75,6 +72,8 @@ public class Application {
 						.numberOfWorkerBolts(numberOfWorkerBolts * numberOfWorkers)
 						.numberOfAggregatorBolts(numberOfAggregatorBolts * numberOfWorkers)
 						.numberOfOutputBolts(numberOfOutputBolts * numberOfWorkers)
+						.timeIntervalOfWorkerBolts(10)
+						.timeIntervalOfAggregatorBolts(60)
 						.retryCount(retryCount)
 						.stormMode(stormMode)
 						.sourceName(sourceName)

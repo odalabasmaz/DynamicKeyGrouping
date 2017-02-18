@@ -76,6 +76,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 				message.addField("numberOfWorkers", numberOfWorkers);
 				collector.emit(new Values(message.getKey(), message));
 			}
+			keyWorkers.clear();
 
 			// emit stddev
 			emitStandardDeviation(timestamp);
@@ -99,8 +100,8 @@ public class DistributionObserverBolt extends WindowedBolt {
 	}
 
 	private void emitCalculatedDistributionCost(long timestamp, int totalKeys, double distinctKeys) {
-		String key = "calc_dist_cost";
-		double distCost = totalKeys / distinctKeys;
+		String key = "CALC_DIST_COST";
+		double distCost = distinctKeys > 0 ? totalKeys / distinctKeys : 0;
 		Message message = new Message(key, timestamp);
 		message.addField(key, distCost);
 		collector.emit(new Values(message.getKey(), message));

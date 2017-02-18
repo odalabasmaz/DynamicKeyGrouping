@@ -4,6 +4,8 @@ import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.concurrent.Executors;
  * @author Orhun Dalabasmaz
  */
 public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DynamicKeyGrouping.class);
 	private static final long serialVersionUID = 398118264736370294L;
 
 	private long STARTING_TIME = 0L;
@@ -35,11 +38,15 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private final Map<String, Integer> workerCountSizeMap;
 
 	public DynamicKeyGrouping() {
+		String id = this.toString();
+		LOGGER.info(">>>>>>>>>>>>>>>>>> DKG-D: {}", id);
 		keySpace = new KeySpace();
 		workerCountSizeMap = new HashMap<>();
 	}
 
 	public DynamicKeyGrouping(int distinctKeyCounts) {
+		String id = this.toString();
+		LOGGER.info(">>>>>>>>>>>>>>>>>> DKG: {}", id);
 		keySpace = new KeySpace(distinctKeyCounts);
 		workerCountSizeMap = new HashMap<>();
 	}
@@ -104,21 +111,25 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 			workerCount = NUMBER_OF_INITIAL_TASKS;      //i.e. 2 tasks available in startup
 		}
 
+		int numberOfLessLoad = 0;
 		// select least loaded task as the best
 		Integer bestTaskIndex = null;
 		double minLoad = Double.MAX_VALUE;
 		for (int i = 0; i < workerCount; ++i) {
 			int taskIndex = normalizeIndex(targetWorkerIndex + i);
 			double load = getCurrentLoadOfTask(taskIndex);
+			if (load < loadToScaleUp) {
+				numberOfLessLoad++;
+			}
 			if (load < minLoad) {
 				minLoad = load;
 				bestTaskIndex = taskIndex;
 			}
 		}
 
-		// check if it should scale up
-		boolean scaleUp = shouldScaleUp(key, minLoad);
-		if (scaleUp) {
+		if (shouldScaleUp(key, minLoad)) {
+			// check if it should scale up
+			LOGGER.info("Scaling up for key: {}, to: {} workers", key, workerCount + 1);
 			int newTaskIndex = normalizeIndex(targetWorkerIndex + workerCount);
 			double newTaskLoad = getCurrentLoadOfTask(newTaskIndex);
 			if (newTaskLoad < minLoad) {
@@ -127,6 +138,11 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 					workerCountSizeMap.put(key, workerCount + 1);
 				}
 			}
+		} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
+			// check if it should scale down
+			LOGGER.info("Scaling down for key: {}, to: {} workers", key, workerCount - 1);
+			workerCountSizeMap.put(key, workerCount - 1);
+			return chooseBestTask(key);
 		}
 
 		return bestTaskIndex;
@@ -149,6 +165,10 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		}
 
 		return true;
+	}
+
+	private boolean shouldScaleDown(int workerCount, int numberOfLessLoad) {
+		return workerCount > 2 && numberOfLessLoad >= 2;
 	}
 
 	/**
