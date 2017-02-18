@@ -7,15 +7,17 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.common.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Orhun Dalabasmaz
  */
-public class SplitterBolt extends BaseRichBolt {
+public abstract class SplitterBolt extends BaseRichBolt {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SplitterBolt.class);
 	private transient OutputCollector collector;
 
@@ -27,15 +29,22 @@ public class SplitterBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		String key = tuple.getString(0);
-//		LOGGER.info("SplitterBolt# emitting new value: {}", key);
-		collector.emit(tuple, new Values(key));
+		String message = tuple.getString(0);
+		Record record = convertMessage(message);
+		Long timestamp = record.getTimestamp();
+		List<String> keys = record.getKeys();
+		for (String key : keys) {
+			collector.emit(tuple, new Values(timestamp, key));
+		}
 		collector.ack(tuple);
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 		LOGGER.info("bolt# output field declared: " + "splitter");
-		outputFieldsDeclarer.declare(new Fields("key"));
+		outputFieldsDeclarer.declare(new Fields("timestamp", "key"));
 	}
+
+	protected abstract Record convertMessage(String message);
+
 }

@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm;
 
+import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.common.Topology;
 import com.orhundalabasmaz.storm.config.Configuration;
@@ -30,14 +31,15 @@ public class Application {
 	public static void main(String... args) {
 		if (args.length < 4) {
 			LOGGER.error("groupingType, workerCount and processDuration must be specified!\n" +
-					"i.e. $ java -jar dkg-wd.jar DYNAMIC_KEY source-country 5 10");
-			throw new UnsupportedOperationException("groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
+					"i.e. $ java -jar dkg-wd.jar COUNTRY DYNAMIC_KEY source-country 5 10");
+			throw new UnsupportedOperationException("sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
 		}
 
-		GroupingType groupingType = GroupingType.valueOf(args[0]);
-		String sourceName = args[1];
-		int numberOfSpouts = Integer.parseInt(args[2]);
-		int numberOfWorkerBolts = Integer.parseInt(args[3]);
+		SourceType sourceType = SourceType.valueOf(args[0]);
+		GroupingType groupingType = GroupingType.valueOf(args[1]);
+		String sourceName = args[2];
+		int numberOfSpouts = Integer.parseInt(args[3]);
+		int numberOfWorkerBolts = Integer.parseInt(args[4]);
 
 		String testId = DKGUtils.generateTestId();
 		String dataSet = "COUNTRY";
@@ -63,6 +65,7 @@ public class Application {
 						.dataSet(dataSet)
 						.processDuration(processDuration)
 						.terminationDuration(terminationDuration)
+						.sourceType(sourceType)
 						.groupingType(groupingType)
 						.groupingProps(groupingProps)
 						.streamType(streamType)

@@ -10,15 +10,18 @@ import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import com.orhundalabasmaz.storm.common.SourceFactory;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.common.StreamingGroupFactory;
 import com.orhundalabasmaz.storm.common.Topology;
 import com.orhundalabasmaz.storm.config.Configuration;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.*;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.AggregatorBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.KafkaOutputBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.WorkerBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.DistributionObserverBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.SpoutObserverBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.WorkerObserverBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.KafkaOutputBolt;
 import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
@@ -137,6 +140,11 @@ public class LoadBalancerTopology implements Topology {
 //		conf.setMaxTaskParallelism(16);
 		setKafkaProducerConfig(conf);
 
+		// source
+		SplitterBolt sourceSplitter = SourceFactory
+				.getInstance()
+				.getSourceSplitter(runtimeConf.getSourceType());
+
 		// stream grouping
 		CustomStreamGrouping streamGrouping = StreamingGroupFactory
 				.getInstance()
@@ -148,7 +156,7 @@ public class LoadBalancerTopology implements Topology {
 
 		// splitter
 		builder.setBolt(splitterName,
-				new SplitterBolt(), runtimeConf.getNumberOfSplitterBolts())
+				sourceSplitter, runtimeConf.getNumberOfSplitterBolts())
 //				.setNumTasks(2)
 				.shuffleGrouping(spoutName);
 

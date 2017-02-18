@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm.config;
 
+import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
@@ -121,6 +122,11 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder streamType(StreamType streamType) {
 		conf.setStreamType(streamType);
+		return this;
+	}
+
+	public ConfigurationBuilder sourceType(SourceType sourceType) {
+		conf.setSourceType(sourceType);
 		return this;
 	}
 

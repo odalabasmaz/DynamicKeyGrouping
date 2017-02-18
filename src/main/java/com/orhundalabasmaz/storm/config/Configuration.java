@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm.config;
 
+import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
@@ -39,6 +40,7 @@ public class Configuration implements Serializable {
 	// RUNTIME PROPS
 	private String dataSet;
 	private StreamType streamType;
+	private SourceType sourceType;
 	private GroupingType groupingType;
 	private AggregatorType aggregatorType;
 	private long processDuration;                   //ms
@@ -190,6 +192,14 @@ public class Configuration implements Serializable {
 
 	public void setStreamType(StreamType streamType) {
 		this.streamType = streamType;
+	}
+
+	public SourceType getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(SourceType sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	public GroupingType getGroupingType() {
