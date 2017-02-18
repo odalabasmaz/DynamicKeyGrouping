@@ -39,12 +39,12 @@ public abstract class SplitterBolt extends BaseRichBolt {
 		collector.ack(tuple);
 	}
 
+	protected abstract Record convertMessage(String message);
+
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 		LOGGER.info("bolt# output field declared: " + "splitter");
 		outputFieldsDeclarer.declare(new Fields("timestamp", "key"));
 	}
-
-	protected abstract Record convertMessage(String message);
 
 }
