@@ -22,6 +22,9 @@ public class DKGUtils {
 	private static final Format DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private static final HashFunction HF = Hashing.murmur3_128(13);
 
+	private DKGUtils() {
+	}
+
 	public static long calculateHash(String key) {
 		return Math.abs(HF.hashBytes(key.getBytes()).asLong());
 	}

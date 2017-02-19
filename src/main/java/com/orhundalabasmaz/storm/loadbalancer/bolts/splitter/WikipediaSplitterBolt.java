@@ -12,7 +12,11 @@ public class WikipediaSplitterBolt extends SplitterBolt {
 	protected Record convertMessage(String message) {
 		String[] part = message.split(" ");
 		long timestamp = Long.parseLong(part[0]);
-		String key = part[1].replaceFirst("http://en.wikipedia.org/wiki/", "");
+		String key = replacement(part[1]);
 		return new Record(timestamp, key);
+	}
+
+	private String replacement(String url) {
+		return url.replaceFirst("http://en.wikipedia.org/wiki/", "");
 	}
 }
