@@ -19,10 +19,23 @@ import java.util.Map;
 public class TwitterSplitterBolt extends SplitterBolt {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSplitterBolt.class);
 	private static final ObjectMapper objectMapper = new ObjectMapper();
-	private static final Map<String, String> replacementMap = new HashMap<>();
+	private static final Map<String, String> wordMap = new HashMap<>();
+	private static final Map<String, String> charMap = new HashMap<>();
 
 	static {
-//		replacementMap.put("", "");
+//		wordMap.put("", "");
+
+		charMap.put("\n", " ");
+		charMap.put("\u00e0", "a");
+		charMap.put("\u00e1", "a");
+		charMap.put("\u00e2", "a");
+		charMap.put("\u00e3", "a");
+		charMap.put("\u00e4", "a");
+		charMap.put("\u00e5", "a");
+		charMap.put("\u00e6", "a");
+		charMap.put("\u00e7", "c");
+		charMap.put("\u00e8", "e");
+		charMap.put("\u00e9", "e");
 	}
 
 	@Override
@@ -49,21 +62,43 @@ public class TwitterSplitterBolt extends SplitterBolt {
 
 	@SuppressWarnings("unchecked")
 	private List<String> getKeys(JsonNode jsonNode) {
-		List<String> hashtags = objectMapper.convertValue(jsonNode.get("hashtags"), List.class);
+		// hashtags
+		JsonNode jsHashtags = jsonNode.get("hashtags");
+		List<String> hashtags = objectMapper.convertValue(jsHashtags, List.class);
 		List<String> keys = new ArrayList<>(hashtags.size());
 		for (String hashtag : hashtags) {
-			String tag = replacement(hashtag);
-			keys.add(tag);
+			String key = replacement(hashtag);
+			keys.add(key);
 		}
+
+		// text
+		JsonNode jsText = jsonNode.get("text");
+		String[] words = jsText
+				.asText()
+				.replaceAll("[^\\p{L}\\p{Nd}]+", " ")
+				.split(" ");
+		for (String word : words) {
+			String key = replacement(word);
+			keys.add(key);
+		}
+
 		return keys;
 	}
 
-	private String replacement(String hashtag) {
-		String tag = hashtag.toLowerCase();
-		if (replacementMap.containsKey(tag)) {
-			return replacementMap.get(tag);
+	private String replacement(String value) {
+		String res = value.toLowerCase();
+
+		// convert non-latin characters into latin characters (i.e: ê > e)
+		for (Map.Entry<String, String> entry : charMap.entrySet()) {
+			res = res.replaceAll(entry.getKey(), entry.getValue());
 		}
-		return tag;
+
+		// replace synonym words
+		if (wordMap.containsKey(res)) {
+			res = wordMap.get(res);
+		}
+
+		return res;
 	}
 
 }
