@@ -31,15 +31,16 @@ public class Application {
 	public static void main(String... args) {
 		if (args.length < 4) {
 			LOGGER.error("groupingType, workerCount and processDuration must be specified!\n" +
-					"i.e. $ java -jar dkg-wd.jar COUNTRY DYNAMIC_KEY source-country 5 10");
-			throw new UnsupportedOperationException("sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
+					"i.e. $ java -jar dkg-wd.jar LOCAL COUNTRY DYNAMIC_KEY source-country 5 10");
+			throw new UnsupportedOperationException("stormMode, sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
 		}
 
-		SourceType sourceType = SourceType.valueOf(args[0]);
-		GroupingType groupingType = GroupingType.valueOf(args[1]);
-		String sourceName = args[2];
-		int numberOfSpouts = Integer.parseInt(args[3]);
-		int numberOfWorkerBolts = Integer.parseInt(args[4]);
+		StormMode stormMode = StormMode.valueOf(args[0]);
+		SourceType sourceType = SourceType.valueOf(args[1]);
+		GroupingType groupingType = GroupingType.valueOf(args[2]);
+		String sourceName = args[3];
+		int numberOfSpouts = Integer.parseInt(args[4]);
+		int numberOfWorkerBolts = Integer.parseInt(args[5]);
 
 		String testId = DKGUtils.generateTestId();
 		String dataSet = "COUNTRY";
@@ -51,7 +52,6 @@ public class Application {
 		int numberOfAggregatorBolts = 10;
 		int numberOfOutputBolts = 1;
 		int retryCount = 1;
-		StormMode stormMode = StormMode.LOCAL;
 		String sinkName = "sink1";
 		String IPAddr = "localhost"; //localhost 78.165.170.40
 		Map<String, String> groupingProps = new HashMap<>();
