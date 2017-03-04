@@ -8,7 +8,6 @@ import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
-import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,11 +52,11 @@ public class Application {
 		int numberOfOutputBolts = 1;
 		int retryCount = 1;
 		String sinkName = "sink1";
-		String IPAddr = "localhost"; //localhost 78.165.170.40
+		String IPAddr = "78.165.170.40"; //localhost 78.165.170.40
 		Map<String, String> groupingProps = new HashMap<>();
 		groupingProps.put("distinctKeyCount", "30");
 
-		CustomLogger.log("begin...");
+		LOGGER.info("begin...");
 		Configuration config =
 				ConfigurationBuilder.getInstance()
 						.defaultSet()
@@ -84,18 +83,18 @@ public class Application {
 						.ipAddr(IPAddr)
 						.build();
 		execute(config);
-		CustomLogger.log("end...");
+		LOGGER.info("end...");
 	}
 
 	private static void execute(Configuration config) {
-		CustomLogger.log("test begins... " + DKGUtils.getCurrentDatetime());
+		LOGGER.info("test begins... " + DKGUtils.getCurrentDatetime());
 		int retryCount = config.getRetryCount();
 		for (int i = 1; i <= retryCount; ++i) {
-			CustomLogger.log("test #" + i + " - running...");
+			LOGGER.info("test #{} - running...", i);
 			run(config);
-			CustomLogger.log("test #" + i + " - done.");
+			LOGGER.info("test #{} - done.", i);
 		}
-		CustomLogger.log("test ends... " + DKGUtils.getCurrentDatetime());
+		LOGGER.info("test ends... " + DKGUtils.getCurrentDatetime());
 	}
 
 	private static void run(Configuration runtimeConf) {

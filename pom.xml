@@ -20,12 +20,12 @@
 	</developers>
 
 	<properties>
-		<maven.compiler.level>1.7</maven.compiler.level>
+		<maven.compiler.level>1.8</maven.compiler.level>
 		<guava.version>19.0</guava.version>
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<storm.version>0.9.3</storm.version><!-- 1.0.2 -->
 		<!--<kafka.version>0.8.2.2</kafka.version>-->
-		<kafka.version>0.10.1.0</kafka.version>
+		<kafka.version>0.10.1.1</kafka.version>
 		<storm.cassandra.version>1.0.2</storm.cassandra.version>
 		<maven.aspectj.version>1.4</maven.aspectj.version>
 		<maven-compiler-plugin-version>3.5.1</maven-compiler-plugin-version>

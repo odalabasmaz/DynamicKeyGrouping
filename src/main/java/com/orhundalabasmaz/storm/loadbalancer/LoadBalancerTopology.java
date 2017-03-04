@@ -22,7 +22,6 @@ import com.orhundalabasmaz.storm.loadbalancer.bolts.WorkerBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.DistributionObserverBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.SplitterObserverBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.WorkerObserverBolt;
-import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,20 +225,20 @@ public class LoadBalancerTopology implements Topology {
 	}
 
 	private void runOnLocal() {
-		CustomLogger.log("topology# submitting topology on local");
+		LOGGER.info("topology# submitting topology on local");
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(topologyName, conf, topology);
 
 		DKGUtils.sleepInMilliseconds(runtimeConf.getTopologyTimeout());
 
-		CustomLogger.log("topology# killing topology");
+		LOGGER.info("topology# killing topology");
 		cluster.killTopology(topologyName);
 		cluster.shutdown();
 	}
 
 	private void runOnCluster() {
 		try {
-			CustomLogger.log("topology# submitting topology on cluster");
+			LOGGER.info("topology# submitting topology on cluster");
 //            StormSubmitter.submitTopology(topologyName, conf, topology);
 			StormSubmitter.submitTopologyWithProgressBar(topologyName, conf, topology);
 		} catch (AlreadyAliveException | InvalidTopologyException e) {
