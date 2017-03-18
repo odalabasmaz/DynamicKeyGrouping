@@ -1,13 +1,10 @@
 package com.orhundalabasmaz.storm.loadbalancer.bolts.splitter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orhundalabasmaz.storm.common.Record;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +13,8 @@ import java.util.Map;
 /**
  * @author Orhun Dalabasmaz
  */
-public class TwitterSplitterBolt extends SplitterBolt {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSplitterBolt.class);
-	private static final ObjectMapper objectMapper = new ObjectMapper();
+public class TwitterElectionSplitter extends JsonSplitter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterElectionSplitter.class);
 	private static final Map<String, String> wordMap = new HashMap<>();
 	private static final Map<String, String> charMap = new HashMap<>();
 
@@ -43,21 +39,11 @@ public class TwitterSplitterBolt extends SplitterBolt {
 		JsonNode jsonNode = readMessage(message);
 		long timestamp = getTimestamp(jsonNode);
 		List<String> keys = getKeys(jsonNode);
-		return new Record(timestamp, keys);
-	}
-
-	private JsonNode readMessage(String message) {
-		JsonNode jsonNode = null;
-		try {
-			jsonNode = objectMapper.readTree(message);
-		} catch (IOException e) {
-			LOGGER.error("Record cannot be constructed.", e);
+		Record record = new Record(timestamp);
+		for (String key : keys) {
+			record.addKey(key);
 		}
-		return jsonNode;
-	}
-
-	private long getTimestamp(JsonNode jsonNode) {
-		return jsonNode.get("timestamp").asLong();
+		return record;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -66,13 +52,14 @@ public class TwitterSplitterBolt extends SplitterBolt {
 		JsonNode jsHashtags = jsonNode.get("hashtags");
 		List<String> hashtags = objectMapper.convertValue(jsHashtags, List.class);
 		List<String> keys = new ArrayList<>(hashtags.size());
-		for (String hashtag : hashtags) {
+		keys.addAll(hashtags);
+		/*for (String hashtag : hashtags) {
 			String key = replacement(hashtag);
 			keys.add(key);
-		}
+		}*/
 
 		// text
-		JsonNode jsText = jsonNode.get("text");
+		/*JsonNode jsText = jsonNode.get("text");
 		String[] words = jsText
 				.asText()
 				.replaceAll("[^\\p{L}\\p{Nd}]+", " ")
@@ -80,7 +67,7 @@ public class TwitterSplitterBolt extends SplitterBolt {
 		for (String word : words) {
 			String key = replacement(word);
 			keys.add(key);
-		}
+		}*/
 
 		return keys;
 	}

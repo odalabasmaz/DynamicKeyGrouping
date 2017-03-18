@@ -1,9 +1,7 @@
 package com.orhundalabasmaz.storm.common;
 
 import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.splitter.CountrySplitterBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.splitter.TwitterSplitterBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.splitter.WikipediaSplitterBolt;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.splitter.*;
 
 /**
  * @author Orhun Dalabasmaz
@@ -20,14 +18,23 @@ public class SourceFactory {
 	public SplitterBolt getSourceSplitter(SourceType sourceType) {
 		SplitterBolt splitter;
 		switch (sourceType) {
+			case TWITTER_TICKER:
+				splitter = new TwitterTickerSplitter();
+				break;
+			case WIKIPEDIA_PAGEVIEW:
+				splitter = new WikipediaPageviewSplitter();
+				break;
 			case COUNTRY:
-				splitter = new CountrySplitterBolt();
+				splitter = new CountrySplitter();
 				break;
-			case WIKIPEDIA:
-				splitter = new WikipediaSplitterBolt();
+			case TWITTER_ELECTION:
+				splitter = new TwitterElectionSplitter();
 				break;
-			case TWITTER:
-				splitter = new TwitterSplitterBolt();
+			case WIKIPEDIA_CLICKSTREAM:
+				splitter = new WikipediaClickstreamSplitter();
+				break;
+			case WIKIPEDIA_PAGEVIEW_BY_LANG:
+				splitter = new WikipediaPageviewByLangSplitter();
 				break;
 			default:
 				throw new UnsupportedOperationException("Unexpected sourceType: " + sourceType);

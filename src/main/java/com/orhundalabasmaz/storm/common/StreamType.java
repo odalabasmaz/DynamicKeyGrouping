@@ -1,4 +1,4 @@
-package com.orhundalabasmaz.storm.loadbalancer.spouts;
+package com.orhundalabasmaz.storm.common;
 
 /**
  * @author Orhun Dalabasmaz

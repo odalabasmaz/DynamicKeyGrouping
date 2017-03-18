@@ -64,8 +64,8 @@ public class LoadBalancerTopology implements Topology {
 				.append("Initializing LoadBalancerTopology!").append("\n")
 				.append("APP VERSION: ").append(runtimeConf.getAppVersion()).append("\n")
 				.append("STREAM TYPE: ").append(runtimeConf.getStreamType()).append("\n")
+				.append("SOURCE TYPE: ").append(runtimeConf.getSourceType()).append("\n")
 				.append("GROUPING TYPE: ").append(runtimeConf.getGroupingType()).append("\n")
-				.append("AGGREGATOR: ").append(runtimeConf.getAggregatorType()).append("\n")
 				.append("NUMBER OF WORKER BOLTS: ").append(runtimeConf.getNumberOfWorkerBolts()).append("\n")
 				.append("RUNTIME DURATION: ").append(runtimeConf.getTopologyTimeout() / 60000).append(" min").append("\n")
 				.append("STORM MODE: ").append(stormMode).append("\n")
@@ -151,7 +151,6 @@ public class LoadBalancerTopology implements Topology {
 
 		//todo: parallelism hint must match with the number of kafka partitions
 		builder.setSpout(spoutName, new KafkaSpout(getKafkaSpoutConfig()), runtimeConf.getNumberOfSpouts());
-		//builder.setSpout(spoutName, new CountrySpout(runtimeConf.getStreamType()), runtimeConf.getNumberOfSpouts());   //parallelism hint as number of executor
 
 		// splitter
 		builder.setBolt(splitterName,
@@ -186,17 +185,19 @@ public class LoadBalancerTopology implements Topology {
 				.noneGrouping(workerName);
 
 		// output
+		String sourceName = runtimeConf.getSourceName();
+		String groupingType = runtimeConf.getGroupingType().getType();
 		builder.setBolt(outputName + "-0",
-				new KafkaOutputBolt("incoming"), 1)
+				new KafkaOutputBolt(sourceName + "-" + groupingType + "-" + "splitter"), 1)
 				.shuffleGrouping(splitterObserverName);
 		builder.setBolt(outputName + "-1",
-				new KafkaOutputBolt("result"), 1)
+				new KafkaOutputBolt(sourceName + "-" + groupingType + "-" + "aggregator"), 1)
 				.shuffleGrouping(aggregatorName);
 		builder.setBolt(outputName + "-2",
-				new KafkaOutputBolt("key-dist"), 1)
+				new KafkaOutputBolt(sourceName + "-" + groupingType + "-" + "worker"), 1)
 				.shuffleGrouping(workerObserverName);
 		builder.setBolt(outputName + "-3",
-				new KafkaOutputBolt("dist-cost"), 1)
+				new KafkaOutputBolt(sourceName + "-" + groupingType + "-" + "distribution"), 1)
 				.shuffleGrouping(distributionObserverName);
 
 		// result

@@ -7,7 +7,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.Aggregator;
-import com.orhundalabasmaz.storm.loadbalancer.aggregator.CountryAggregator;
+import com.orhundalabasmaz.storm.loadbalancer.aggregator.KeyAggregator;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.WindowedBolt;
 import com.orhundalabasmaz.storm.model.Message;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
@@ -30,7 +30,7 @@ public class SpoutObserverBolt extends WindowedBolt {
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.collector = outputCollector;
-		this.aggregator = new CountryAggregator();
+		this.aggregator = new KeyAggregator();
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class SpoutObserverBolt extends WindowedBolt {
 				String key = entry.getKey();
 				Long count = entry.getValue();
 				Message message = new Message(key, timestamp);
-				message.addTag("country", key);
+				message.addTag("key", key);
 				message.addField("count", count);
 				collector.emit(new Values(message.getKey(), message));
 			}

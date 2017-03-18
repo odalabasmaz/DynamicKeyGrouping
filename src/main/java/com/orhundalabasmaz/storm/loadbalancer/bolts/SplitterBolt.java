@@ -7,6 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.common.KeyCount;
 import com.orhundalabasmaz.storm.common.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +33,9 @@ public abstract class SplitterBolt extends BaseRichBolt {
 		String message = tuple.getString(0);
 		Record record = convertMessage(message);
 		Long timestamp = record.getTimestamp();
-		List<String> keys = record.getKeys();
-		for (String key : keys) {
-			collector.emit(tuple, new Values(timestamp, key));
+		List<KeyCount> keyCounts = record.getKeyCounts();
+		for (KeyCount keyCount : keyCounts) {
+			collector.emit(tuple, new Values(keyCount.getKey(), keyCount.getCount(), timestamp));
 		}
 		collector.ack(tuple);
 	}
@@ -44,7 +45,7 @@ public abstract class SplitterBolt extends BaseRichBolt {
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 		LOGGER.info("bolt# output field declared: " + "splitter");
-		outputFieldsDeclarer.declare(new Fields("timestamp", "key"));
+		outputFieldsDeclarer.declare(new Fields("key", "count", "timestamp"));
 	}
 
 }

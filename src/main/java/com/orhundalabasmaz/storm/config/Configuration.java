@@ -2,9 +2,8 @@ package com.orhundalabasmaz.storm.config;
 
 import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
+import com.orhundalabasmaz.storm.common.StreamType;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -38,11 +37,9 @@ public class Configuration implements Serializable {
 	private long topologyTimeout;                   // ms
 
 	// RUNTIME PROPS
-	private String dataSet;
 	private StreamType streamType;
 	private SourceType sourceType;
 	private GroupingType groupingType;
-	private AggregatorType aggregatorType;
 	private long processDuration;                   //ms
 	private long aggregationDuration;               //ms
 	private boolean isLogEnabled;
@@ -52,7 +49,6 @@ public class Configuration implements Serializable {
 
 	// KAFKA
 	private String sourceName;
-	private String sinkName;
 
 	// SERVER
 	private String IPAddr;
@@ -178,14 +174,6 @@ public class Configuration implements Serializable {
 		this.timeIntervalOfDataStreams = timeIntervalOfDataStreams;
 	}
 
-	public String getDataSet() {
-		return dataSet;
-	}
-
-	public void setDataSet(String dataSet) {
-		this.dataSet = dataSet;
-	}
-
 	public StreamType getStreamType() {
 		return streamType;
 	}
@@ -220,14 +208,6 @@ public class Configuration implements Serializable {
 
 	public void addGroupingProps(Map<String, String> props) {
 		this.groupingProps.putAll(props);
-	}
-
-	public AggregatorType getAggregatorType() {
-		return aggregatorType;
-	}
-
-	public void setAggregatorType(AggregatorType aggregatorType) {
-		this.aggregatorType = aggregatorType;
 	}
 
 	public long getProcessDuration() {
@@ -276,14 +256,6 @@ public class Configuration implements Serializable {
 
 	public void setSourceName(String sourceName) {
 		this.sourceName = sourceName;
-	}
-
-	public String getSinkName() {
-		return sinkName;
-	}
-
-	public void setSinkName(String sinkName) {
-		this.sinkName = sinkName;
 	}
 
 	public String getIPAddr() {

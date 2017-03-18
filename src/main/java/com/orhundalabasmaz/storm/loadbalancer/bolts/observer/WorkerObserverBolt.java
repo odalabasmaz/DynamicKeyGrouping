@@ -34,7 +34,7 @@ public class WorkerObserverBolt extends BaseRichBolt {
 		Long count = (Long) tuple.getValueByField("count");
 		Long timestamp = (Long) tuple.getValueByField("timestamp");
 		Message message = new Message(key, timestamp);
-		message.addTag("country", key);
+		message.addTag("key", key);
 		message.addTag("workerId", workerId);
 		message.addField("count", count);
 		//todo tuple,

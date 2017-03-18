@@ -4,5 +4,6 @@ package com.orhundalabasmaz.storm.common;
  * @author Orhun Dalabasmaz
  */
 public enum SourceType {
-	COUNTRY, WIKIPEDIA, TWITTER
+	TWITTER_TICKER, WIKIPEDIA_PAGEVIEW, COUNTRY,
+	TWITTER_ELECTION, WIKIPEDIA_CLICKSTREAM, WIKIPEDIA_PAGEVIEW_BY_LANG
 }

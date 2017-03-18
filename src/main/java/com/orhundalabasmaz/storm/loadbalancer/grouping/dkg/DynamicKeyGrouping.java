@@ -129,7 +129,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 
 		if (shouldScaleUp(key, minLoad)) {
 			// check if it should scale up
-			LOGGER.info("Scaling up for key: {}, to: {} workers", key, workerCount + 1);
+			LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {}", key, workerCount + 1, getDKGId());
 			int newTaskIndex = normalizeIndex(targetWorkerIndex + workerCount);
 			double newTaskLoad = getCurrentLoadOfTask(newTaskIndex);
 			if (newTaskLoad < minLoad) {
@@ -140,7 +140,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 			}
 		} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
 			// check if it should scale down
-			LOGGER.info("Scaling down for key: {}, to: {} workers", key, workerCount - 1);
+			LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {}", key, workerCount - 1, getDKGId());
 			workerCountSizeMap.put(key, workerCount - 1);
 			return chooseBestTask(key);
 		}
@@ -182,4 +182,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		return (int) (index % NUMBER_OF_AVAILABLE_TASKS);
 	}
 
+	private String getDKGId() {
+		return this.toString().split("@")[1].toUpperCase();
+	}
 }

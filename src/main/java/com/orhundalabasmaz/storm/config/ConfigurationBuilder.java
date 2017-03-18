@@ -2,9 +2,8 @@ package com.orhundalabasmaz.storm.config;
 
 import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.old.AggregatorType;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.common.StreamType;
 
 import java.util.Map;
 
@@ -35,7 +34,6 @@ public class ConfigurationBuilder {
 		conf.setTimeIntervalOfAggregatorBolts(5);
 		conf.setTimeIntervalOfCheck(10_000);
 		conf.setAggregationDuration(0);
-		conf.setAggregatorType(AggregatorType.CUMULATIVE);
 		return this;
 	}
 
@@ -46,11 +44,6 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder testId(String testId) {
 		conf.setTestId(testId);
-		return this;
-	}
-
-	public ConfigurationBuilder dataSet(String dataSet) {
-		conf.setDataSet(dataSet);
 		return this;
 	}
 
@@ -140,11 +133,6 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder aggregatorType(AggregatorType aggregatorType) {
-		conf.setAggregatorType(aggregatorType);
-		return this;
-	}
-
 	public ConfigurationBuilder processDuration(long processDuration) {
 		conf.setProcessDuration(processDuration);
 		return this;
@@ -172,11 +160,6 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder sourceName(String sourceName) {
 		conf.setSourceName(sourceName);
-		return this;
-	}
-
-	public ConfigurationBuilder sinkName(String sinkName) {
-		conf.setSinkName(sinkName);
 		return this;
 	}
 

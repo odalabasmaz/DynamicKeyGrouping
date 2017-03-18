@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * @author Orhun Dalabasmaz
  */
-public class CountryAggregator implements Aggregator {
+public class KeyAggregator implements Aggregator {
 	private long aggregationDuration;
 
 	// basic
@@ -18,14 +18,14 @@ public class CountryAggregator implements Aggregator {
 	private final SortedMap<String, Long> workerCounts;
 	private final SortedMap<String, CountInfo> keyCounts;
 
-	public CountryAggregator() {
+	public KeyAggregator() {
 		this.counter = new TreeMap<>();
 		this.totalKeyCount = 0L;
 		this.workerCounts = new TreeMap<>();
 		this.keyCounts = new TreeMap<>();
 	}
 
-	public CountryAggregator(long aggregationDuration) {
+	public KeyAggregator(long aggregationDuration) {
 		this();
 		this.aggregationDuration = aggregationDuration;
 	}

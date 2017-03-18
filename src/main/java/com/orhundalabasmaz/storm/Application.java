@@ -7,7 +7,7 @@ import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.loadbalancer.spouts.StreamType;
+import com.orhundalabasmaz.storm.common.StreamType;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,6 @@ public class Application {
 		int numberOfWorkerBolts = Integer.parseInt(args[5]);
 
 		String testId = DKGUtils.generateTestId();
-		String dataSet = "COUNTRY";
 		long processDuration = 1L;
 		long terminationDuration = 1000 * 60 * 1000L;
 		StreamType streamType = StreamType.SKEW;
@@ -51,8 +50,7 @@ public class Application {
 		int numberOfAggregatorBolts = 10;
 		int numberOfOutputBolts = 1;
 		int retryCount = 1;
-		String sinkName = "sink1";
-		String IPAddr = "78.165.170.40"; //localhost 78.165.170.40
+		String IPAddr = "192.168.1.39"; //localhost 78.165.170.40
 		Map<String, String> groupingProps = new HashMap<>();
 		groupingProps.put("distinctKeyCount", "30");
 
@@ -61,7 +59,6 @@ public class Application {
 				ConfigurationBuilder.getInstance()
 						.defaultSet()
 						.testId(testId)
-						.dataSet(dataSet)
 						.processDuration(processDuration)
 						.terminationDuration(terminationDuration)
 						.sourceType(sourceType)
@@ -79,7 +76,6 @@ public class Application {
 						.retryCount(retryCount)
 						.stormMode(stormMode)
 						.sourceName(sourceName)
-						.sinkName(sinkName)
 						.ipAddr(IPAddr)
 						.build();
 		execute(config);

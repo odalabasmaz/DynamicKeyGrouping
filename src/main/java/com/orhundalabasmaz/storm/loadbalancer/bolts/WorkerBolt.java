@@ -7,7 +7,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.Aggregator;
-import com.orhundalabasmaz.storm.loadbalancer.aggregator.CountryAggregator;
+import com.orhundalabasmaz.storm.loadbalancer.aggregator.KeyAggregator;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +35,15 @@ public class WorkerBolt extends WindowedBolt {
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.collector = outputCollector;
-		this.aggregator = new CountryAggregator(aggregationDuration);
+		this.aggregator = new KeyAggregator(aggregationDuration);
 	}
 
 	@Override
 	public void countDataAndAck(Tuple tuple) {
 		String key = (String) tuple.getValueByField("key");
+		Long count = (Long) tuple.getValueByField("count");
 		doToughJob();
-		aggregator.aggregate(key);
+		aggregator.aggregate(key, count);
 		collector.ack(tuple);
 	}
 

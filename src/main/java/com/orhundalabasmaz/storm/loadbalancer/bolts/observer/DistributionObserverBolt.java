@@ -72,7 +72,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 				int numberOfWorkers = entry.getValue().size();
 				totalKeys += numberOfWorkers;
 				Message message = new Message(key, timestamp);
-				message.addTag("country", key);
+				message.addTag("key", key);
 				message.addField("numberOfWorkers", numberOfWorkers);
 				collector.emit(new Values(message.getKey(), message));
 			}

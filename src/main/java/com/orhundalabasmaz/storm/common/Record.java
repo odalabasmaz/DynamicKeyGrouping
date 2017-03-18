@@ -3,7 +3,6 @@ package com.orhundalabasmaz.storm.common;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ import java.util.List;
  */
 public class Record {
 	private long timestamp;
-	private List<String> keys;
+	private List<KeyCount> keyCounts;
 
 	public Record() {
 		this(DKGUtils.getCurrentTimestamp());
@@ -19,21 +18,7 @@ public class Record {
 
 	public Record(long timestamp) {
 		this.timestamp = timestamp;
-		this.keys = new ArrayList<>();
-	}
-
-	public Record(String key) {
-		this(DKGUtils.getCurrentTimestamp(), key);
-	}
-
-	public Record(long timestamp, String key) {
-		this.timestamp = timestamp;
-		this.keys = Arrays.asList(key);
-	}
-
-	public Record(long timestamp, List<String> keys) {
-		this.timestamp = timestamp;
-		this.keys = keys;
+		this.keyCounts = new ArrayList<>();
 	}
 
 	public long getTimestamp() {
@@ -44,11 +29,15 @@ public class Record {
 		this.timestamp = timestamp;
 	}
 
-	public List<String> getKeys() {
-		return keys;
+	public List<KeyCount> getKeyCounts() {
+		return keyCounts;
 	}
 
 	public void addKey(String key) {
-		this.keys.add(key);
+		this.addKey(key, 1);
+	}
+
+	public void addKey(String key, long count) {
+		this.keyCounts.add(new KeyCount(key, count));
 	}
 }
