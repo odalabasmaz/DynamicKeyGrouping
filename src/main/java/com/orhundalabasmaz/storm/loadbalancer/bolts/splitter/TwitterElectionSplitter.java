@@ -1,11 +1,12 @@
 package com.orhundalabasmaz.storm.loadbalancer.bolts.splitter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.orhundalabasmaz.storm.common.JsonReader;
 import com.orhundalabasmaz.storm.common.Record;
+import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * @author Orhun Dalabasmaz
  */
-public class TwitterElectionSplitter extends JsonSplitter {
+public class TwitterElectionSplitter extends SplitterBolt {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TwitterElectionSplitter.class);
 	private static final Map<String, String> wordMap = new HashMap<>();
 	private static final Map<String, String> charMap = new HashMap<>();
@@ -36,8 +37,8 @@ public class TwitterElectionSplitter extends JsonSplitter {
 
 	@Override
 	protected Record convertMessage(String message) {
-		JsonNode jsonNode = readMessage(message);
-		long timestamp = getTimestamp(jsonNode);
+		JsonNode jsonNode = JsonReader.readMessage(message);
+		long timestamp = JsonReader.getTimestamp(jsonNode);
 		List<String> keys = getKeys(jsonNode);
 		Record record = new Record(timestamp);
 		for (String key : keys) {
@@ -50,9 +51,8 @@ public class TwitterElectionSplitter extends JsonSplitter {
 	private List<String> getKeys(JsonNode jsonNode) {
 		// hashtags
 		JsonNode jsHashtags = jsonNode.get("hashtags");
-		List<String> hashtags = objectMapper.convertValue(jsHashtags, List.class);
-		List<String> keys = new ArrayList<>(hashtags.size());
-		keys.addAll(hashtags);
+		return JsonReader.convertValue(jsHashtags, List.class);
+
 		/*for (String hashtag : hashtags) {
 			String key = replacement(hashtag);
 			keys.add(key);
@@ -68,8 +68,6 @@ public class TwitterElectionSplitter extends JsonSplitter {
 			String key = replacement(word);
 			keys.add(key);
 		}*/
-
-		return keys;
 	}
 
 	private String replacement(String value) {
