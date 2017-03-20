@@ -12,7 +12,7 @@ public class TwitterElectionProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line) {
+	public void produce(Map<String, Integer> map, String line, String fileName) {
 		sendMessage(line);
 	}
 }

@@ -22,4 +22,11 @@ public class SplitterTest {
 				.replaceAll("[^\\p{L}\\p{Nd}]+", " ")
 				.split(" "));
 	}
+
+	@Test
+	public void langSplitter() {
+		assert "aa".equals("aa".split("\\.")[0]);
+		assert "ab".equals("ab.zero.d".split("\\.")[0]);
+		assert "aa".equals("aa.zero".split("\\.")[0]);
+	}
 }

@@ -19,7 +19,7 @@ public class WikipediaPageviewByLangSplitter extends JsonSplitter {
 	}
 
 	private String getLang(JsonNode jsonNode) {
-		return jsonNode.get("lang").asText();
+		return jsonNode.get("lang").asText().split("\\.")[0];
 	}
 
 	private long getCount(JsonNode jsonNode) {

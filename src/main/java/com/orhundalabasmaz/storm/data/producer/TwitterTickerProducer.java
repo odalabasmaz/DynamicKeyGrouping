@@ -14,7 +14,7 @@ public class TwitterTickerProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line) {
+	public void produce(Map<String, Integer> map, String line, String fileName) {
 		String[] parts = line.trim().split("\t");
 		long timestamp = Long.parseLong(parts[0]);
 		String ticker = parts[1];

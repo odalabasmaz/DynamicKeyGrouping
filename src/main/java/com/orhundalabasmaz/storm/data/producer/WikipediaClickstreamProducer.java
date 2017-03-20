@@ -14,7 +14,7 @@ public class WikipediaClickstreamProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line) {
+	public void produce(Map<String, Integer> map, String line, String fileName) {
 		String[] parts = line.trim().split("\t");
 		String prev = parts[0];
 		String curr = parts[1];

@@ -14,7 +14,7 @@ public class CountryProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line) {
+	public void produce(Map<String, Integer> map, String line, String fileName) {
 		String country = line.trim();
 		CountryMessage message = new CountryMessage(country);
 		sendMessage(message);

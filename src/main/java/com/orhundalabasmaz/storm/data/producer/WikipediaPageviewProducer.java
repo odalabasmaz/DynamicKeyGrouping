@@ -14,15 +14,15 @@ public class WikipediaPageviewProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line) {
+	public void produce(Map<String, Integer> map, String line, String fileName) {
 		String[] parts = line.trim().split("\t");
-		System.out.println(line);
 		long timestamp = Long.parseLong(parts[0]);
 		String page = parts[1];
 		WikipediaPageviewMessage message = new WikipediaPageviewMessage(page, timestamp);
 		sendMessage(message);
 
-		int count = map.getOrDefault(page, 0);
-		map.put(page, count + 1);
+		//java.lang.OutOfMemoryError: Java heap space
+//		int count = map.getOrDefault(page, 0);
+//		map.put(page, count + 1);
 	}
 }
