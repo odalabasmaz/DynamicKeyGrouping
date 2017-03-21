@@ -24,11 +24,15 @@ public class TwitterElectionProducer extends BaseProducer {
 		if (jsonNode.get("limit") != null) {
 			return;
 		}
+
 		long timestamp = JsonReader.getTimestamp(jsonNode);
 		JsonNode jsHashtags = jsonNode.get("entities").get("hashtags");
 		List<Map<String, String>> hashtags = JsonReader.convertValue(jsHashtags, List.class);
-		List<String> hashtagList = new ArrayList<>(hashtags.size());
+		if (hashtags.isEmpty()) {
+			return;
+		}
 
+		List<String> hashtagList = new ArrayList<>(hashtags.size());
 		for (Map<String, String> ht : hashtags) {
 			String hashtag = ht.get("text");
 			hashtagList.add(hashtag);
