@@ -7,6 +7,7 @@ import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class TwitterElectionSplitter extends SplitterBolt {
 	static {
 //		wordMap.put("", "");
 
-		charMap.put("\n", " ");
+		/*charMap.put("\n", " ");
 		charMap.put("\u00e0", "a");
 		charMap.put("\u00e1", "a");
 		charMap.put("\u00e2", "a");
@@ -32,7 +33,7 @@ public class TwitterElectionSplitter extends SplitterBolt {
 		charMap.put("\u00e6", "a");
 		charMap.put("\u00e7", "c");
 		charMap.put("\u00e8", "e");
-		charMap.put("\u00e9", "e");
+		charMap.put("\u00e9", "e");*/
 	}
 
 	@Override
@@ -51,12 +52,17 @@ public class TwitterElectionSplitter extends SplitterBolt {
 	private List<String> getKeys(JsonNode jsonNode) {
 		// hashtags
 		JsonNode jsHashtags = jsonNode.get("hashtags");
-		return JsonReader.convertValue(jsHashtags, List.class);
+		List<String> hashtags = JsonReader.convertValue(jsHashtags, List.class);
+		List<String> keys = new ArrayList<>(hashtags.size());
 
-		/*for (String hashtag : hashtags) {
+		// hashtags
+		for (String hashtag : hashtags) {
+			if (hashtag.contains("?")) {
+				continue;
+			}
 			String key = replacement(hashtag);
 			keys.add(key);
-		}*/
+		}
 
 		// text
 		/*JsonNode jsText = jsonNode.get("text");
@@ -68,6 +74,8 @@ public class TwitterElectionSplitter extends SplitterBolt {
 			String key = replacement(word);
 			keys.add(key);
 		}*/
+
+		return keys;
 	}
 
 	private String replacement(String value) {
@@ -81,6 +89,16 @@ public class TwitterElectionSplitter extends SplitterBolt {
 		// replace synonym words
 		if (wordMap.containsKey(res)) {
 			res = wordMap.get(res);
+		}
+
+		if (res.contains("hilary") || res.contains("hillary") || res.contains("clinton") || res.contains("withher")) {
+			res = "hillary clinton";
+		} else if (res.contains("donald") || res.contains("trump")) {
+			res = "donald trump";
+		} else if (res.contains("vote") || res.contains("voting")) {
+			res = "vote";
+		} else if (res.contains("election") || res.contains("eleicoes") || res.contains("eleccion")) {
+			res = "election";
 		}
 
 		return res;

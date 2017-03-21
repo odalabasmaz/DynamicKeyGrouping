@@ -26,11 +26,10 @@ public class TwitterElectionProducer extends BaseProducer {
 		}
 
 		long timestamp = JsonReader.getTimestamp(jsonNode);
+		String text = jsonNode.get("text").asText();
+
 		JsonNode jsHashtags = jsonNode.get("entities").get("hashtags");
 		List<Map<String, String>> hashtags = JsonReader.convertValue(jsHashtags, List.class);
-		if (hashtags.isEmpty()) {
-			return;
-		}
 
 		List<String> hashtagList = new ArrayList<>(hashtags.size());
 		for (Map<String, String> ht : hashtags) {
@@ -40,7 +39,7 @@ public class TwitterElectionProducer extends BaseProducer {
 			map.put(hashtag, keyCount + 1);
 		}
 
-		TwitterElectionMessage message = new TwitterElectionMessage(hashtagList, timestamp);
+		TwitterElectionMessage message = new TwitterElectionMessage(text, hashtagList, timestamp);
 		sendMessage(message);
 	}
 }

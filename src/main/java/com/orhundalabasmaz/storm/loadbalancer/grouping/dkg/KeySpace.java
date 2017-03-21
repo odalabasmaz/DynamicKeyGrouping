@@ -23,12 +23,7 @@ public class KeySpace implements Serializable {
 	private final int TEENAGE_MAX_SIZE;
 	private final int BABY_MAX_SIZE;
 
-	private static final Comparator<KeyItem> DESC_COMPARATOR = new Comparator<KeyItem>() {
-		@Override
-		public int compare(KeyItem k1, KeyItem k2) {
-			return (int) (k2.getCount() - k1.getCount());
-		}
-	};
+	private static final Comparator<KeyItem> DESC_COMPARATOR = (k1, k2) -> (int) (k2.getCount() - k1.getCount());
 
 	public KeySpace() {
 		OLD_MAX_SIZE = 10;
@@ -50,7 +45,7 @@ public class KeySpace implements Serializable {
 		babySpace = new ArrayList<>(BABY_MAX_SIZE);
 	}
 
-	public void handleKey(String key) {
+	public synchronized void handleKey(String key) {
 		KeyItem item = findKeyItem(key);
 		if (item != null) {
 			item.appearedAgain();
