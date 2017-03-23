@@ -18,4 +18,8 @@ public enum GroupingType {
 	public String getType() {
 		return type;
 	}
+
+	public static String[] keys() {
+		return new String[]{SHUFFLE.getType(), KEY.getType(), PARTIAL_KEY.getType(), DYNAMIC_KEY.getType()};
+	}
 }

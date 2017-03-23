@@ -20,10 +20,12 @@ public class ProducerFactory {
 			case TWITTER_TICKER:
 				producer = new TwitterTickerProducer(filePath, topicName);
 				break;
-			case WIKIPEDIA_PAGEVIEW:
+			case WIKIPEDIA_PAGEVIEWS:
 				producer = new WikipediaPageviewProducer(filePath, topicName);
 				break;
-			case COUNTRY:
+			case COUNTRY_SKEW:
+			case COUNTRY_HALF_SKEW:
+			case COUNTRY_BALANCED:
 				producer = new CountryProducer(filePath, topicName);
 				break;
 			case TWITTER_ELECTION:
@@ -32,7 +34,7 @@ public class ProducerFactory {
 			case WIKIPEDIA_CLICKSTREAM:
 				producer = new WikipediaClickstreamProducer(filePath, topicName);
 				break;
-			case WIKIPEDIA_PAGEVIEW_BY_LANG:
+			case WIKIPEDIA_PAGEVIEWS_BY_LANG:
 				producer = new WikipediaPageviewByLangProducer(filePath, topicName);
 				break;
 			default:

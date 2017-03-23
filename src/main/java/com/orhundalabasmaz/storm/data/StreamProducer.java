@@ -2,17 +2,16 @@ package com.orhundalabasmaz.storm.data;
 
 import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.data.producer.ProducerFactory;
-import com.orhundalabasmaz.storm.data.producer.StreamProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Orhun Dalabasmaz
  */
-public class Producer {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Producer.class);
+public class StreamProducer {
+	private static final Logger LOGGER = LoggerFactory.getLogger(StreamProducer.class);
 
-	private Producer() {
+	private StreamProducer() {
 	}
 
 	/*
@@ -27,7 +26,7 @@ public class Producer {
 		String filePath = args[1];
 		String topicName = args[2];
 
-		StreamProducer producer = ProducerFactory.getInstance()
+		com.orhundalabasmaz.storm.data.producer.StreamProducer producer = ProducerFactory.getInstance()
 				.getStreamProducer(sourceType, filePath, topicName);
 
 		long begin = System.currentTimeMillis();

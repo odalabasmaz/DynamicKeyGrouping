@@ -30,7 +30,7 @@ public class Application {
 	public static void main(String... args) {
 		if (args.length != 6) {
 			LOGGER.error("stormMode, sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!\n" +
-					"i.e. $ java -jar dkg-wd.jar LOCAL COUNTRY DYNAMIC_KEY source-country 5 10");
+					"i.e. $ java -jar dkg-wd.jar LOCAL COUNTRY_SKEW DYNAMIC_KEY country-skew-5 5 10");
 			throw new UnsupportedOperationException("stormMode, sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
 		}
 

@@ -21,10 +21,12 @@ public class SourceFactory {
 			case TWITTER_TICKER:
 				splitter = new TwitterTickerSplitter();
 				break;
-			case WIKIPEDIA_PAGEVIEW:
+			case WIKIPEDIA_PAGEVIEWS:
 				splitter = new WikipediaPageviewSplitter();
 				break;
-			case COUNTRY:
+			case COUNTRY_SKEW:
+			case COUNTRY_HALF_SKEW:
+			case COUNTRY_BALANCED:
 				splitter = new CountrySplitter();
 				break;
 			case TWITTER_ELECTION:
@@ -33,7 +35,7 @@ public class SourceFactory {
 			case WIKIPEDIA_CLICKSTREAM:
 				splitter = new WikipediaClickstreamSplitter();
 				break;
-			case WIKIPEDIA_PAGEVIEW_BY_LANG:
+			case WIKIPEDIA_PAGEVIEWS_BY_LANG:
 				splitter = new WikipediaPageviewByLangSplitter();
 				break;
 			default:
