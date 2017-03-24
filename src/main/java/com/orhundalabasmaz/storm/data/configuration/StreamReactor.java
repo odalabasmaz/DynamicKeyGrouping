@@ -158,7 +158,7 @@ public class StreamReactor {
 		String fullNameTemplate = fileNameTemplate + ".properties";
 		String fileName = String.format(fullNameTemplate, dataType, spout, spout, worker, algo, observer);
 		File resource = new File(getClass().getClassLoader().getResource("template-sink.properties").getFile());
-		File target = new File(outputDir + dataType + "\\" + fileName);
+		File target = new File(outputDir + "conf" + "\\" + dataType + "\\" + fileName);
 
 		FileUtils.copyFile(resource, target);
 
