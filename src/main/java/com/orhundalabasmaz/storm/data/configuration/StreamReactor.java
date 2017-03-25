@@ -161,7 +161,7 @@ public class StreamReactor {
 			for (String spout : spouts) {
 				for (String worker : workers) {
 					for (GroupingType algo : GroupingType.values()) {
-						builder.append("nohup java -jar dkg-wd.jar LOCAL ").append(dataType).append(" ")
+						builder.append("nohup java $JAVA_OPTS -jar dkg-wd.jar LOCAL ").append(dataType).append(" ")
 								.append(algo).append(" ").append(dataType.getKey()).append("-").append(spout).append(" ")
 								.append(spout).append(" ").append(worker)
 								.append(" >> ").append("/home/logs/dkg/").append(dataType.getKey()).append("-").append(spout).append("-")
