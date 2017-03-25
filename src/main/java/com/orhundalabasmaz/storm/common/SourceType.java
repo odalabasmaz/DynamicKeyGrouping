@@ -6,7 +6,7 @@ package com.orhundalabasmaz.storm.common;
 public enum SourceType {
 	TWITTER_TICKER("twitter-ticker"), WIKIPEDIA_PAGEVIEWS("wikipedia-pageviews"),
 	COUNTRY_SKEW("country-skew"), COUNTRY_HALF_SKEW("country-half-skew"), COUNTRY_BALANCED("country-balanced"),
-	TWITTER_ELECTION("twitter-election"), WIKIPEDIA_CLICKSTREAM("wikipedia-pageviews"), WIKIPEDIA_PAGEVIEWS_BY_LANG("wikipedia-pageviews-by-lang");
+	TWITTER_ELECTION("twitter-election"), WIKIPEDIA_CLICKSTREAM("wikipedia-clickstream"), WIKIPEDIA_PAGEVIEWS_BY_LANG("wikipedia-pageviews-by-lang");
 
 	private String key;
 
