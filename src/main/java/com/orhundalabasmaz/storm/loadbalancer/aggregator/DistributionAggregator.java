@@ -14,12 +14,7 @@ public class DistributionAggregator {
 
 	public void aggregate(String workerId, Long count) {
 		totalCount += count;
-		Long currCount = map.get(workerId);
-		if (currCount == null) {
-			map.put(workerId, count);
-		} else {
-			map.put(workerId, currCount + count);
-		}
+		map.merge(workerId, count, (a, b) -> a + b);
 	}
 
 	public double stdDev() {

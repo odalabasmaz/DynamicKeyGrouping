@@ -52,9 +52,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 			// aggregate total count
 			totalCount += count;
 
-			if (!keyWorkers.containsKey(key)) {
-				keyWorkers.put(key, new HashSet<String>());
-			}
+			keyWorkers.putIfAbsent(key, new HashSet<>());
 			Set<String> workerSet = keyWorkers.get(key);
 			workerSet.add(workerId);
 			collector.ack(tuple);
@@ -63,8 +61,8 @@ public class DistributionObserverBolt extends WindowedBolt {
 
 	@Override
 	protected void emitCurrentWindowAndAdvance() {
+		long timestamp = DKGUtils.getCurrentTimestamp();
 		synchronized (this) {
-			long timestamp = DKGUtils.getCurrentTimestamp();
 			int totalKeys = 0;
 			int distinctKeys = keyWorkers.keySet().size();
 			for (Map.Entry<String, Set<String>> entry : keyWorkers.entrySet()) {
@@ -76,7 +74,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 				message.addField("numberOfWorkers", numberOfWorkers);
 				collector.emit(new Values(message.getKey(), message));
 			}
-			keyWorkers.clear();
+//			keyWorkers.clear();
 
 			// emit stddev
 			emitStandardDeviation(timestamp);
