@@ -51,6 +51,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 
 			// aggregate total count
 			totalCount += count;
+			updateTimeConsumption();
 
 			keyWorkers.putIfAbsent(key, new HashSet<>());
 			Set<String> workerSet = keyWorkers.get(key);
@@ -77,7 +78,6 @@ public class DistributionObserverBolt extends WindowedBolt {
 
 			if (totalCount > latestTotalCount) {
 				latestTotalCount = totalCount;
-				latestTimeConsumption = timestamp - startTime;
 
 				// emit stddev
 				emitStandardDeviation(timestamp);
@@ -89,6 +89,11 @@ public class DistributionObserverBolt extends WindowedBolt {
 				emitTotalCountsAndTimeConsumption(timestamp);
 			}
 		}
+	}
+
+	private void updateTimeConsumption() {
+		long timetamp = DKGUtils.getCurrentTimestamp();
+		latestTimeConsumption = timetamp - startTime;
 	}
 
 	private void emitStandardDeviation(long timestamp) {
@@ -114,10 +119,9 @@ public class DistributionObserverBolt extends WindowedBolt {
 		message.addTag("EVENT_TYPE", "EVENT_ONGOING");
 		message.addField("EVENT_TIME", timestamp);
 		message.addField("EVENT_TIME_FORMATTED", DKGUtils.formattedTime(timestamp));
-		message.addField("TOTAL_TIME_CONSUMPTION", timestamp - startTime);
-		message.addField("LATEST_TIME_CONSUMPTION", latestTimeConsumption);
+		message.addField("TOTAL_TIME_CONSUMPTION", latestTimeConsumption);
 		message.addField("TOTAL_COUNT", totalCount);
-		double throughputRatio = (double) totalCount / ((timestamp - startTime) / 1000);
+		double throughputRatio = (double) totalCount / (latestTimeConsumption / 1000);
 		message.addField("THROUGHPUT_RATIO", throughputRatio);
 		collector.emit(new Values(message.getKey(), message));
 	}
