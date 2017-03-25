@@ -38,7 +38,9 @@ public class StreamReactor {
 
 	private static final String outputDir = "D:\\cloud\\stream-reactor\\generated\\";
 
-	private static final String fileNameTemplate = "%s-%s-s%s-w%s-%s-%s-sink";
+	private static final String topicTemplate = "%s-%s-s%s-w%s-%s-%s";
+
+	private static final String sinkTemplate = topicTemplate + "-sink";
 
 	private static final String NL = "\n";
 
@@ -47,6 +49,53 @@ public class StreamReactor {
 		generateStartScript();
 		generateStopScript();
 		generateRunnerScript();
+		generateKafkaScript("kcreate");
+		generateKafkaScript("kdelete");
+		generateResultList();
+	}
+
+	private void generateResultList() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("#,SOURCE_TYPE,ALGO,SPOUT,WORKER").append(NL);
+		int count = 1;
+		for (SourceType dataType : SourceType.values()) {
+			for (GroupingType algo : GroupingType.values()) {
+				for (String spout : spouts) {
+					for (String worker : workers) {
+						builder
+								.append(count++).append(",")
+								.append(dataType).append(",")
+								.append(algo).append(",")
+								.append(spout).append(",")
+								.append(worker).append(",")
+								.append(NL);
+					}
+				}
+			}
+		}
+
+		writeToFile(builder.toString(), outputDir + "result.csv");
+	}
+
+	private void generateKafkaScript(String type) {
+		StringBuilder builder = new StringBuilder();
+
+		for (String dataType : dataTypes) {
+			builder.append("# ").append(dataType).append(NL);
+			for (String spout : spouts) {
+				for (String worker : workers) {
+					for (String algo : algos) {
+						for (String observer : observers) {
+							String topicName = String.format(topicTemplate, dataType, spout, spout, worker, algo, observer);
+							builder.append(type).append(" ").append(topicName).append(NL);
+						}
+					}
+				}
+			}
+			builder.append(NL);
+		}
+
+		writeToFile(builder.toString(), outputDir + "scripts\\" + type + ".sh");
 	}
 
 	private void createScriptDirectory() {
@@ -68,7 +117,7 @@ public class StreamReactor {
 				for (String worker : workers) {
 					for (String algo : algos) {
 						for (String observer : observers) {
-							String fileName = String.format(fileNameTemplate, dataType, spout, spout, worker, algo, observer);
+							String fileName = String.format(sinkTemplate, dataType, spout, spout, worker, algo, observer);
 							builder.append("$DIR/cli.sh create ").append(fileName)
 									.append(" < ").append("conf/").append(dataType).append("/").append(fileName).append(".properties")
 									.append(NL);
@@ -93,7 +142,7 @@ public class StreamReactor {
 				for (String worker : workers) {
 					for (String algo : algos) {
 						for (String observer : observers) {
-							String fileName = String.format(fileNameTemplate, dataType, spout, spout, worker, algo, observer);
+							String fileName = String.format(sinkTemplate, dataType, spout, spout, worker, algo, observer);
 							builder.append("$DIR/cli.sh rm ").append(fileName).append(NL);
 						}
 					}
@@ -155,7 +204,7 @@ public class StreamReactor {
 	}
 
 	private void generateFile(String dataType, String spout, String worker, String algo, String observer) throws IOException {
-		String fullNameTemplate = fileNameTemplate + ".properties";
+		String fullNameTemplate = sinkTemplate + ".properties";
 		String fileName = String.format(fullNameTemplate, dataType, spout, spout, worker, algo, observer);
 		File resource = new File(getClass().getClassLoader().getResource("template-sink.properties").getFile());
 		File target = new File(outputDir + "conf" + "\\" + dataType + "\\" + fileName);
