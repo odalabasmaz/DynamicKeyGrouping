@@ -27,7 +27,7 @@ import java.util.TreeMap;
  */
 public abstract class BaseProducer implements StreamProducer {
 	private static Logger LOGGER = LoggerFactory.getLogger(BaseProducer.class);
-	private static final Charset CHARSET = StandardCharsets.UTF_8;
+	private static final Charset CHARSET = StandardCharsets.ISO_8859_1;
 
 	private Producer producer;
 	private final String filePath;
@@ -82,7 +82,7 @@ public abstract class BaseProducer implements StreamProducer {
 			} else {
 				totalCount += readFile(map, path);
 			}
-			LOGGER.info("Total emitted record in file {} is: {}", rootFile.getName(), totalCount);
+			LOGGER.info("Total emitted record in root file {} is: {}", rootFile.getName(), totalCount);
 			printResult(map);
 		} catch (IOException e) {
 			LOGGER.error("Exception occurred.", e);
