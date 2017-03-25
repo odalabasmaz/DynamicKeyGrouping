@@ -63,7 +63,6 @@ public class LoadBalancerTopology implements Topology {
 		sb.append("\n")
 				.append("Initializing LoadBalancerTopology!").append("\n")
 				.append("APP VERSION: ").append(runtimeConf.getAppVersion()).append("\n")
-				.append("STREAM TYPE: ").append(runtimeConf.getStreamType()).append("\n")
 				.append("SOURCE TYPE: ").append(runtimeConf.getSourceType()).append("\n")
 				.append("GROUPING TYPE: ").append(runtimeConf.getGroupingType()).append("\n")
 				.append("NUMBER OF WORKER BOLTS: ").append(runtimeConf.getNumberOfWorkerBolts()).append("\n")

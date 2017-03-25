@@ -44,7 +44,6 @@ public class Application {
 		String testId = DKGUtils.generateTestId();
 		long processDuration = 1L;
 		long terminationDuration = 1000 * 60 * 1000L;
-		StreamType streamType = StreamType.SKEW;
 		int numberOfWorkers = 1;
 		int numberOfSplitterBolts = 10;
 		int numberOfAggregatorBolts = 10;
@@ -52,7 +51,7 @@ public class Application {
 		int retryCount = 1;
 		String IPAddr = "192.168.1.39"; //localhost 78.165.170.40
 		Map<String, String> groupingProps = new HashMap<>();
-		groupingProps.put("distinctKeyCount", "30");
+		groupingProps.put("distinctKeyCount", "100");
 
 		LOGGER.info("begin...");
 		Configuration config =
@@ -64,7 +63,6 @@ public class Application {
 						.sourceType(sourceType)
 						.groupingType(groupingType)
 						.groupingProps(groupingProps)
-						.streamType(streamType)
 						.numberOfWorkers(numberOfWorkers)
 						.numberOfSpouts(numberOfSpouts * numberOfWorkers)
 						.numberOfSplitterBolts(numberOfSplitterBolts * numberOfWorkers)

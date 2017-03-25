@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class Configuration implements Serializable {
 	// APP VERSION
-	private String appVersion = "v1.0";
+	private String appVersion = "v1.1";
 	private String testId;
 
 	// NUMBER OF PROCESS UNITS
@@ -172,14 +172,6 @@ public class Configuration implements Serializable {
 
 	public void setTimeIntervalOfDataStreams(long timeIntervalOfDataStreams) {
 		this.timeIntervalOfDataStreams = timeIntervalOfDataStreams;
-	}
-
-	public StreamType getStreamType() {
-		return streamType;
-	}
-
-	public void setStreamType(StreamType streamType) {
-		this.streamType = streamType;
 	}
 
 	public SourceType getSourceType() {
