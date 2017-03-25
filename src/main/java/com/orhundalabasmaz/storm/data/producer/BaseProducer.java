@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +27,7 @@ import java.util.TreeMap;
  */
 public abstract class BaseProducer implements StreamProducer {
 	private static Logger LOGGER = LoggerFactory.getLogger(BaseProducer.class);
+	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
 	private Producer producer;
 	private final String filePath;
@@ -92,7 +94,7 @@ public abstract class BaseProducer implements StreamProducer {
 	private long readFile(Map<String, Integer> map, Path path) throws IOException {
 		long count = 0;
 		String fileName = path.getFileName().toString();
-		try (BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+		try (BufferedReader br = Files.newBufferedReader(path, CHARSET)) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				produce(map, line, fileName);
