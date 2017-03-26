@@ -8,7 +8,7 @@ import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 /**
  * @author Orhun Dalabasmaz
  */
-public class WikipediaPageviewByLangSplitter extends SplitterBolt {
+public class WikipediaPageviewsByLangSplitter extends SplitterBolt {
 
 	@Override
 	protected Record convertMessage(String message) {

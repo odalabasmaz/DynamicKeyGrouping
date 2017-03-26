@@ -22,7 +22,7 @@ public class SourceFactory {
 				splitter = new TwitterTickerSplitter();
 				break;
 			case WIKIPEDIA_PAGEVIEWS:
-				splitter = new WikipediaPageviewSplitter();
+				splitter = new WikipediaPageviewsSplitter();
 				break;
 			case COUNTRY_SKEW:
 			case COUNTRY_HALF_SKEW:
@@ -36,7 +36,7 @@ public class SourceFactory {
 				splitter = new WikipediaClickstreamSplitter();
 				break;
 			case WIKIPEDIA_PAGEVIEWS_BY_LANG:
-				splitter = new WikipediaPageviewByLangSplitter();
+				splitter = new WikipediaPageviewsByLangSplitter();
 				break;
 			default:
 				throw new UnsupportedOperationException("Unexpected sourceType: " + sourceType);
