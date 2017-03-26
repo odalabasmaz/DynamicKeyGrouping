@@ -14,14 +14,15 @@ public class TwitterTickerProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line, String fileName) {
+	public void produce(Map<String, Long> map, String line, String fileName) {
 		String[] parts = line.trim().split("\t");
 		long timestamp = Long.parseLong(parts[0]);
 		String ticker = parts[1];
 		TwitterTickerMessage message = new TwitterTickerMessage(ticker, timestamp);
 		sendMessage(message);
 
-		int keyCount = map.getOrDefault(ticker, 0);
+		long keyCount = map.getOrDefault(ticker, 0L);
 		map.put(ticker, keyCount + 1);
+		map.merge("TOTAL_COUNT", 1L, (a, b) -> a + b);
 	}
 }

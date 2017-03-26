@@ -14,16 +14,17 @@ public class WikipediaClickstreamProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line, String fileName) {
+	public void produce(Map<String, Long> map, String line, String fileName) {
 		String[] parts = line.trim().split("\t");
 		String prev = parts[0];
 		String curr = parts[1];
 		String type = parts[2];
-		int n = Integer.parseInt(parts[3]);
+		long n = Integer.parseInt(parts[3]);
 		WikipediaClickstreamMessage message = new WikipediaClickstreamMessage(prev, curr, type, n);
 		sendMessage(message);
 
-		int count = map.getOrDefault(curr, 0);
+		long count = map.getOrDefault(curr, 0L);
 		map.put(curr, count + n);
+		map.merge("TOTAL_COUNT", n, (a, b) -> a + b);
 	}
 }

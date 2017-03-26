@@ -14,12 +14,13 @@ public class CountryProducer extends BaseProducer {
 	}
 
 	@Override
-	public void produce(Map<String, Integer> map, String line, String fileName) {
+	public void produce(Map<String, Long> map, String line, String fileName) {
 		String country = line.trim();
 		CountryMessage message = new CountryMessage(country);
 		sendMessage(message);
 
-		int count = map.getOrDefault(country, 0);
+		long count = map.getOrDefault(country, 0L);
 		map.put(country, count + 1);
+		map.merge("TOTAL_COUNT", 1L, (a, b) -> a + b);
 	}
 }

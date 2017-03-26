@@ -63,7 +63,7 @@ public abstract class BaseProducer implements StreamProducer {
 	public final void produceStream() {
 		LOGGER.info("Producing stream ...");
 		try {
-			Map<String, Integer> map = new HashMap<>();
+			Map<String, Long> map = new HashMap<>();
 			Path path = Paths.get(filePath);
 			File rootFile = path.toFile();
 
@@ -82,8 +82,8 @@ public abstract class BaseProducer implements StreamProducer {
 			} else {
 				totalCount += readFile(map, path);
 			}
-			LOGGER.info("Total emitted record in root file {} is: {}", rootFile.getName(), totalCount);
-			printResult(map);
+			LOGGER.info("Total emitted record in root file {} is: {} and total key count is: {}", rootFile.getName(), totalCount, map.get("TOTAL_COUNT"));
+//			printResult(map);
 		} catch (IOException e) {
 			LOGGER.error("Exception occurred.", e);
 		}
@@ -91,7 +91,7 @@ public abstract class BaseProducer implements StreamProducer {
 		LOGGER.info("Producing done ...");
 	}
 
-	private long readFile(Map<String, Integer> map, Path path) throws IOException {
+	private long readFile(Map<String, Long> map, Path path) throws IOException {
 		long count = 0;
 		String fileName = path.getFileName().toString();
 		try (BufferedReader br = Files.newBufferedReader(path, CHARSET)) {
@@ -101,11 +101,11 @@ public abstract class BaseProducer implements StreamProducer {
 				++count;
 			}
 		}
-		LOGGER.info("Total emitted record in file {} is: {}", fileName, count);
+		LOGGER.info("Total emitted record in file {} is: {} and total key count is: {}", fileName, count, map.get("TOTAL_COUNT"));
 		return count;
 	}
 
-	protected abstract void produce(Map<String, Integer> map, String line, String fileName);
+	protected abstract void produce(Map<String, Long> map, String line, String fileName);
 
 	@SuppressWarnings("unchecked")
 	protected final void sendMessage(Object message) {
@@ -113,14 +113,14 @@ public abstract class BaseProducer implements StreamProducer {
 		producer.send(rec);
 	}
 
-	private void printResult(Map<String, Integer> map) {
+	private void printResult(Map<String, Long> map) {
 		long count = 0;
 		long begin = System.currentTimeMillis();
 		StringBuilder result = new StringBuilder("key,count");
-		TreeMap<String, Integer> treeMap = new TreeMap<>(map);
-		for (Map.Entry<String, Integer> entry : treeMap.entrySet()) {
+		TreeMap<String, Long> treeMap = new TreeMap<>(map);
+		for (Map.Entry<String, Long> entry : treeMap.entrySet()) {
 			String key = entry.getKey();
-			Integer value = entry.getValue();
+			Long value = entry.getValue();
 			count += value;
 			result.append("\n").append(key).append(",").append(value);
 		}

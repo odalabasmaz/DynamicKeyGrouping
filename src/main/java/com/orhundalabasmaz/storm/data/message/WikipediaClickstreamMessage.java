@@ -7,9 +7,9 @@ public class WikipediaClickstreamMessage extends Message {
 	private String prev;
 	private String curr;
 	private String type;
-	private int n;
+	private long n;
 
-	public WikipediaClickstreamMessage(String prev, String curr, String type, int n) {
+	public WikipediaClickstreamMessage(String prev, String curr, String type, long n) {
 		this.prev = prev;
 		this.curr = curr;
 		this.type = type;
@@ -40,11 +40,11 @@ public class WikipediaClickstreamMessage extends Message {
 		this.type = type;
 	}
 
-	public int getN() {
+	public long getN() {
 		return n;
 	}
 
-	public void setN(int n) {
+	public void setN(long n) {
 		this.n = n;
 	}
 }

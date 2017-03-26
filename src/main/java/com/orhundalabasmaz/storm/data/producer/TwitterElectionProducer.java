@@ -19,7 +19,7 @@ public class TwitterElectionProducer extends BaseProducer {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void produce(Map<String, Integer> map, String line, String fileName) {
+	public void produce(Map<String, Long> map, String line, String fileName) {
 		JsonNode jsonNode = JsonReader.readMessage(line);
 		if (jsonNode.get("limit") != null) {
 			return;
@@ -35,8 +35,9 @@ public class TwitterElectionProducer extends BaseProducer {
 		for (Map<String, String> ht : hashtags) {
 			String hashtag = ht.get("text");
 			hashtagList.add(hashtag);
-			int keyCount = map.getOrDefault(hashtag, 0);
+			long keyCount = map.getOrDefault(hashtag, 0L);
 			map.put(hashtag, keyCount + 1);
+			map.merge("TOTAL_COUNT", 1L, (a, b) -> a + b);
 		}
 
 		TwitterElectionMessage message = new TwitterElectionMessage(text, hashtagList, timestamp);

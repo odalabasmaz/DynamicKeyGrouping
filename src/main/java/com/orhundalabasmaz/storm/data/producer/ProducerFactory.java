@@ -21,7 +21,7 @@ public class ProducerFactory {
 				producer = new TwitterTickerProducer(filePath, topicName);
 				break;
 			case WIKIPEDIA_PAGEVIEWS:
-				producer = new WikipediaPageviewProducer(filePath, topicName);
+				producer = new WikipediaPageviewsProducer(filePath, topicName);
 				break;
 			case COUNTRY_SKEW:
 			case COUNTRY_HALF_SKEW:
@@ -35,7 +35,7 @@ public class ProducerFactory {
 				producer = new WikipediaClickstreamProducer(filePath, topicName);
 				break;
 			case WIKIPEDIA_PAGEVIEWS_BY_LANG:
-				producer = new WikipediaPageviewByLangProducer(filePath, topicName);
+				producer = new WikipediaPageviewsByLangProducer(filePath, topicName);
 				break;
 			default:
 				throw new UnsupportedOperationException("SourceType not found! " + source.name());

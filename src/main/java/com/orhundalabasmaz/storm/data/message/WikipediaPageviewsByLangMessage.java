@@ -3,13 +3,13 @@ package com.orhundalabasmaz.storm.data.message;
 /**
  * @author Orhun Dalabasmaz
  */
-public class WikipediaPageviewByLangMessage extends Message {
+public class WikipediaPageviewsByLangMessage extends Message {
 	private String lang;
 	private String page;
-	private int n;
-	private int m;
+	private long n;
+	private long m;
 
-	public WikipediaPageviewByLangMessage(String lang, String page, int n, int m) {
+	public WikipediaPageviewsByLangMessage(String lang, String page, long n, long m) {
 		this.lang = lang;
 		this.page = page;
 		this.n = n;
@@ -32,19 +32,19 @@ public class WikipediaPageviewByLangMessage extends Message {
 		this.page = page;
 	}
 
-	public int getN() {
+	public long getN() {
 		return n;
 	}
 
-	public void setN(int n) {
+	public void setN(long n) {
 		this.n = n;
 	}
 
-	public int getM() {
+	public long getM() {
 		return m;
 	}
 
-	public void setM(int m) {
+	public void setM(long m) {
 		this.m = m;
 	}
 }
