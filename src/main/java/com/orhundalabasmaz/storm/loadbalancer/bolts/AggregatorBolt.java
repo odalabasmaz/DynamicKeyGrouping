@@ -6,6 +6,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.orhundalabasmaz.storm.loadbalancer.aggregator.Aggregator;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.KeyAggregator;
 import com.orhundalabasmaz.storm.model.Message;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
@@ -17,7 +18,7 @@ import java.util.Map;
  */
 public class AggregatorBolt extends WindowedBolt {
 	private transient OutputCollector collector;
-	private transient com.orhundalabasmaz.storm.loadbalancer.aggregator.Aggregator aggregator;
+	private transient Aggregator aggregator;
 	private long aggregationDuration;
 
 	public AggregatorBolt(long tickFrequencyInSeconds, long aggregationDuration) {
@@ -38,7 +39,7 @@ public class AggregatorBolt extends WindowedBolt {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void countDataAndAck(Tuple tuple) {
+	public synchronized void countDataAndAck(Tuple tuple) {
 		String key = (String) tuple.getValueByField("key");
 		Long count = (Long) tuple.getValueByField("count");
 		aggregator.aggregate(key, count);
@@ -46,7 +47,7 @@ public class AggregatorBolt extends WindowedBolt {
 	}
 
 	@Override
-	public void emitCurrentWindowAndAdvance() {
+	public synchronized void emitCurrentWindowAndAdvance() {
 		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
 		long timestamp = DKGUtils.getCurrentTimestamp();
 		for (Map.Entry<String, Long> entry : counts.entrySet()) {

@@ -170,7 +170,7 @@ public class LoadBalancerTopology implements Topology {
 
 		// splitter observer
 		builder.setBolt(splitterObserverName,
-				new SplitterObserverBolt(5), 1)
+				new SplitterObserverBolt(60), 1)
 				.noneGrouping(splitterName);
 
 		// worker observer
@@ -189,9 +189,9 @@ public class LoadBalancerTopology implements Topology {
 		int spout = runtimeConf.getNumberOfSpouts();
 		int worker = runtimeConf.getNumberOfWorkerBolts();
 		String target = sourceName + "-" + "s" + spout + "-" + "w" + worker + "-" + groupingType;
-		builder.setBolt(outputName + "-0",
-				new KafkaOutputBolt(target + "-" + "splitter"), 1)
-				.shuffleGrouping(splitterObserverName);
+//		builder.setBolt(outputName + "-0",
+//				new KafkaOutputBolt(target + "-" + "splitter"), 1)
+//				.shuffleGrouping(splitterObserverName);
 		builder.setBolt(outputName + "-1",
 				new KafkaOutputBolt(target + "-" + "aggregator"), 1)
 				.shuffleGrouping(aggregatorName);

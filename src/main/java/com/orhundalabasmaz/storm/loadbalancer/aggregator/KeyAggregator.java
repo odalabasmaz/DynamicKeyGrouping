@@ -36,7 +36,7 @@ public class KeyAggregator implements Aggregator {
 	}
 
 	@Override
-	public void aggregate(String key, long count) {
+	public synchronized void aggregate(String key, long count) {
 		long curr = counter.containsKey(key) ? counter.get(key) : 0;
 		counter.put(key, curr + count);
 	}
@@ -51,17 +51,15 @@ public class KeyAggregator implements Aggregator {
 	}
 
 	@Override
-	public SortedMap<String, Long> getCountsThenAdvanceWindow() {
+	public synchronized SortedMap<String, Long> getCountsThenAdvanceWindow() {
 		final SortedMap<String, Long> dataClone = new TreeMap<>();
 		final List<String> deleted = new ArrayList<>();
-		synchronized (counter) {
-			for (Map.Entry<String, Long> entry : counter.entrySet()) {
-				dataClone.put(entry.getKey(), entry.getValue());
-				deleted.add(entry.getKey());
-			}
-			for (String d : deleted) {
-				counter.remove(d);
-			}
+		for (Map.Entry<String, Long> entry : counter.entrySet()) {
+			dataClone.put(entry.getKey(), entry.getValue());
+			deleted.add(entry.getKey());
+		}
+		for (String d : deleted) {
+			counter.remove(d);
 		}
 		return dataClone;
 	}
@@ -104,11 +102,7 @@ public class KeyAggregator implements Aggregator {
 		workerCounts.put(workerId, workerCount + count);
 
 		// update key counts
-		CountInfo keyCount = keyCounts.get(key);
-		if (keyCount == null) {
-			keyCount = new CountInfo(key);
-			keyCounts.put(key, keyCount);
-		}
+		CountInfo keyCount = keyCounts.computeIfAbsent(key, CountInfo::new);
 		keyCount.add(workerId, count);
 	}
 

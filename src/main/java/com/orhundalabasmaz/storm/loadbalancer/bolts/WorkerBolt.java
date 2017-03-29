@@ -39,7 +39,7 @@ public class WorkerBolt extends WindowedBolt {
 	}
 
 	@Override
-	public void countDataAndAck(Tuple tuple) {
+	public synchronized void countDataAndAck(Tuple tuple) {
 		String key = (String) tuple.getValueByField("key");
 		Long count = (Long) tuple.getValueByField("count");
 		doToughJob();
@@ -48,7 +48,7 @@ public class WorkerBolt extends WindowedBolt {
 	}
 
 	@Override
-	public void emitCurrentWindowAndAdvance() {
+	public synchronized void emitCurrentWindowAndAdvance() {
 		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
 		String workerId = getWorkerId();
 		long timestamp = DKGUtils.getCurrentTimestamp();
