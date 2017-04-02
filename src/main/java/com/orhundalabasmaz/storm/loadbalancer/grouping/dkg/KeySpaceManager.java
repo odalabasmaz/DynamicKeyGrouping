@@ -21,23 +21,21 @@ public class KeySpaceManager implements Runnable {
 	public void run() {
 		int count = 0;
 		while (true) {
-			synchronized (keySpace) {
-				++count;
+			++count;
 
-				// rearrange keys in space
-				LOGGER.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
-				keySpace.sortBabySpace();
-				keySpace.truncateBabySpace();
+			// rearrange keys in space
+			LOGGER.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
+			keySpace.sortBabySpace();
+			keySpace.truncateBabySpace();
+			keySpace.sortTeenageSpace();
+			keySpace.upToTeenageSpace();
+
+			if (count == CYCLE_COUNT) {
+				count = 0;
+				LOGGER.info("######## rearranging keys > teenage space to old space");
 				keySpace.sortTeenageSpace();
-				keySpace.upToTeenageSpace();
-
-				if (count == CYCLE_COUNT) {
-					count = 0;
-					LOGGER.info("######## rearranging keys > teenage space to old space");
-					keySpace.sortTeenageSpace();
-					keySpace.sortOldSpace();
-					keySpace.upToOldSpace();
-				}
+				keySpace.sortOldSpace();
+				keySpace.upToOldSpace();
 			}
 
 			// wait for next execution

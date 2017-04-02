@@ -35,14 +35,12 @@ public class SplitterObserverBolt extends WindowedBolt {
 
 	@Override
 	public void countDataAndAck(Tuple tuple) {
-		synchronized (this) {
-			if (startTime == 0) {
-				emitFirstTime();
-			}
-			String key = tuple.getString(0);
-			aggregator.aggregate(key);
-			++totalCount;
+		if (startTime == 0) {
+			emitFirstTime();
 		}
+		String key = tuple.getString(0);
+		aggregator.aggregate(key);
+		++totalCount;
 		collector.ack(tuple);
 	}
 
@@ -59,16 +57,14 @@ public class SplitterObserverBolt extends WindowedBolt {
 	@Override
 	public void emitCurrentWindowAndAdvance() {
 		long timestamp = DKGUtils.getCurrentTimestamp();
-		synchronized(this) {
-			Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
-			for (Map.Entry<String, Long> entry : counts.entrySet()) {
-				String key = entry.getKey();
-				Long count = entry.getValue();
-				Message message = new Message(key, timestamp);
-				message.addTag("key", key);
-				message.addField("count", count);
-				collector.emit(new Values(message.getKey(), message));
-			}
+		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
+		for (Map.Entry<String, Long> entry : counts.entrySet()) {
+			String key = entry.getKey();
+			Long count = entry.getValue();
+			Message message = new Message(key, timestamp);
+			message.addTag("key", key);
+			message.addField("count", count);
+			collector.emit(new Values(message.getKey(), message));
 			emitOngoingTimeConsumption(totalCount, timestamp);
 		}
 	}

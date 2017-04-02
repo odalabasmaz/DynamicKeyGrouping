@@ -37,10 +37,8 @@ public class KeyAggregator implements Aggregator {
 
 	@Override
 	public void aggregate(String key, long count) {
-		synchronized (this) {
-			long curr = counter.containsKey(key) ? counter.get(key) : 0;
-			counter.put(key, curr + count);
-		}
+		long curr = counter.containsKey(key) ? counter.get(key) : 0;
+		counter.put(key, curr + count);
 	}
 
 	@Override
@@ -56,14 +54,12 @@ public class KeyAggregator implements Aggregator {
 	public SortedMap<String, Long> getCountsThenAdvanceWindow() {
 		final SortedMap<String, Long> dataClone = new TreeMap<>();
 		final List<String> deleted = new ArrayList<>();
-		synchronized (this) {
-			for (Map.Entry<String, Long> entry : counter.entrySet()) {
-				dataClone.put(entry.getKey(), entry.getValue());
-				deleted.add(entry.getKey());
-			}
-			for (String d : deleted) {
-				counter.remove(d);
-			}
+		for (Map.Entry<String, Long> entry : counter.entrySet()) {
+			dataClone.put(entry.getKey(), entry.getValue());
+			deleted.add(entry.getKey());
+		}
+		for (String d : deleted) {
+			counter.remove(d);
 		}
 		return dataClone;
 	}

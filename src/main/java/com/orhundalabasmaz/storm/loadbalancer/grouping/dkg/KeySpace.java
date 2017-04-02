@@ -48,14 +48,12 @@ public class KeySpace implements Serializable {
 	}
 
 	public void handleKey(String key) {
-		synchronized(this) {
-			KeyItem item = findKeyItem(key);
-			if (item != null) {
-				item.appearedAgain();
-			} else {
-				item = new KeyItem(key);
-				babySpace.add(item);
-			}
+		KeyItem item = findKeyItem(key);
+		if (item != null) {
+			item.appearedAgain();
+		} else {
+			item = new KeyItem(key);
+			babySpace.add(item);
 		}
 	}
 
