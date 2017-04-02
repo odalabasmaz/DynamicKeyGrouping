@@ -29,7 +29,6 @@ public class WorkerObserverBolt extends BaseRichBolt {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void execute(Tuple tuple) {
-		collector.ack(tuple);
 		synchronized (this) {
 			String workerId = convertWorkerId((String) tuple.getValueByField("workerId"));
 			String key = (String) tuple.getValueByField("key");
@@ -43,7 +42,7 @@ public class WorkerObserverBolt extends BaseRichBolt {
 			//todo tuple,
 			collector.emit(tuple, new Values(message.getKey(), message));
 		}
-//		collector.ack(tuple);
+		collector.ack(tuple);
 	}
 
 	private String convertWorkerId(String workerId) {

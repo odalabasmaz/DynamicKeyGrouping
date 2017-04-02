@@ -35,7 +35,6 @@ public class SplitterObserverBolt extends WindowedBolt {
 
 	@Override
 	public void countDataAndAck(Tuple tuple) {
-		collector.ack(tuple);
 		synchronized (this) {
 			if (startTime == 0) {
 				emitFirstTime();
@@ -44,7 +43,7 @@ public class SplitterObserverBolt extends WindowedBolt {
 			aggregator.aggregate(key);
 			++totalCount;
 		}
-//		collector.ack(tuple);
+		collector.ack(tuple);
 	}
 
 	private void emitFirstTime() {

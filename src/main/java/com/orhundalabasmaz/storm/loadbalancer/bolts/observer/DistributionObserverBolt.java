@@ -45,7 +45,6 @@ public class DistributionObserverBolt extends WindowedBolt {
 
 	@Override
 	protected void countDataAndAck(Tuple tuple) {
-		collector.ack(tuple);
 		synchronized (this) {
 			String workerId = (String) tuple.getValueByField("workerId");
 			String key = (String) tuple.getValueByField("key");
@@ -63,7 +62,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 			Set<String> workerSet = keyWorkers.get(key);
 			workerSet.add(workerId);
 		}
-//		collector.ack(tuple);
+		collector.ack(tuple);
 	}
 
 	@Override

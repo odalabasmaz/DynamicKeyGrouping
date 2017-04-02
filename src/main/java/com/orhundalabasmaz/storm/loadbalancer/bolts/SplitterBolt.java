@@ -30,7 +30,6 @@ public abstract class SplitterBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		collector.ack(tuple);
 		synchronized (this) {
 			String message = tuple.getString(0);
 			Record record = convertMessage(message);
@@ -40,7 +39,7 @@ public abstract class SplitterBolt extends BaseRichBolt {
 				collector.emit(tuple, new Values(keyCount.getKey(), keyCount.getCount(), timestamp));
 			}
 		}
-//		collector.ack(tuple);
+		collector.ack(tuple);
 	}
 
 	protected abstract Record convertMessage(String message);

@@ -40,12 +40,11 @@ public class AggregatorBolt extends WindowedBolt {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void countDataAndAck(Tuple tuple) {
-		collector.ack(tuple);
 		synchronized (this) {
 			String key = (String) tuple.getValueByField("key");
 			Long count = (Long) tuple.getValueByField("count");
 			aggregator.aggregate(key, count);
-//			collector.ack(tuple);
+			collector.ack(tuple);
 		}
 	}
 
