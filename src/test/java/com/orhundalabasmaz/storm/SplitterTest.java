@@ -29,4 +29,12 @@ public class SplitterTest {
 		assert "ab".equals("ab.zero.d".split("\\.")[0]);
 		assert "aa".equals("aa.zero".split("\\.")[0]);
 	}
+
+	@Test
+	public void format() {
+//		double d = 5.28117597461604;
+		double d = 12314.94140007597461604;
+		String df = String.format("%.0f", d);
+		System.out.println(df);
+	}
 }

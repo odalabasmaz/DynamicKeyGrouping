@@ -30,14 +30,17 @@ public abstract class SplitterBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		String message = tuple.getString(0);
-		Record record = convertMessage(message);
-		Long timestamp = record.getTimestamp();
-		List<KeyCount> keyCounts = record.getKeyCounts();
-		for (KeyCount keyCount : keyCounts) {
-			collector.emit(tuple, new Values(keyCount.getKey(), keyCount.getCount(), timestamp));
-		}
 		collector.ack(tuple);
+		synchronized (this) {
+			String message = tuple.getString(0);
+			Record record = convertMessage(message);
+			Long timestamp = record.getTimestamp();
+			List<KeyCount> keyCounts = record.getKeyCounts();
+			for (KeyCount keyCount : keyCounts) {
+				collector.emit(tuple, new Values(keyCount.getKey(), keyCount.getCount(), timestamp));
+			}
+		}
+//		collector.ack(tuple);
 	}
 
 	protected abstract Record convertMessage(String message);

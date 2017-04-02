@@ -77,9 +77,10 @@ public class LoadBalancerTopology implements Topology {
 		String zkConnString = runtimeConf.getIPAddr() + ":2181";
 		BrokerHosts hosts = new ZkHosts(zkConnString);
 		SpoutConfig kafkaSpoutConfig = new SpoutConfig(hosts, sourceName, "/" + sourceName, UUID.randomUUID().toString());
-		kafkaSpoutConfig.bufferSizeBytes = 1024 * 1024 * 4;
-		kafkaSpoutConfig.fetchSizeBytes = 1024 * 1024 * 4;
+		kafkaSpoutConfig.bufferSizeBytes = 1024 * 1024 * 16;
+		kafkaSpoutConfig.fetchSizeBytes = 1024 * 1024 * 16;
 		kafkaSpoutConfig.forceFromStart = true;
+		kafkaSpoutConfig.socketTimeoutMs = 1000 * 60;
 		kafkaSpoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 		return kafkaSpoutConfig;
 	}
@@ -136,6 +137,8 @@ public class LoadBalancerTopology implements Topology {
 		conf.setDebug(false);
 //		conf.setMaxSpoutPending(1);
 //		conf.setMaxTaskParallelism(16);
+//		conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
+//		conf.put(Config.TOPOLOGY_ACKERS, 0);
 		setKafkaProducerConfig(conf);
 
 		// source
@@ -171,17 +174,17 @@ public class LoadBalancerTopology implements Topology {
 		// splitter observer
 		builder.setBolt(splitterObserverName,
 				new SplitterObserverBolt(60), 1)
-				.noneGrouping(splitterName);
+				.shuffleGrouping(splitterName);
 
 		// worker observer
 		builder.setBolt(workerObserverName,
 				new WorkerObserverBolt(), 1)
-				.noneGrouping(workerName);
+				.shuffleGrouping(workerName);
 
 		// distribution observer
 		builder.setBolt(distributionObserverName,
 				new DistributionObserverBolt(runtimeConf.getTimeIntervalOfAggregatorBolts()), 1)
-				.noneGrouping(workerName);
+				.shuffleGrouping(workerName);
 
 		// output
 		String sourceName = runtimeConf.getSourceName();

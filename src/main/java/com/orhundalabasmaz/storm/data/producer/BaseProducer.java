@@ -48,7 +48,7 @@ public abstract class BaseProducer implements StreamProducer {
 		configProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 //		configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 		configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-//		configProperties.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384 * 64);
+		configProperties.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384 * 64);
 		/*props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.RETRIES_CONFIG, 0);
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
@@ -109,8 +109,8 @@ public abstract class BaseProducer implements StreamProducer {
 
 	@SuppressWarnings("unchecked")
 	protected final void sendMessage(Object message) {
-		ProducerRecord<String, String> rec = new ProducerRecord(topicName, message);
-		producer.send(rec);
+//		ProducerRecord<String, String> rec = new ProducerRecord(topicName, message);
+//		producer.send(rec);
 	}
 
 	private void printResult(Map<String, Long> map) {

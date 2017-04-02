@@ -44,36 +44,45 @@ public class DistributionObserverBolt extends WindowedBolt {
 	}
 
 	@Override
-	protected synchronized void countDataAndAck(Tuple tuple) {
-		String workerId = (String) tuple.getValueByField("workerId");
-		String key = (String) tuple.getValueByField("key");
-		Long count = (Long) tuple.getValueByField("count");
-//			Long timestamp = (Long) tuple.getValueByField("timestamp");
-		distributionAggregator.aggregate(workerId, count);
-
-		// aggregate total count
-		totalCount += count;
-		updateTimeConsumption();
-
-		keyWorkers.putIfAbsent(key, new HashSet<>());
-		Set<String> workerSet = keyWorkers.get(key);
-		workerSet.add(workerId);
+	protected void countDataAndAck(Tuple tuple) {
 		collector.ack(tuple);
+		synchronized (this) {
+			String workerId = (String) tuple.getValueByField("workerId");
+			String key = (String) tuple.getValueByField("key");
+			Long count = (Long) tuple.getValueByField("count");
+			//Long timestamp = (Long) tuple.getValueByField("timestamp");
+
+			// aggregate new value
+			distributionAggregator.aggregate(workerId, count);
+
+			// aggregate total count
+			totalCount += count;
+			updateTimeConsumption();
+
+			keyWorkers.putIfAbsent(key, new HashSet<>());
+			Set<String> workerSet = keyWorkers.get(key);
+			workerSet.add(workerId);
+		}
+//		collector.ack(tuple);
 	}
 
 	@Override
-	protected synchronized void emitCurrentWindowAndAdvance() {
+	protected void emitCurrentWindowAndAdvance() {
 		long timestamp = DKGUtils.getCurrentTimestamp();
 		int totalKeys = 0;
-		int distinctKeys = keyWorkers.keySet().size();
-		for (Map.Entry<String, Set<String>> entry : keyWorkers.entrySet()) {
-			String key = entry.getKey();
-			int numberOfWorkers = entry.getValue().size();
-			totalKeys += numberOfWorkers;
-			Message message = new Message(key, timestamp);
-			message.addTag("key", key);
-			message.addField("numberOfWorkers", numberOfWorkers);
-			collector.emit(new Values(message.getKey(), message));
+		int distinctKeys;
+
+		synchronized (this) {
+			distinctKeys = keyWorkers.keySet().size();
+			for (Map.Entry<String, Set<String>> entry : keyWorkers.entrySet()) {
+				String key = entry.getKey();
+				int numberOfWorkers = entry.getValue().size();
+				totalKeys += numberOfWorkers;
+				Message message = new Message(key, timestamp);
+				message.addTag("key", key);
+				message.addField("numberOfWorkers", numberOfWorkers);
+				collector.emit(new Values(message.getKey(), message));
+			}
 		}
 
 		if (totalCount > latestTotalCount) {
@@ -83,8 +92,8 @@ public class DistributionObserverBolt extends WindowedBolt {
 	}
 
 	private void updateTimeConsumption() {
-		long timetamp = DKGUtils.getCurrentTimestamp();
-		latestTimeConsumption = timetamp - startTime;
+		long currentTime = DKGUtils.getCurrentTimestamp();
+		latestTimeConsumption = currentTime - startTime;
 	}
 
 	private void calculateDistribution(long timestamp, int totalKeys, double distinctKeys) {
@@ -99,8 +108,13 @@ public class DistributionObserverBolt extends WindowedBolt {
 		message.addField("DIST_COST", distCost);
 		message.addField("THROUGHPUT_RATIO", throughputRatio);
 		collector.emit(new Values(message.getKey(), message));
-		LOGGER.info("### TotalCount:{}, Duration: {}ms, StdDev: {}, DistCost: {}, ThroughputRatio: {}",
-				totalCount, latestTimeConsumption, stdDev, distCost, throughputRatio);
+
+		// log for observation
+		String stdDevVal = String.format("%.4f", stdDev);
+		String distCostVal = String.format("%.4f", distCost);
+		String throughputRatioVal = String.format("%.0f", throughputRatio);
+		LOGGER.info("### TotalCount: {}, Duration: {}ms, StdDev: {}, DistCost: {}, ThroughputRatio: {}",
+				totalCount, latestTimeConsumption, stdDevVal, distCostVal, throughputRatioVal);
 	}
 
 	@Override

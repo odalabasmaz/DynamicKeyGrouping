@@ -45,13 +45,15 @@ public class KeySpace implements Serializable {
 		babySpace = new ArrayList<>(BABY_MAX_SIZE);
 	}
 
-	public synchronized void handleKey(String key) {
-		KeyItem item = findKeyItem(key);
-		if (item != null) {
-			item.appearedAgain();
-		} else {
-			item = new KeyItem(key);
-			babySpace.add(item);
+	public void handleKey(String key) {
+		synchronized(this) {
+			KeyItem item = findKeyItem(key);
+			if (item != null) {
+				item.appearedAgain();
+			} else {
+				item = new KeyItem(key);
+				babySpace.add(item);
+			}
 		}
 	}
 

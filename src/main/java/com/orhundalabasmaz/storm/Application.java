@@ -43,7 +43,7 @@ public class Application {
 
 		String testId = DKGUtils.generateTestId();
 		long processDuration = 1L;
-		long terminationDuration = 1000 * 60 * 1000L;
+		long terminationDuration = 10 * 24 * 60 * 60 * 1000L;
 		int numberOfWorkers = 1;
 		int numberOfSplitterBolts = 10;
 		int numberOfAggregatorBolts = 10;

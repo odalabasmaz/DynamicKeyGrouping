@@ -13,8 +13,10 @@ public class DistributionAggregator {
 	private final Map<String, Long> map = new HashMap<>();
 
 	public void aggregate(String workerId, Long count) {
-		totalCount += count;
-		map.merge(workerId, count, (a, b) -> a + b);
+		synchronized (this) {
+			totalCount += count;
+			map.merge(workerId, count, (a, b) -> a + b);
+		}
 	}
 
 	public double stdDev() {

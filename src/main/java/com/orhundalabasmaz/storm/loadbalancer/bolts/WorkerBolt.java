@@ -39,23 +39,28 @@ public class WorkerBolt extends WindowedBolt {
 	}
 
 	@Override
-	public synchronized void countDataAndAck(Tuple tuple) {
-		String key = (String) tuple.getValueByField("key");
-		Long count = (Long) tuple.getValueByField("count");
-		doToughJob();
-		aggregator.aggregate(key, count);
+	public void countDataAndAck(Tuple tuple) {
 		collector.ack(tuple);
+		synchronized (this) {
+			String key = (String) tuple.getValueByField("key");
+			Long count = (Long) tuple.getValueByField("count");
+			doToughJob();
+			aggregator.aggregate(key, count);
+		}
+//		collector.ack(tuple);
 	}
 
 	@Override
-	public synchronized void emitCurrentWindowAndAdvance() {
-		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
-		String workerId = getWorkerId();
-		long timestamp = DKGUtils.getCurrentTimestamp();
-		for (Map.Entry<String, Long> entry : counts.entrySet()) {
-			String key = entry.getKey();
-			Long count = entry.getValue();
-			collector.emit(new Values(workerId, key, count, timestamp));
+	public void emitCurrentWindowAndAdvance() {
+		synchronized (this) {
+			Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
+			String workerId = getWorkerId();
+			long timestamp = DKGUtils.getCurrentTimestamp();
+			for (Map.Entry<String, Long> entry : counts.entrySet()) {
+				String key = entry.getKey();
+				Long count = entry.getValue();
+				collector.emit(new Values(workerId, key, count, timestamp));
+			}
 		}
 	}
 

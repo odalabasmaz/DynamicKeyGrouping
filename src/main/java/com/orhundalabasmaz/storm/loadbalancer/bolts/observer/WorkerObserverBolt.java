@@ -28,18 +28,22 @@ public class WorkerObserverBolt extends BaseRichBolt {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public synchronized void execute(Tuple tuple) {
-		String workerId = convertWorkerId((String) tuple.getValueByField("workerId"));
-		String key = (String) tuple.getValueByField("key");
-		Long count = (Long) tuple.getValueByField("count");
-		Long timestamp = (Long) tuple.getValueByField("timestamp");
-		Message message = new Message(key, timestamp);
-		message.addTag("key", key);
-		message.addTag("workerId", workerId);
-		message.addField("count", count);
-		//todo tuple,
-		collector.emit(tuple, new Values(message.getKey(), message));
+	public void execute(Tuple tuple) {
 		collector.ack(tuple);
+		synchronized (this) {
+			String workerId = convertWorkerId((String) tuple.getValueByField("workerId"));
+			String key = (String) tuple.getValueByField("key");
+			Long count = (Long) tuple.getValueByField("count");
+			Long timestamp = (Long) tuple.getValueByField("timestamp");
+
+			Message message = new Message(key, timestamp);
+			message.addTag("key", key);
+			message.addTag("workerId", workerId);
+			message.addField("count", count);
+			//todo tuple,
+			collector.emit(tuple, new Values(message.getKey(), message));
+		}
+//		collector.ack(tuple);
 	}
 
 	private String convertWorkerId(String workerId) {
