@@ -1,11 +1,13 @@
 package com.orhundalabasmaz.storm.aspects;
 
-import com.orhundalabasmaz.storm.utils.CustomLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Aspect
 public class ElapsedTimeAspect {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ElapsedTimeAspect.class);
 	private long totalTime = 0;     // ns
 	private long totalCount = 0;
 
@@ -25,7 +27,7 @@ public class ElapsedTimeAspect {
 		totalTime += elapsedTime;
 		totalCount++;
 		double avgElapsedTime = (double) totalTime / totalCount;
-		CustomLogger.log(String.format(
+		LOGGER.info(String.format(
 				"Curr elapsed time: %7.2f mics -- Avg elapsed time: %7.2f mics\n",
 				(double) elapsedTime / 1000, avgElapsedTime / 1000));
 		return returnObject;

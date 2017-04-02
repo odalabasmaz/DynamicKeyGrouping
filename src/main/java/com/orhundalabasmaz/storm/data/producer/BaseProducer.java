@@ -35,6 +35,7 @@ public abstract class BaseProducer implements StreamProducer {
 	//	private final String servers = "85.110.34.250:9092";
 //	private final String servers = "localhost:9092";
 	private final String servers = "192.168.1.39:9092";
+	private final boolean enabled = false;
 
 	protected BaseProducer(String filePath, String topicName) {
 		this.filePath = filePath;
@@ -109,8 +110,10 @@ public abstract class BaseProducer implements StreamProducer {
 
 	@SuppressWarnings("unchecked")
 	protected final void sendMessage(Object message) {
-//		ProducerRecord<String, String> rec = new ProducerRecord(topicName, message);
-//		producer.send(rec);
+		if (enabled) {
+			ProducerRecord<String, String> rec = new ProducerRecord(topicName, message);
+			producer.send(rec);
+		}
 	}
 
 	private void printResult(Map<String, Long> map) {

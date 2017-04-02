@@ -1,12 +1,14 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
 import com.orhundalabasmaz.storm.utils.DKGUtils;
-import com.orhundalabasmaz.storm.utils.CustomLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class KeySpaceManager implements Runnable {
+	private static final Logger LOGGER = LoggerFactory.getLogger(KeySpaceManager.class);
 	private static final long TIME_INTERVAL = 10;
 	private static final long CYCLE_COUNT = 6;
 	private final KeySpace keySpace;
@@ -23,7 +25,7 @@ public class KeySpaceManager implements Runnable {
 				++count;
 
 				// rearrange keys in space
-				CustomLogger.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
+				LOGGER.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
 				keySpace.sortBabySpace();
 				keySpace.truncateBabySpace();
 				keySpace.sortTeenageSpace();
@@ -31,7 +33,7 @@ public class KeySpaceManager implements Runnable {
 
 				if (count == CYCLE_COUNT) {
 					count = 0;
-					CustomLogger.info("######## rearranging keys > teenage space to old space");
+					LOGGER.info("######## rearranging keys > teenage space to old space");
 					keySpace.sortTeenageSpace();
 					keySpace.sortOldSpace();
 					keySpace.upToOldSpace();

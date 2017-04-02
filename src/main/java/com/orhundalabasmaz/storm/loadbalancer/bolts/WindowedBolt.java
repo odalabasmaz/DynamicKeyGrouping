@@ -4,7 +4,8 @@ import backtype.storm.Config;
 import backtype.storm.Constants;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import com.orhundalabasmaz.storm.utils.CustomLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
  * @author Orhun Dalabasmaz
  */
 public abstract class WindowedBolt extends BaseRichBolt {
+	private static final Logger LOGGER = LoggerFactory.getLogger(WindowedBolt.class);
 	private long tickFrequencyInSeconds;
 
 	protected WindowedBolt(long tickFrequencyInSeconds) {
@@ -24,7 +26,7 @@ public abstract class WindowedBolt extends BaseRichBolt {
 		if (isTickTuple(tuple)) {
 			emitCurrentWindowAndAdvance();
 		} else {
-			CustomLogger.info("countDataAndAck");
+			LOGGER.debug("countDataAndAck");
 			countDataAndAck(tuple);
 		}
 	}

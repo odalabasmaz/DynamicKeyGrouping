@@ -1,7 +1,8 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
-import com.orhundalabasmaz.storm.utils.CustomLogger;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
  *         archived / eden-space / old-space / retired
  */
 public class KeySpace implements Serializable {
+	private static final Logger LOGGER = LoggerFactory.getLogger(KeySpace.class);
 	private List<KeyItem> babySpace;         // max heap
 	private List<KeyItem> teenageSpace;      // max heap
 	private List<KeyItem> oldSpace;          // max heap
@@ -74,7 +76,7 @@ public class KeySpace implements Serializable {
 		}
 		for (KeyItem item : keyItemList) {
 			if (item == null) {
-				CustomLogger.error("item cannot be null!");
+				LOGGER.error("item cannot be null!");
 				continue;
 			}
 			if (key.equals(item.getKey())) {

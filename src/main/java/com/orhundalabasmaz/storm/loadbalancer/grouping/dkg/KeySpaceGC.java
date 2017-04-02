@@ -1,12 +1,14 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
-import com.orhundalabasmaz.storm.utils.CustomLogger;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class KeySpaceGC implements Runnable {
+	private static final Logger LOGGER = LoggerFactory.getLogger(KeySpaceGC.class);
 	private static final long TIME_INTERVAL = 1 * 60L;
 	private final KeySpace keySpace;
 
@@ -18,7 +20,7 @@ public class KeySpaceGC implements Runnable {
 	public void run() {
 		while (true) {
 			// garbage collecting: retiring
-			CustomLogger.info("######## garbage collecting");
+			LOGGER.info("######## garbage collecting");
 			DKGUtils.sleepInSeconds(TIME_INTERVAL);
 		}
 	}
