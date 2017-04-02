@@ -139,6 +139,7 @@ public class LoadBalancerTopology implements Topology {
 //		conf.setMaxTaskParallelism(16);
 //		conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
 //		conf.put(Config.TOPOLOGY_ACKERS, 0);
+		conf.setNumAckers(0);
 		setKafkaProducerConfig(conf);
 
 		// source
