@@ -51,7 +51,7 @@ public class Configuration implements Serializable {
 	private String sourceName;
 
 	// SERVER
-	private String IPAddr;
+	private String serverIp;
 
 	/* getters & setters */
 	public String getAppVersion() {
@@ -250,11 +250,11 @@ public class Configuration implements Serializable {
 		this.sourceName = sourceName;
 	}
 
-	public String getIPAddr() {
-		return IPAddr;
+	public String getServerIp() {
+		return serverIp;
 	}
 
-	public void setIPAddr(String IPAddr) {
-		this.IPAddr = IPAddr;
+	public void setServerIp(String serverIp) {
+		this.serverIp = serverIp;
 	}
 }

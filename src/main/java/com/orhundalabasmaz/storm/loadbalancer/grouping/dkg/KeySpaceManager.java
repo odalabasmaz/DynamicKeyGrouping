@@ -9,8 +9,9 @@ import org.slf4j.LoggerFactory;
  */
 public class KeySpaceManager implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(KeySpaceManager.class);
-	private static final long TIME_INTERVAL = 10;
-	private static final long CYCLE_COUNT = 6;
+	private static final long TIME_INTERVAL = 15;
+	private static final long CYCLE_COUNT = 4;
+	private boolean run = true;
 	private final KeySpace keySpace;
 
 	public KeySpaceManager(KeySpace keySpace) {
@@ -20,26 +21,32 @@ public class KeySpaceManager implements Runnable {
 	@Override
 	public void run() {
 		int count = 0;
-		while (true) {
+		while (run) {
 			++count;
 
-			// rearrange keys in space
-			LOGGER.info("######## rearranging keys > babySpace to teenageSpace, count: " + count);
-			keySpace.sortBabySpace();
-			keySpace.truncateBabySpace();
-			keySpace.sortTeenageSpace();
-			keySpace.upToTeenageSpace();
-
-			if (count == CYCLE_COUNT) {
-				count = 0;
-				LOGGER.info("######## rearranging keys > teenage space to old space");
+			synchronized (keySpace) {
+				// rearrange keys in space
+				LOGGER.info("rearranging keys > babySpace to teenageSpace, count: {}", count);
+				keySpace.sortBabySpace();
+				keySpace.truncateBabySpace();
 				keySpace.sortTeenageSpace();
-				keySpace.sortOldSpace();
-				keySpace.upToOldSpace();
+				keySpace.upToTeenageSpace();
+
+				if (count == CYCLE_COUNT) {
+					count = 0;
+					LOGGER.info("rearranging keys > teenage space to old space");
+					keySpace.sortTeenageSpace();
+					keySpace.sortOldSpace();
+					keySpace.upToOldSpace();
+				}
 			}
 
 			// wait for next execution
 			DKGUtils.sleepInSeconds(TIME_INTERVAL);
 		}
+	}
+
+	public void terminate() {
+		run = false;
 	}
 }

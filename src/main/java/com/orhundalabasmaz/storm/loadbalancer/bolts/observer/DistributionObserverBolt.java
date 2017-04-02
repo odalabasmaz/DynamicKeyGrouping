@@ -108,7 +108,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 		String stdDevVal = String.format("%.4f", stdDev);
 		String distCostVal = String.format("%.4f", distCost);
 		String throughputRatioVal = String.format("%.0f", throughputRatio);
-		LOGGER.info("### TotalCount: {}, Duration: {}ms, StdDev: {}, DistCost: {}, ThroughputRatio: {}",
+		LOGGER.info("### TotalCount: {}, Duration(ms): {}, StdDev: {}, DistCost: {}, ThroughputRatio(rec/sec): {}",
 				totalCount, latestTimeConsumption, stdDevVal, distCostVal, throughputRatioVal);
 	}
 

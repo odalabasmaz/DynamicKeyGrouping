@@ -22,10 +22,10 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DynamicKeyGrouping.class);
 	private static final long serialVersionUID = 398118264736370294L;
 
-	private long STARTING_TIME = 0L;
-	private long WARM_UP_DURATION = 5_000L;     // ms (default: 30 sec)
-	private int NUMBER_OF_INITIAL_TASKS = 2;
-	private int NUMBER_OF_AVAILABLE_TASKS;
+	private long startingTime = 0L;
+	private long warmUpDuration = 5_000L;     // ms (default: 30 sec)
+	private int numberOfInitialTasks = 2;
+	private int numberOfAvailableTasks;
 
 	private long numOfItems = 0;
 	private long[] targetTaskStats;
@@ -39,14 +39,14 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 
 	public DynamicKeyGrouping() {
 		String id = this.toString();
-		LOGGER.info(">>>>>>>>>>>>>>>>>> DKG-D: {}", id);
+		LOGGER.info("DKG-D: {}", id);
 		keySpace = new KeySpace();
 		workerCountSizeMap = new HashMap<>();
 	}
 
 	public DynamicKeyGrouping(int distinctKeyCounts) {
 		String id = this.toString();
-		LOGGER.info(">>>>>>>>>>>>>>>>>> DKG: {}", id);
+		LOGGER.info("DKG: {}", id);
 		keySpace = new KeySpace(distinctKeyCounts);
 		workerCountSizeMap = new HashMap<>();
 	}
@@ -55,34 +55,35 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	public void prepare(WorkerTopologyContext context, GlobalStreamId streamId, List<Integer> targetTasks) {
 		this.targetTasks = targetTasks;
 		this.targetTaskStats = new long[targetTasks.size()];
-		this.NUMBER_OF_AVAILABLE_TASKS = targetTasks.size();
+		this.numberOfAvailableTasks = targetTasks.size();
 		initThresholds();
 		initStartingTime();
 		initKeySpaceManagement();
 	}
 
 	private void initThresholds() {
-		double idealLoad = (double) 100 / NUMBER_OF_AVAILABLE_TASKS;
+		double idealLoad = (double) 100 / numberOfAvailableTasks;
 		loadToScaleUp = idealLoad + Math.sqrt(idealLoad);
 		loadToScaleDown = idealLoad - Math.sqrt(idealLoad);
+		LOGGER.info("LoadToScaleUp: {} and LoadToScaleDown: {}", loadToScaleUp, loadToScaleDown);
 	}
 
 	private void initStartingTime() {
-		if (STARTING_TIME == 0L) {
-			STARTING_TIME = System.currentTimeMillis();
+		if (startingTime == 0L) {
+			startingTime = System.currentTimeMillis();
 		}
 	}
 
 	private void initKeySpaceManagement() {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(new KeySpaceManager(keySpace));
-		executor.submit(new KeySpaceGC(keySpace));
+//		executor.submit(new KeySpaceGC(keySpace));
 	}
 
 	private boolean isWarmUp() {
 		long now = System.currentTimeMillis();
-		long timePassed = now - STARTING_TIME;
-		return timePassed > WARM_UP_DURATION;
+		long timePassed = now - startingTime;
+		return timePassed > warmUpDuration;
 	}
 
 	@Override
@@ -90,9 +91,11 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		List<Integer> chosenTasks = new ArrayList<>(1);
 		if (!values.isEmpty()) {
 			String key = values.get(0).toString();
-			Integer chosen = chooseBestTask(key);       // index of best task
-			chosenTasks.add(targetTasks.get(chosen));
-			handleKey(key, chosen);
+			synchronized (keySpace) {
+				Integer chosen = chooseBestTask(key);       // index of best task
+				chosenTasks.add(targetTasks.get(chosen));
+				handleKey(key, chosen);
+			}
 		}
 		return chosenTasks;
 	}
@@ -108,7 +111,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		int targetWorkerIndex = normalizeIndex(hashOfKey);
 		Integer workerCount = workerCountSizeMap.get(key);
 		if (workerCount == null) {
-			workerCount = NUMBER_OF_INITIAL_TASKS;      //i.e. 2 tasks available in startup
+			workerCount = numberOfInitialTasks;      //i.e. 2 tasks available in startup
 		}
 
 		int numberOfLessLoad = 0;
@@ -116,7 +119,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		Integer bestTaskIndex = null;
 		double minLoad = Double.MAX_VALUE;
 		for (int i = 0; i < workerCount; ++i) {
-			int taskIndex = normalizeIndex(targetWorkerIndex + i);
+			int taskIndex = normalizeIndex((long) targetWorkerIndex + i);
 			double load = getCurrentLoadOfTask(taskIndex);
 			if (load < loadToScaleUp) {
 				numberOfLessLoad++;
@@ -129,19 +132,19 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 
 		if (shouldScaleUp(key, minLoad)) {
 			// check if it should scale up
-			LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {}", key, workerCount + 1, getDKGId());
-			int newTaskIndex = normalizeIndex(targetWorkerIndex + workerCount);
+			int newTaskIndex = normalizeIndex((long) targetWorkerIndex + workerCount);
 			double newTaskLoad = getCurrentLoadOfTask(newTaskIndex);
 			if (newTaskLoad < minLoad) {
 				bestTaskIndex = newTaskIndex;
-				if (newTaskIndex >= NUMBER_OF_INITIAL_TASKS) {
+				if (newTaskIndex >= numberOfInitialTasks) {
 					workerCountSizeMap.put(key, workerCount + 1);
+					LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {}", key, workerCount + 1, getDKGId());
 				}
 			}
 		} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
 			// check if it should scale down
-			LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {}", key, workerCount - 1, getDKGId());
 			workerCountSizeMap.put(key, workerCount - 1);
+			LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {}", key, workerCount - 1, getDKGId());
 			return chooseBestTask(key);
 		}
 
@@ -179,7 +182,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	}
 
 	private int normalizeIndex(long index) {
-		return (int) (index % NUMBER_OF_AVAILABLE_TASKS);
+		return (int) (index % numberOfAvailableTasks);
 	}
 
 	private String getDKGId() {

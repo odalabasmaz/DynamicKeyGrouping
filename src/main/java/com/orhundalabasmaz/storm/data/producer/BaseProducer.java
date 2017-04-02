@@ -1,6 +1,7 @@
 package com.orhundalabasmaz.storm.data.producer;
 
 import com.orhundalabasmaz.storm.data.serializer.JsonSerializer;
+import com.orhundalabasmaz.storm.utils.DKGConstants;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -32,9 +33,7 @@ public abstract class BaseProducer implements StreamProducer {
 	private Producer producer;
 	private final String filePath;
 	private final String topicName;
-	//	private final String servers = "85.110.34.250:9092";
-//	private final String servers = "localhost:9092";
-	private final String servers = "192.168.1.39:9092";
+	private final String servers = DKGConstants.SERVER_IP + ":9092";
 	private final boolean enabled = false;
 
 	protected BaseProducer(String filePath, String topicName) {

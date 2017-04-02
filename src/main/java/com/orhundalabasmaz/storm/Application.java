@@ -7,7 +7,7 @@ import com.orhundalabasmaz.storm.config.Configuration;
 import com.orhundalabasmaz.storm.config.ConfigurationBuilder;
 import com.orhundalabasmaz.storm.loadbalancer.LoadBalancerTopology;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.common.StreamType;
+import com.orhundalabasmaz.storm.utils.DKGConstants;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class Application {
 		int numberOfAggregatorBolts = 10;
 		int numberOfOutputBolts = 1;
 		int retryCount = 1;
-		String IPAddr = "192.168.1.39"; //localhost 78.165.170.40
+		String serverIp = DKGConstants.SERVER_IP;
 		Map<String, String> groupingProps = new HashMap<>();
 		groupingProps.put("distinctKeyCount", "100");
 
@@ -74,7 +74,7 @@ public class Application {
 						.retryCount(retryCount)
 						.stormMode(stormMode)
 						.sourceName(sourceName)
-						.ipAddr(IPAddr)
+						.serverIp(serverIp)
 						.build();
 		execute(config);
 		LOGGER.info("end...");

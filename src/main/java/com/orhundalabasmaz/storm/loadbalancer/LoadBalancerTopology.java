@@ -74,7 +74,7 @@ public class LoadBalancerTopology implements Topology {
 
 	private SpoutConfig getKafkaSpoutConfig() {
 		String sourceName = runtimeConf.getSourceName();
-		String zkConnString = runtimeConf.getIPAddr() + ":2181";
+		String zkConnString = runtimeConf.getServerIp() + ":2181";
 		BrokerHosts hosts = new ZkHosts(zkConnString);
 		SpoutConfig kafkaSpoutConfig = new SpoutConfig(hosts, sourceName, "/" + sourceName, UUID.randomUUID().toString());
 		kafkaSpoutConfig.bufferSizeBytes = 1024 * 1024 * 16;
@@ -88,7 +88,7 @@ public class LoadBalancerTopology implements Topology {
 	private void setKafkaProducerConfig(Config conf) {
 		Map<String, String> kafkaProducerProps = new HashMap<>();
 //		kafkaProducerProps.put("bootstrap.servers", IPADDR + ":9092");
-		kafkaProducerProps.put("metadata.broker.list", runtimeConf.getIPAddr() + ":9092");
+		kafkaProducerProps.put("metadata.broker.list", runtimeConf.getServerIp() + ":9092");
 		kafkaProducerProps.put("request.required.acks", "1");    //todo ?
 //		kafkaProducerProps.put("client.id", "");
 //		kafkaProducerProps.put("batch.size", "16384");

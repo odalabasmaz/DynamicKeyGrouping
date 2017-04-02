@@ -3,7 +3,6 @@ package com.orhundalabasmaz.storm.config;
 import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
-import com.orhundalabasmaz.storm.common.StreamType;
 
 import java.util.Map;
 
@@ -158,8 +157,8 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder ipAddr(String ipAddr) {
-		conf.setIPAddr(ipAddr);
+	public ConfigurationBuilder serverIp(String serverIp) {
+		conf.setServerIp(serverIp);
 		return this;
 	}
 
