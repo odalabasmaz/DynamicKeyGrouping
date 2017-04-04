@@ -1,5 +1,6 @@
 package com.orhundalabasmaz.storm.data.producer;
 
+import com.orhundalabasmaz.storm.data.message.Message;
 import com.orhundalabasmaz.storm.data.serializer.JsonSerializer;
 import com.orhundalabasmaz.storm.utils.DKGConstants;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -28,7 +29,7 @@ import java.util.TreeMap;
  */
 public abstract class BaseProducer implements StreamProducer {
 	private static Logger LOGGER = LoggerFactory.getLogger(BaseProducer.class);
-	private static final Charset CHARSET = StandardCharsets.ISO_8859_1;
+	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
 	private Producer producer;
 	private final String filePath;
@@ -43,12 +44,19 @@ public abstract class BaseProducer implements StreamProducer {
 	}
 
 	private void init() {
+		/*
+		* kafka producer configuration
+		* for more information: https://www.tutorialspoint.com/apache_kafka/apache_kafka_simple_producer_example.htm
+		* */
 		Properties configProperties = new Properties();
 		configProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
 		configProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 //		configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 		configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-		configProperties.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384 * 64);
+		configProperties.put(ProducerConfig.LINGER_MS_CONFIG, 100);
+		configProperties.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384 * 16);
+		configProperties.put(ProducerConfig.ACKS_CONFIG, "0");
+//		configProperties.put("producer.type", "async");
 		/*props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.RETRIES_CONFIG, 0);
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
@@ -108,7 +116,7 @@ public abstract class BaseProducer implements StreamProducer {
 	protected abstract void produce(Map<String, Long> map, String line, String fileName);
 
 	@SuppressWarnings("unchecked")
-	protected final void sendMessage(Object message) {
+	protected final void sendMessage(Message message) {
 		if (enabled) {
 			ProducerRecord<String, String> rec = new ProducerRecord(topicName, message);
 			producer.send(rec);

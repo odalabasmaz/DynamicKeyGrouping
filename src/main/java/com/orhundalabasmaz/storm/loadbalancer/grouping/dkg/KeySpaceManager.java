@@ -26,7 +26,6 @@ public class KeySpaceManager implements Runnable {
 
 			synchronized (keySpace) {
 				// rearrange keys in space
-				LOGGER.info("rearranging keys > babySpace to teenageSpace, count: {}", count);
 				keySpace.sortBabySpace();
 				keySpace.truncateBabySpace();
 				keySpace.sortTeenageSpace();
@@ -34,7 +33,6 @@ public class KeySpaceManager implements Runnable {
 
 				if (count == CYCLE_COUNT) {
 					count = 0;
-					LOGGER.info("rearranging keys > teenage space to old space");
 					keySpace.sortTeenageSpace();
 					keySpace.sortOldSpace();
 					keySpace.upToOldSpace();
@@ -48,5 +46,6 @@ public class KeySpaceManager implements Runnable {
 
 	public void terminate() {
 		run = false;
+		LOGGER.info("KeySpaceManager is terminated.");
 	}
 }

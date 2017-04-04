@@ -26,13 +26,15 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	private long warmUpDuration = 5_000L;     // ms (default: 30 sec)
 	private int numberOfInitialTasks = 2;
 	private int numberOfAvailableTasks;
+	private long latestCheckTime = 0L;
+	private long checkInterval = 60 * 1000L;
 
 	private long numOfItems = 0;
 	private long[] targetTaskStats;
 	private List<Integer> targetTasks;
 
-	private double loadToScaleUp;
-	private double loadToScaleDown;
+	private int loadToScaleUp;
+	private int loadToScaleDown;
 
 	private final KeySpace keySpace;
 	private final Map<String, Integer> workerCountSizeMap;
@@ -63,8 +65,8 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 
 	private void initThresholds() {
 		double idealLoad = (double) 100 / numberOfAvailableTasks;
-		loadToScaleUp = idealLoad + Math.sqrt(idealLoad);
-		loadToScaleDown = idealLoad - Math.sqrt(idealLoad);
+		loadToScaleUp = (int) (idealLoad + Math.sqrt(idealLoad));
+		loadToScaleDown = (int) (idealLoad - Math.sqrt(idealLoad));
 		LOGGER.info("LoadToScaleUp: {} and LoadToScaleDown: {}", loadToScaleUp, loadToScaleDown);
 	}
 
@@ -114,13 +116,15 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 			workerCount = numberOfInitialTasks;      //i.e. 2 tasks available in startup
 		}
 
+		// workers which has less load
 		int numberOfLessLoad = 0;
+
 		// select least loaded task as the best
 		Integer bestTaskIndex = null;
-		double minLoad = Double.MAX_VALUE;
+		int minLoad = Integer.MAX_VALUE;
 		for (int i = 0; i < workerCount; ++i) {
 			int taskIndex = normalizeIndex((long) targetWorkerIndex + i);
-			double load = getCurrentLoadOfTask(taskIndex);
+			int load = getCurrentLoadOfTask(taskIndex);
 			if (load < loadToScaleUp) {
 				numberOfLessLoad++;
 			}
@@ -130,28 +134,42 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 			}
 		}
 
-		if (shouldScaleUp(key, minLoad)) {
-			// check if it should scale up
-			int newTaskIndex = normalizeIndex((long) targetWorkerIndex + workerCount);
-			double newTaskLoad = getCurrentLoadOfTask(newTaskIndex);
-			if (newTaskLoad < minLoad) {
-				bestTaskIndex = newTaskIndex;
-				if (newTaskIndex >= numberOfInitialTasks) {
+		// wait for a while before scaling
+		if (canCheckForScaling()) {
+			LOGGER.info("Checking for scaling...");
+			if (shouldScaleUp(key, minLoad)) {
+				// check if it should scale up
+				int newTaskIndex = normalizeIndex((long) targetWorkerIndex + workerCount);
+				int newTaskLoad = getCurrentLoadOfTask(newTaskIndex);
+				if (newTaskLoad < minLoad) {
+					bestTaskIndex = newTaskIndex;
 					workerCountSizeMap.put(key, workerCount + 1);
-					LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {}", key, workerCount + 1, getDKGId());
+					LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {} with newTaskLoad/minLoad: {}/{}",
+							key, workerCount + 1, getDKGId(), newTaskLoad, minLoad);
+
 				}
+			} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
+				// check if it should scale down
+				workerCountSizeMap.put(key, workerCount - 1);
+				LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {} for load: {}",
+						key, workerCount - 1, getDKGId(), minLoad);
+				return chooseBestTask(key);
 			}
-		} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
-			// check if it should scale down
-			workerCountSizeMap.put(key, workerCount - 1);
-			LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {}", key, workerCount - 1, getDKGId());
-			return chooseBestTask(key);
 		}
 
 		return bestTaskIndex;
 	}
 
-	private boolean shouldScaleUp(String key, double minLoad) {
+	private boolean canCheckForScaling() {
+		long now = DKGUtils.getCurrentTimestamp();
+		if (now - latestCheckTime > checkInterval) {
+			latestCheckTime = now;
+			return true;
+		}
+		return false;
+	}
+
+	private boolean shouldScaleUp(String key, int minLoad) {
 		// is warm up
 		if (!isWarmUp()) {
 			return false;
@@ -177,8 +195,8 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 	/**
 	 * calculates the local load of the task
 	 */
-	private double getCurrentLoadOfTask(int task) {
-		return numOfItems == 0 ? 0 : ((double) targetTaskStats[task] / numOfItems) * 100;
+	private int getCurrentLoadOfTask(int task) {
+		return numOfItems == 0 ? 0 : (int) ((100 * targetTaskStats[task]) / numOfItems);
 	}
 
 	private int normalizeIndex(long index) {
