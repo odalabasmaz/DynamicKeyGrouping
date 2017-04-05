@@ -40,11 +40,13 @@ public class DistributionObserverBolt extends WindowedBolt {
 		this.collector = outputCollector;
 		this.distributionAggregator = new DistributionAggregator();
 		this.keyWorkers = new LinkedHashMap<>();
-		this.startTime = DKGUtils.getCurrentTimestamp();
 	}
 
 	@Override
 	protected void countDataAndAck(Tuple tuple) {
+		if (startTime == 0) {
+			this.startTime = DKGUtils.getCurrentTimestamp();
+		}
 		String workerId = (String) tuple.getValueByField("workerId");
 		String key = (String) tuple.getValueByField("key");
 		Long count = (Long) tuple.getValueByField("count");

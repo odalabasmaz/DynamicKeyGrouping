@@ -35,7 +35,7 @@ public abstract class BaseProducer implements StreamProducer {
 	private final String filePath;
 	private final String topicName;
 	private final String servers = DKGConstants.SERVER_IP + ":9092";
-	private final boolean enabled = false;
+	private final boolean enabled = true;
 
 	protected BaseProducer(String filePath, String topicName) {
 		this.filePath = filePath;

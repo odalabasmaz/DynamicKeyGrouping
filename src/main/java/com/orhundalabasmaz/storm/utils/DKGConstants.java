@@ -5,7 +5,7 @@ package com.orhundalabasmaz.storm.utils;
  */
 public class DKGConstants {
 
-	public static final String SERVER_IP = "127.0.0.1";
+	public static final String SERVER_IP = "192.168.1.39";
 
 	private DKGConstants() {
 	}
