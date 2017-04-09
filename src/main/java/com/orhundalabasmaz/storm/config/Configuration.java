@@ -42,6 +42,7 @@ public class Configuration implements Serializable {
 	private GroupingType groupingType;
 	private long processDuration;                   //ms
 	private long aggregationDuration;               //ms
+	private int countCycle;
 	private boolean isLogEnabled;
 	private int retryCount;
 	private StormMode stormMode;
@@ -216,6 +217,14 @@ public class Configuration implements Serializable {
 
 	public void setAggregationDuration(long aggregationDuration) {
 		this.aggregationDuration = aggregationDuration;
+	}
+
+	public int getCountCycle() {
+		return countCycle;
+	}
+
+	public void setCountCycle(int countCycle) {
+		this.countCycle = countCycle;
 	}
 
 	public boolean isLogEnabled() {

@@ -161,9 +161,10 @@ public class StreamReactor {
 			for (String spout : spouts) {
 				for (String worker : workers) {
 					for (GroupingType algo : GroupingType.values()) {
+						String speed = dataType.getKey().contains("wikipedia") ? "x10" : "x1";
 						builder.append("nohup java $JAVA_OPTS -jar dkg-wd.jar LOCAL ").append(dataType).append(" ")
 								.append(algo).append(" ").append(dataType.getKey()).append("-").append(spout).append(" ")
-								.append(spout).append(" ").append(worker)
+								.append(spout).append(" ").append(worker).append(" ").append(speed)
 								.append(" > ").append("/home/logs/dkg/").append(dataType.getKey()).append("-").append(spout).append("-")
 								.append("s").append(spout).append("-").append("w").append(worker).append("-").append(algo.getType())
 								.append(".out &").append(NL);

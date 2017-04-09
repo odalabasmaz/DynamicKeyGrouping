@@ -164,7 +164,7 @@ public class LoadBalancerTopology implements Topology {
 		// worker
 		builder.setBolt(workerName,
 				new WorkerBolt(runtimeConf.getTimeIntervalOfWorkerBolts(), runtimeConf.getProcessDuration(),
-						runtimeConf.getAggregationDuration()), runtimeConf.getNumberOfWorkerBolts())
+						runtimeConf.getAggregationDuration(), runtimeConf.getCountCycle()), runtimeConf.getNumberOfWorkerBolts())
 				.customGrouping(splitterName, streamGrouping);
 
 		// aggregator

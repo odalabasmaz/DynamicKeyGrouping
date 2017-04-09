@@ -54,6 +54,14 @@ public class DKGUtils {
 		}
 	}
 
+	public static void sleepInNanoseconds(long duration) {
+		try {
+			TimeUnit.NANOSECONDS.sleep(duration);
+		} catch (InterruptedException e) {
+			LOGGER.error("Exception occurred when thread sleeping", e);
+		}
+	}
+
 	public static void sleepInMicroseconds(long duration) {
 		try {
 			TimeUnit.MICROSECONDS.sleep(duration);

@@ -137,6 +137,11 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
+	public ConfigurationBuilder countCycle(int countCycle) {
+		conf.setCountCycle(countCycle);
+		return this;
+	}
+
 	public ConfigurationBuilder enableLogging(boolean isLogEnabled) {
 		conf.setLogEnabled(isLogEnabled);
 		return this;

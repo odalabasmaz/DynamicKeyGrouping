@@ -23,11 +23,14 @@ public class WorkerBolt extends WindowedBolt {
 	private transient Aggregator aggregator;
 	private long processDuration;
 	private long aggregationDuration;
+	private int cycle;
+	private int currCycle;
 
-	public WorkerBolt(long tickFrequencyInSeconds, long processDuration, long aggregationDuration) {
+	public WorkerBolt(long tickFrequencyInSeconds, long processDuration, long aggregationDuration, int cycle) {
 		super(tickFrequencyInSeconds);
 		this.processDuration = processDuration;
 		this.aggregationDuration = aggregationDuration;
+		this.cycle = cycle;
 		LOGGER.info("WorkerBolt created with tickFrequencyInSeconds:{}, processDuration:{}, aggregationDuration:{}",
 				tickFrequencyInSeconds, processDuration, aggregationDuration);
 	}
@@ -60,7 +63,11 @@ public class WorkerBolt extends WindowedBolt {
 	}
 
 	private void doToughJob() {
-		DKGUtils.sleepInMilliseconds(processDuration);
+		++currCycle;
+		if (currCycle / cycle > 0) {
+			DKGUtils.sleepInMilliseconds(processDuration);
+			currCycle = 0;
+		}
 	}
 
 	@Override

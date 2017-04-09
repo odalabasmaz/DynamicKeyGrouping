@@ -28,10 +28,10 @@ public class Application {
 	 * $ java -jar dkg-wd.jar SHUFFLE|KEY|PARTIAL_KEY|DYNAMIC_KEY 10 1
 	 */
 	public static void main(String... args) {
-		if (args.length != 6) {
-			LOGGER.error("stormMode, sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!\n" +
-					"i.e. $ java -jar dkg-wd.jar LOCAL COUNTRY_SKEW DYNAMIC_KEY country-skew-5 5 10");
-			throw new UnsupportedOperationException("stormMode, sourceType, groupingType, sourceName, numberOfSpouts and workerCount must be specified!");
+		if (args.length != 7) {
+			LOGGER.error("stormMode, sourceType, groupingType, sourceName, numberOfSpouts, workerCount and speed must be specified!\n" +
+					"i.e. $ java -jar dkg-wd.jar LOCAL COUNTRY_SKEW DYNAMIC_KEY country-skew-5 5 10 x1");
+			throw new UnsupportedOperationException("stormMode, sourceType, groupingType, sourceName, numberOfSpouts, workerCount and speed must be specified!");
 		}
 
 		StormMode stormMode = StormMode.valueOf(args[0]);
@@ -40,6 +40,7 @@ public class Application {
 		String sourceName = args[3];
 		int numberOfSpouts = Integer.parseInt(args[4]);
 		int numberOfWorkerBolts = Integer.parseInt(args[5]);
+		int speed = Integer.parseInt(args[6].split("x")[1]);
 
 		String testId = DKGUtils.generateTestId();
 		long processDuration = 1L;
@@ -59,6 +60,7 @@ public class Application {
 						.defaultSet()
 						.testId(testId)
 						.processDuration(processDuration)
+						.countCycle(speed)
 						.terminationDuration(terminationDuration)
 						.sourceType(sourceType)
 						.groupingType(groupingType)
