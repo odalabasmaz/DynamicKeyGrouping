@@ -23,7 +23,7 @@ public class WorkerBolt extends WindowedBolt {
 	private transient Aggregator aggregator;
 	private long processDuration;
 	private long aggregationDuration;
-	private int cycle;
+	private final int cycle;
 	private int currCycle;
 
 	public WorkerBolt(long tickFrequencyInSeconds, long processDuration, long aggregationDuration, int cycle) {
@@ -64,7 +64,7 @@ public class WorkerBolt extends WindowedBolt {
 
 	private void doToughJob() {
 		++currCycle;
-		if (currCycle / cycle > 0) {
+		if (cycle > 0 && currCycle / cycle > 0) {
 			DKGUtils.sleepInMilliseconds(processDuration);
 			currCycle = 0;
 		}
