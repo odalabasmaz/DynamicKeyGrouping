@@ -6,7 +6,7 @@
 
 	<groupId>com.orhundalabasmaz.storm</groupId>
 	<artifactId>dynamic-key-grouping</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
 	<name>Dynamic-Key-Grouping</name>
@@ -14,7 +14,7 @@
 
 	<developers>
 		<developer>
-			<name>Orhun Dalabasmaz</name>
+			<name>Orhun DALABASMAZ</name>
 			<email>odalabasmaz@gmail.com</email>
 		</developer>
 	</developers>
