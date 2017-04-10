@@ -29,13 +29,13 @@ import java.util.TreeMap;
  */
 public abstract class BaseProducer implements StreamProducer {
 	private static Logger LOGGER = LoggerFactory.getLogger(BaseProducer.class);
-	private static final Charset CHARSET = StandardCharsets.ISO_8859_1;
+	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
 	private Producer producer;
 	private final String filePath;
 	private final String topicName;
 	private final String servers = DKGConstants.SERVER_IP + ":9092";
-	private final boolean enabled = false;
+	private final boolean enabled = true;
 
 	protected BaseProducer(String filePath, String topicName) {
 		this.filePath = filePath;
