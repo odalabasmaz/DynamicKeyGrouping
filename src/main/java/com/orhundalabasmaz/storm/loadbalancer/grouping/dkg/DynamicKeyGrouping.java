@@ -23,14 +23,13 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 	private static final Logger LOGGER = LoggerFactory.getLogger(DynamicKeyGrouping.class);
 	private static final long serialVersionUID = 398118264736370294L;
 
-	private long startingTime = 0L;
+	private long startingTime;
 	private long warmUpDuration = 15_000L;     // ms (default: 30 sec)
 	private int numberOfInitialTasks = 2;
 	private int numberOfAvailableTasks;
-	private long latestCheckTime = 0L;
 	private long checkInterval = 60 * 1000L;
 
-	private long numOfItems = 0;
+	private long numOfItems;
 	private long[] targetTaskStats;
 	private List<Integer> targetTasks;
 
@@ -78,6 +77,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 	}
 
 	private void initKeySpaceManagement() {
+		LOGGER.info("KeySpaceManagement is being initialized...");
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(new KeySpaceManager(keySpace));
 //		executor.submit(new KeySpaceGC(keySpace));
@@ -96,17 +96,18 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 			String key = values.get(0).toString();
 			synchronized (keySpace) {
 				Integer chosen = chooseBestTask(key);       // index of best task
-				chosenTasks.add(targetTasks.get(chosen));
-				handleKey(key, chosen);
+				Integer targetTask = targetTasks.get(chosen);
+				chosenTasks.add(targetTask);
+				handleKey(key, chosen, targetTask);
 			}
 		}
 		return chosenTasks;
 	}
 
-	private void handleKey(String key, int chosen) {
+	private void handleKey(String key, Integer chosen, Integer targetTask) {
 		targetTaskStats[chosen]++;
 		numOfItems++;
-		keySpace.handleKey(key);
+		keySpace.handleKey(key, targetTask);
 	}
 
 	private Integer chooseBestTask(String key) {
@@ -136,7 +137,7 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 		}
 
 		// wait for a while before scaling
-		if (canCheckForScaling()) {
+		if (canCheckForScaling(key)) {
 			LOGGER.info("Checking for scaling...");
 			if (shouldScaleUp(key, minLoad)) {
 				// check if it should scale up
@@ -148,7 +149,6 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 //					LOGGER.info("#WS: workerCountSizeMap.size() = {}", workerCountSizeMap.size());
 					LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {} with newTaskLoad/minLoad: {}/{}",
 							key, workerCount + 1, getObjectId(), newTaskLoad, minLoad);
-
 				}
 			} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
 				// check if it should scale down
@@ -162,10 +162,16 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 		return bestTaskIndex;
 	}
 
-	private boolean canCheckForScaling() {
+	private boolean canCheckForScaling(String key) {
+		KeyItem keyItem = keySpace.findKeyItem(key);
+		if (keyItem == null) {
+			return false;
+		}
+
 		long now = DKGUtils.getCurrentTimestamp();
+		long latestCheckTime = keyItem.getLastCheckTimeForScaling();
 		if (now - latestCheckTime > checkInterval) {
-			latestCheckTime = now;
+			keyItem.setLastCheckTimeForScaling(now);
 			return true;
 		}
 		return false;
@@ -204,5 +210,4 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 	private int normalizeIndex(long index) {
 		return (int) (index % numberOfAvailableTasks);
 	}
-
 }

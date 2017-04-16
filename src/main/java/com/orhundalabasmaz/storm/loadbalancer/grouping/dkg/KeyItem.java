@@ -2,18 +2,25 @@ package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * @author Orhun Dalabasmaz
  */
 public class KeyItem implements Comparable<KeyItem> {
 	private String key;
 	private long lastSeen;
+	private long lastCheckTimeForScaling;
 	private long count;
+	private Set<Integer> targetTasks;
 
-	public KeyItem(String key) {
+	public KeyItem(String key, int targetTask) {
 		this.key = key;
-		this.count = 0;
+		this.count = 1;
 		this.lastSeen = System.currentTimeMillis();
+		this.targetTasks = new LinkedHashSet<>();
+		this.targetTasks.add(targetTask);
 	}
 
 	public String getKey() {
@@ -28,8 +35,21 @@ public class KeyItem implements Comparable<KeyItem> {
 		return count;
 	}
 
-	public void appearedAgain() {
+	public int getTargetTasksCount() {
+		return targetTasks.size();
+	}
+
+	public long getLastCheckTimeForScaling() {
+		return lastCheckTimeForScaling;
+	}
+
+	public void setLastCheckTimeForScaling(long time) {
+		this.lastCheckTimeForScaling = time;
+	}
+
+	public void appearedAgain(int targetTask) {
 		++count;
+		targetTasks.add(targetTask);
 		lastSeen = System.currentTimeMillis();
 	}
 

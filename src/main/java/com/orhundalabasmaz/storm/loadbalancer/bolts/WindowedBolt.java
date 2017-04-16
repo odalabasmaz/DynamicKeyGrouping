@@ -25,7 +25,7 @@ public abstract class WindowedBolt extends BaseRichBolt implements ObjectObserve
 	@Override
 	public final void execute(Tuple tuple) {
 		if (isTickTuple(tuple)) {
-			LOGGER.info("#WIN: {}", getObjectId());
+			LOGGER.debug("#WIN: {}", getObjectId());
 			emitCurrentWindowAndAdvance();
 		} else {
 			LOGGER.debug("countDataAndAck: {}", tuple);

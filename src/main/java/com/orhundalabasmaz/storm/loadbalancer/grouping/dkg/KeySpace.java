@@ -39,17 +39,17 @@ public class KeySpace implements Serializable {
 		babySpace = new HashMap<>(BABY_MAX_SIZE);
 	}
 
-	public void handleKey(String key) {
+	public void handleKey(String key, int targetTask) {
 		KeyItem item = findKeyItem(key);
 		if (item != null) {
-			item.appearedAgain();
+			item.appearedAgain(targetTask);
 		} else {
-			item = new KeyItem(key);
+			item = new KeyItem(key, targetTask);
 			babySpace.put(key, item);
 		}
 	}
 
-	private KeyItem findKeyItem(String key) {
+	public KeyItem findKeyItem(String key) {
 		KeyItem item = oldSpace.get(key);
 		if (item != null) return item;
 		item = teenageSpace.get(key);
@@ -87,6 +87,7 @@ public class KeySpace implements Serializable {
 	}
 
 	public void promoteToTeenageSpace() {
+		LOGGER.debug("promoteToTeenageSpace");
 		// convert to list
 		List<KeyItem> babyList = new ArrayList<>(babySpace.values());
 		List<KeyItem> teenageList = new ArrayList<>(teenageSpace.values());
@@ -103,18 +104,30 @@ public class KeySpace implements Serializable {
 	}
 
 	public void promoteToOldSpace() {
+		LOGGER.debug("promoteToOldSpace");
 		// convert to list
 		List<KeyItem> teenageList = new ArrayList<>(teenageSpace.values());
 		List<KeyItem> oldList = new ArrayList<>(oldSpace.values());
 		teenageList.sort(DESC_COMPARATOR);
 		oldList.sort(DESC_COMPARATOR);
 		promoteToNextSpace(teenageList, oldList, OLD_MAX_SIZE);
+		printKeyItems(oldList);
 
 		// back to set
 		teenageSpace.clear();
 		DKGUtils.putListIntoMap(teenageList, teenageSpace);
 		oldSpace.clear();
 		DKGUtils.putListIntoMap(oldList, oldSpace);
+	}
+
+	private void printKeyItems(List<KeyItem> keyItems) {
+		keyItems.sort(DESC_COMPARATOR);
+		StringBuilder builder = new StringBuilder();
+		keyItems.forEach(item -> builder
+				.append(item.getKey()).append(",")
+				.append(item.getCount()).append(",")
+				.append(item.getTargetTasksCount()).append("\n"));
+		LOGGER.info("#HOTTEST KEYS:\n{}", builder);
 	}
 
 	private void promoteToNextSpace(List<KeyItem> fromSpace, List<KeyItem> toSpace, int toSpaceMaxSize) {
@@ -142,5 +155,4 @@ public class KeySpace implements Serializable {
 			}
 		}
 	}
-
 }
