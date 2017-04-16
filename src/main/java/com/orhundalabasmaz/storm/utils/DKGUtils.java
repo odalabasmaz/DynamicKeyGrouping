@@ -2,16 +2,15 @@ package com.orhundalabasmaz.storm.utils;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.orhundalabasmaz.storm.loadbalancer.grouping.dkg.KeyItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,6 +20,7 @@ public class DKGUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DKGUtils.class);
 	private static final Format DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private static final HashFunction HF = Hashing.murmur3_128(13);
+	private static final Random random = new Random();
 
 	private DKGUtils() {
 	}
@@ -118,5 +118,29 @@ public class DKGUtils {
 		for (int i = 0; i < count; ++i) {
 			Toolkit.getDefaultToolkit().beep();
 		}
+	}
+
+	public static int rand(int bound) {
+		return random.nextInt(bound);
+	}
+
+	public static <T> List<T> truncateList(List<T> list, int size) {
+		return list.size() > size ? list.subList(0, size) : list;
+	}
+
+	public static void putListIntoMap(List<KeyItem> items, Map<String, KeyItem> map) {
+		for (KeyItem item : items) {
+			map.put(item.getKey(), item);
+		}
+	}
+
+	public static Map<String, Long> sortByValue(Map<String, Long> unsortMap) {
+		List<Map.Entry<String, Long>> list = new LinkedList<>(unsortMap.entrySet());
+		list.sort((o1, o2) -> (o2.getValue()).compareTo(o1.getValue()));
+		Map<String, Long> sortedMap = new LinkedHashMap<>();
+		for (Map.Entry<String, Long> entry : list) {
+			sortedMap.put(entry.getKey(), entry.getValue());
+		}
+		return sortedMap;
 	}
 }

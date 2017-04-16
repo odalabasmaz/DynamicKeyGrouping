@@ -49,12 +49,10 @@ public class Application {
 		int numberOfSplitterBolts = 10;
 		int numberOfAggregatorBolts = 10;
 		int numberOfOutputBolts = 1;
-		int retryCount = 1;
 		String serverIp = DKGConstants.SERVER_IP;
 		Map<String, String> groupingProps = new HashMap<>();
 		groupingProps.put("distinctKeyCount", "100");
 
-		LOGGER.info("begin...");
 		Configuration config =
 				ConfigurationBuilder.getInstance()
 						.defaultSet()
@@ -71,26 +69,16 @@ public class Application {
 						.numberOfWorkerBolts(numberOfWorkerBolts * numberOfWorkers)
 						.numberOfAggregatorBolts(numberOfAggregatorBolts * numberOfWorkers)
 						.numberOfOutputBolts(numberOfOutputBolts * numberOfWorkers)
-						.timeIntervalOfWorkerBolts(10)
+						.timeIntervalOfWorkerBolts(15)
 						.timeIntervalOfAggregatorBolts(60)
-						.retryCount(retryCount)
 						.stormMode(stormMode)
 						.sourceName(sourceName)
 						.serverIp(serverIp)
 						.build();
-		execute(config);
-		LOGGER.info("end...");
-	}
 
-	private static void execute(Configuration config) {
-		LOGGER.info("test begins... " + DKGUtils.getCurrentDatetime());
-		int retryCount = config.getRetryCount();
-		for (int i = 1; i <= retryCount; ++i) {
-			LOGGER.info("test #{} - running...", i);
-			run(config);
-			LOGGER.info("test #{} - done.", i);
-		}
-		LOGGER.info("test ends... " + DKGUtils.getCurrentDatetime());
+		LOGGER.info("begin...");
+		run(config);
+		LOGGER.info("end...");
 	}
 
 	private static void run(Configuration runtimeConf) {

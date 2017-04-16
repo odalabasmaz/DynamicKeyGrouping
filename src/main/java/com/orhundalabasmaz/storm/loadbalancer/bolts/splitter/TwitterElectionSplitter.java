@@ -6,32 +6,21 @@ import com.orhundalabasmaz.storm.common.Record;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Orhun Dalabasmaz
  */
 public class TwitterElectionSplitter extends SplitterBolt {
-	private static final Map<String, String> wordMap = new HashMap<>();
-	private static final Map<String, String> charMap = new HashMap<>();
-
-	static {
-//		wordMap.put("", "");
-
-		/*charMap.put("\n", " ");
-		charMap.put("\u00e0", "a");
-		charMap.put("\u00e1", "a");
-		charMap.put("\u00e2", "a");
-		charMap.put("\u00e3", "a");
-		charMap.put("\u00e4", "a");
-		charMap.put("\u00e5", "a");
-		charMap.put("\u00e6", "a");
-		charMap.put("\u00e7", "c");
-		charMap.put("\u00e8", "e");
-		charMap.put("\u00e9", "e");*/
-	}
+	private static final List<String> ELECTION_DAY_KEYS = Arrays.asList(
+			"hilary", "hillary", "clinton", "withher", "wither", "voteher", "lockherup",
+			"donald", "trump", "makeamericagreatagain", "americafirst",
+			"vote", "voting", "poll",
+			"election", "eleicoes", "eleccion", "electon", "electoral", "abdseçimleri",
+			"president", "debate", "democrat", "republican",
+			"america", "us", "usa"
+	);
 
 	@Override
 	protected Record convertMessage(String message) {
@@ -76,29 +65,12 @@ public class TwitterElectionSplitter extends SplitterBolt {
 	}
 
 	private String replacement(String value) {
-		String res = value.toLowerCase();
-
-		// convert non-latin characters into latin characters (i.e: ê > e)
-		for (Map.Entry<String, String> entry : charMap.entrySet()) {
-			res = res.replaceAll(entry.getKey(), entry.getValue());
+		String val = value.toLowerCase();
+		for (String key : ELECTION_DAY_KEYS) {
+			if (val.contains(key)) {
+				return "ElectionDay";
+			}
 		}
-
-		// replace synonym words
-		if (wordMap.containsKey(res)) {
-			res = wordMap.get(res);
-		}
-
-		if (res.contains("hilary") || res.contains("hillary") || res.contains("clinton") || res.contains("withher")) {
-			res = "hillary clinton";
-		} else if (res.contains("donald") || res.contains("trump")) {
-			res = "donald trump";
-		} else if (res.contains("vote") || res.contains("voting")) {
-			res = "vote";
-		} else if (res.contains("election") || res.contains("eleicoes") || res.contains("eleccion")) {
-			res = "election";
-		}
-
-		return res;
+		return value;
 	}
-
 }

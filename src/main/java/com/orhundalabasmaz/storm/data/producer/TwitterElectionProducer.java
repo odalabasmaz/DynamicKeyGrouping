@@ -5,6 +5,7 @@ import com.orhundalabasmaz.storm.common.JsonReader;
 import com.orhundalabasmaz.storm.data.message.TwitterElectionMessage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class TwitterElectionProducer extends BaseProducer {
 		List<String> hashtagList = new ArrayList<>(hashtags.size());
 		for (Map<String, String> ht : hashtags) {
 			String hashtag = ht.get("text");
+			hashtag = replacement(hashtag);
 			hashtagList.add(hashtag);
 			long keyCount = map.getOrDefault(hashtag, 0L);
 			map.put(hashtag, keyCount + 1);
@@ -42,5 +44,24 @@ public class TwitterElectionProducer extends BaseProducer {
 
 		TwitterElectionMessage message = new TwitterElectionMessage(text, hashtagList, timestamp);
 		sendMessage(message);
+	}
+
+	private static final List<String> ELECTION_DAY_KEYS = Arrays.asList(
+			"hilary", "hillary", "clinton", "withher", "wither", "voteher", "lockherup",
+			"donald", "trump", "makeamericagreatagain", "americafirst",
+			"vote", "voting", "poll",
+			"election", "eleicoes", "eleccion", "electon", "electoral", "abdseçimleri",
+			"president", "debate", "democrat", "republican",
+			"america", "us", "usa"
+	);
+
+	private String replacement(String value) {
+		String val = value.toLowerCase();
+		for (String key : ELECTION_DAY_KEYS) {
+			if (val.contains(key)) {
+				return "ElectionDay";
+			}
+		}
+		return value;
 	}
 }

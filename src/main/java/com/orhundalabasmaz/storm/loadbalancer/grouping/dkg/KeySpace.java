@@ -1,14 +1,12 @@
 package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Orhun Dalabasmaz
@@ -17,9 +15,9 @@ import java.util.List;
  */
 public class KeySpace implements Serializable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(KeySpace.class);
-	private List<KeyItem> babySpace;         // max heap
-	private List<KeyItem> teenageSpace;      // max heap
-	private List<KeyItem> oldSpace;          // max heap
+	private Map<String, KeyItem> babySpace;         // max heap
+	private Map<String, KeyItem> teenageSpace;      // max heap
+	private Map<String, KeyItem> oldSpace;          // max heap
 
 	private final int OLD_MAX_SIZE;
 	private final int TEENAGE_MAX_SIZE;
@@ -28,13 +26,7 @@ public class KeySpace implements Serializable {
 	private static final Comparator<KeyItem> DESC_COMPARATOR = (k1, k2) -> (int) (k2.getCount() - k1.getCount());
 
 	public KeySpace() {
-		OLD_MAX_SIZE = 10;
-		TEENAGE_MAX_SIZE = 20;
-		BABY_MAX_SIZE = 50;
-
-		oldSpace = new ArrayList<>(OLD_MAX_SIZE);
-		teenageSpace = new ArrayList<>(TEENAGE_MAX_SIZE);
-		babySpace = new ArrayList<>(BABY_MAX_SIZE);
+		this(100);
 	}
 
 	public KeySpace(int distinctKeyCounts) {
@@ -42,9 +34,9 @@ public class KeySpace implements Serializable {
 		TEENAGE_MAX_SIZE = (int) (distinctKeyCounts * (40 / (double) 100));
 		BABY_MAX_SIZE = (int) (distinctKeyCounts * (50 / (double) 100));
 
-		oldSpace = new ArrayList<>(OLD_MAX_SIZE);
-		teenageSpace = new ArrayList<>(TEENAGE_MAX_SIZE);
-		babySpace = new ArrayList<>(BABY_MAX_SIZE);
+		oldSpace = new HashMap<>(OLD_MAX_SIZE);
+		teenageSpace = new HashMap<>(TEENAGE_MAX_SIZE);
+		babySpace = new HashMap<>(BABY_MAX_SIZE);
 	}
 
 	public void handleKey(String key) {
@@ -53,22 +45,20 @@ public class KeySpace implements Serializable {
 			item.appearedAgain();
 		} else {
 			item = new KeyItem(key);
-			babySpace.add(item);
+			babySpace.put(key, item);
 		}
 	}
 
 	private KeyItem findKeyItem(String key) {
-		KeyItem item;
-		item = findKeyItemInList(key, oldSpace);
+		KeyItem item = oldSpace.get(key);
 		if (item != null) return item;
-		item = findKeyItemInList(key, teenageSpace);
+		item = teenageSpace.get(key);
 		if (item != null) return item;
-		item = findKeyItemInList(key, babySpace);
-		if (item != null) return item;
-		return null;
+		item = babySpace.get(key);
+		return item;
 	}
 
-	private KeyItem findKeyItemInList(String key, List<KeyItem> keyItemList) {
+	private KeyItem findKeyItemInList(String key, Set<KeyItem> keyItemList) {
 		if (StringUtils.isBlank(key)) {
 			return null;
 		}
@@ -85,54 +75,56 @@ public class KeySpace implements Serializable {
 	}
 
 	public boolean inBabySpace(String key) {
-		return findKeyItemInList(key, babySpace) != null;
+		return babySpace.containsKey(key);
 	}
 
 	public boolean inTeenageSpace(String key) {
-		return findKeyItemInList(key, teenageSpace) != null;
+		return teenageSpace.containsKey(key);
 	}
 
 	public boolean inOldSpace(String key) {
-		return findKeyItemInList(key, oldSpace) != null;
+		return oldSpace.containsKey(key);
 	}
 
-	public void upToTeenageSpace() {
-		upToNextSpace(babySpace, teenageSpace, TEENAGE_MAX_SIZE);
-		/*int loop = 0;
-		for (; teenageSpace.size() < TEENAGE_MAX_SIZE; ++loop) {
-			if (babySpace.isEmpty()) return;
-			KeyItem firstBaby = babySpace.get(0);
-			babySpace.remove(0);
-			teenageSpace.add(0, firstBaby);
-		}
+	public void promoteToTeenageSpace() {
+		// convert to list
+		List<KeyItem> babyList = new ArrayList<>(babySpace.values());
+		List<KeyItem> teenageList = new ArrayList<>(teenageSpace.values());
+		babyList.sort(DESC_COMPARATOR);
+		babyList = DKGUtils.truncateList(babyList, BABY_MAX_SIZE);
+		teenageList.sort(DESC_COMPARATOR);
+		promoteToNextSpace(babyList, teenageList, TEENAGE_MAX_SIZE);
 
-		for (; loop < TEENAGE_MAX_SIZE; ++loop) {
-			if (babySpace.isEmpty()) return;
-			KeyItem firstBaby = babySpace.get(0);
-			int lastTeenIndex = teenageSpace.size() - 1;
-			KeyItem lastTeen = teenageSpace.get(lastTeenIndex);
-			if (firstBaby.getCount() > lastTeen.getCount()) {
-				babySpace.remove(0);
-				teenageSpace.remove(lastTeenIndex);
-				teenageSpace.add(0, firstBaby);
-				babySpace.add(lastTeen);
-			} else {
-				break;
-			}
-		}*/
+		// back to set
+		babySpace.clear();
+		DKGUtils.putListIntoMap(babyList, babySpace);
+		teenageSpace.clear();
+		DKGUtils.putListIntoMap(teenageList, teenageSpace);
 	}
 
-	public void upToOldSpace() {
-		upToNextSpace(teenageSpace, oldSpace, OLD_MAX_SIZE);
+	public void promoteToOldSpace() {
+		// convert to list
+		List<KeyItem> teenageList = new ArrayList<>(teenageSpace.values());
+		List<KeyItem> oldList = new ArrayList<>(oldSpace.values());
+		teenageList.sort(DESC_COMPARATOR);
+		oldList.sort(DESC_COMPARATOR);
+		promoteToNextSpace(teenageList, oldList, OLD_MAX_SIZE);
+
+		// back to set
+		teenageSpace.clear();
+		DKGUtils.putListIntoMap(teenageList, teenageSpace);
+		oldSpace.clear();
+		DKGUtils.putListIntoMap(oldList, oldSpace);
 	}
 
-	private void upToNextSpace(List<KeyItem> fromSpace, List<KeyItem> toSpace, int toSpaceMaxSize) {
+	private void promoteToNextSpace(List<KeyItem> fromSpace, List<KeyItem> toSpace, int toSpaceMaxSize) {
 		int loop = 0;
-		for (; toSpace.size() < toSpaceMaxSize; ++loop) {
+		while (toSpace.size() < toSpaceMaxSize) {
 			if (fromSpace.isEmpty()) return;
 			KeyItem firstBaby = fromSpace.get(0);
 			fromSpace.remove(0);
 			toSpace.add(0, firstBaby);
+			++loop;
 		}
 
 		for (; loop < toSpaceMaxSize; ++loop) {
@@ -151,56 +143,4 @@ public class KeySpace implements Serializable {
 		}
 	}
 
-	public void archive(String key) {
-
-	}
-
-	public void retire(String key) {
-
-	}
-
-	public void emptyBabySpace() {
-		babySpace.clear();
-	}
-
-	public int getBabySize() {
-		return babySpace.size();
-	}
-
-	public int getBabyMaxSize() {
-		return BABY_MAX_SIZE;
-	}
-
-	public int getTeenageSize() {
-		return teenageSpace.size();
-	}
-
-	public int getTeenageMaxSize() {
-		return TEENAGE_MAX_SIZE;
-	}
-
-	public int getOldSize() {
-		return oldSpace.size();
-	}
-
-	public int getOldMaxSize() {
-		return OLD_MAX_SIZE;
-	}
-
-	public void sortBabySpace() {
-		Collections.sort(babySpace, DESC_COMPARATOR);
-	}
-
-	public void sortTeenageSpace() {
-		Collections.sort(teenageSpace, DESC_COMPARATOR);
-	}
-
-	public void sortOldSpace() {
-		Collections.sort(oldSpace, DESC_COMPARATOR);
-	}
-
-	public void truncateBabySpace() {
-		if (babySpace.size() > BABY_MAX_SIZE)
-			babySpace = babySpace.subList(0, BABY_MAX_SIZE);
-	}
 }

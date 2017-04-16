@@ -10,6 +10,8 @@ import com.orhundalabasmaz.storm.loadbalancer.aggregator.Aggregator;
 import com.orhundalabasmaz.storm.loadbalancer.aggregator.KeyAggregator;
 import com.orhundalabasmaz.storm.model.Message;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -17,19 +19,18 @@ import java.util.Map;
  * @author Orhun Dalabasmaz
  */
 public class AggregatorBolt extends WindowedBolt {
+	private final Logger LOGGER = LoggerFactory.getLogger(AggregatorBolt.class);
 	private transient OutputCollector collector;
 	private transient Aggregator aggregator;
-	private long aggregationDuration;
 
-	public AggregatorBolt(long tickFrequencyInSeconds, long aggregationDuration) {
+	public AggregatorBolt(long tickFrequencyInSeconds) {
 		super(tickFrequencyInSeconds);
-		this.aggregationDuration = aggregationDuration;
 	}
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.collector = outputCollector;
-		this.aggregator = new KeyAggregator(aggregationDuration);
+		this.aggregator = new KeyAggregator();
 	}
 
 	@Override
@@ -58,5 +59,6 @@ public class AggregatorBolt extends WindowedBolt {
 			message.addField("count", count);
 			collector.emit(new Values(key, message));
 		}
+//		LOGGER.info("#AC: aggregator.counts.size() = {}", counts.size());
 	}
 }

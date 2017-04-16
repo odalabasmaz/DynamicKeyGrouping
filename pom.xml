@@ -6,7 +6,7 @@
 
 	<groupId>com.orhundalabasmaz.storm</groupId>
 	<artifactId>dynamic-key-grouping</artifactId>
-	<version>1.2</version>
+	<version>1.3</version>
 	<packaging>jar</packaging>
 
 	<name>Dynamic-Key-Grouping</name>
@@ -25,7 +25,7 @@
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<storm.version>0.9.7</storm.version><!-- 1.0.2 -->
 		<!--<kafka.version>0.8.2.2</kafka.version>-->
-		<kafka.version>0.10.1.1</kafka.version>
+		<kafka.version>0.10.2.0</kafka.version>
 		<storm.cassandra.version>1.0.2</storm.cassandra.version>
 		<maven.aspectj.version>1.4</maven.aspectj.version>
 		<maven-compiler-plugin-version>3.5.1</maven-compiler-plugin-version>

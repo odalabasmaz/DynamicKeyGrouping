@@ -32,7 +32,6 @@ public class ConfigurationBuilder {
 		conf.setTimeIntervalOfWorkerBolts(2);
 		conf.setTimeIntervalOfAggregatorBolts(5);
 		conf.setTimeIntervalOfCheck(10_000);
-		conf.setAggregationDuration(0);
 		return this;
 	}
 
@@ -132,11 +131,6 @@ public class ConfigurationBuilder {
 		return this;
 	}
 
-	public ConfigurationBuilder aggregationDuration(long aggregationDuration) {
-		conf.setAggregationDuration(aggregationDuration);
-		return this;
-	}
-
 	public ConfigurationBuilder countCycle(int countCycle) {
 		conf.setCountCycle(countCycle);
 		return this;
@@ -144,11 +138,6 @@ public class ConfigurationBuilder {
 
 	public ConfigurationBuilder enableLogging(boolean isLogEnabled) {
 		conf.setLogEnabled(isLogEnabled);
-		return this;
-	}
-
-	public ConfigurationBuilder retryCount(int retryCount) {
-		conf.setRetryCount(retryCount);
 		return this;
 	}
 

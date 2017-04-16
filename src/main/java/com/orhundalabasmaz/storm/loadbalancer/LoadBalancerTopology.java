@@ -20,8 +20,6 @@ import com.orhundalabasmaz.storm.loadbalancer.bolts.KafkaOutputBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.SplitterBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.WorkerBolt;
 import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.DistributionObserverBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.SplitterObserverBolt;
-import com.orhundalabasmaz.storm.loadbalancer.bolts.observer.WorkerObserverBolt;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +35,15 @@ import java.util.UUID;
  */
 public class LoadBalancerTopology implements Topology {
 	private final Logger LOGGER = LoggerFactory.getLogger(LoadBalancerTopology.class);
-	private final String topologyName = "dkg-topology";
-	private final String spoutName = "load-balancer-spout";
-	private final String splitterName = "splitter";
-	private final String workerName = "worker";
-	private final String splitterObserverName = "splitter-observer";
-	private final String workerObserverName = "worker-observer";
-	private final String distributionObserverName = "key-distribution";
-	private final String aggregatorName = "aggregator";
-	private final String outputName = "output";
+	private static final String topologyName = "dkg-topology";
+	private static final String spoutName = "load-balancer-spout";
+	private static final String splitterName = "splitter";
+	private static final String workerName = "worker";
+	private static final String splitterObserverName = "splitter-observer";
+	private static final String workerObserverName = "worker-observer";
+	private static final String distributionObserverName = "distribution-observer";
+	private static final String aggregatorName = "aggregator";
+	private static final String outputName = "output";
 
 	private Config conf;
 	private Configuration runtimeConf;
@@ -68,6 +66,7 @@ public class LoadBalancerTopology implements Topology {
 				.append("NUMBER OF WORKER BOLTS: ").append(runtimeConf.getNumberOfWorkerBolts()).append("\n")
 				.append("RUNTIME DURATION: ").append(runtimeConf.getTopologyTimeout() / 60000).append(" min").append("\n")
 				.append("STORM MODE: ").append(stormMode).append("\n")
+				.append("SPEED: x").append(runtimeConf.getCountCycle()).append("\n")
 				.append("==================================");
 		LOGGER.info(sb.toString());
 	}
@@ -163,24 +162,24 @@ public class LoadBalancerTopology implements Topology {
 
 		// worker
 		builder.setBolt(workerName,
-				new WorkerBolt(runtimeConf.getTimeIntervalOfWorkerBolts(), runtimeConf.getProcessDuration(),
-						runtimeConf.getAggregationDuration(), runtimeConf.getCountCycle()), runtimeConf.getNumberOfWorkerBolts())
+				new WorkerBolt(runtimeConf.getTimeIntervalOfWorkerBolts(), runtimeConf.getProcessDuration(), runtimeConf.getCountCycle()),
+				runtimeConf.getNumberOfWorkerBolts())
 				.customGrouping(splitterName, streamGrouping);
 
 		// aggregator
 		builder.setBolt(aggregatorName,
-				new AggregatorBolt(runtimeConf.getTimeIntervalOfAggregatorBolts(), runtimeConf.getAggregationDuration()), 10)
+				new AggregatorBolt(runtimeConf.getTimeIntervalOfAggregatorBolts()), 10)
 				.fieldsGrouping(workerName, new Fields("key"));
 
 		// splitter observer
-		builder.setBolt(splitterObserverName,
-				new SplitterObserverBolt(60), 1)
-				.shuffleGrouping(splitterName);
+//		builder.setBolt(splitterObserverName,
+//				new SplitterObserverBolt(60), 1)
+//				.shuffleGrouping(splitterName);
 
 		// worker observer
-		builder.setBolt(workerObserverName,
-				new WorkerObserverBolt(), 1)
-				.shuffleGrouping(workerName);
+//		builder.setBolt(workerObserverName,
+//				new WorkerObserverBolt(), 1)
+//				.shuffleGrouping(workerName);
 
 		// distribution observer
 		builder.setBolt(distributionObserverName,
@@ -199,9 +198,9 @@ public class LoadBalancerTopology implements Topology {
 		builder.setBolt(outputName + "-1",
 				new KafkaOutputBolt(target + "-" + "aggregator"), 1)
 				.shuffleGrouping(aggregatorName);
-		builder.setBolt(outputName + "-2",
-				new KafkaOutputBolt(target + "-" + "worker"), 1)
-				.shuffleGrouping(workerObserverName);
+//		builder.setBolt(outputName + "-2",
+//				new KafkaOutputBolt(target + "-" + "worker"), 1)
+//				.shuffleGrouping(workerObserverName);
 		builder.setBolt(outputName + "-3",
 				new KafkaOutputBolt(target + "-" + "distribution"), 1)
 				.shuffleGrouping(distributionObserverName);
@@ -249,7 +248,7 @@ public class LoadBalancerTopology implements Topology {
 //            StormSubmitter.submitTopology(topologyName, conf, topology);
 			StormSubmitter.submitTopologyWithProgressBar(topologyName, conf, topology);
 		} catch (AlreadyAliveException | InvalidTopologyException e) {
-			e.printStackTrace();
+			LOGGER.error("Topology not submitted.", e);
 		}
 	}
 }

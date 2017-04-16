@@ -26,16 +26,11 @@ public class KeySpaceManager implements Runnable {
 
 			synchronized (keySpace) {
 				// rearrange keys in space
-				keySpace.sortBabySpace();
-				keySpace.truncateBabySpace();
-				keySpace.sortTeenageSpace();
-				keySpace.upToTeenageSpace();
+				keySpace.promoteToTeenageSpace();
 
 				if (count == CYCLE_COUNT) {
 					count = 0;
-					keySpace.sortTeenageSpace();
-					keySpace.sortOldSpace();
-					keySpace.upToOldSpace();
+					keySpace.promoteToOldSpace();
 				}
 			}
 

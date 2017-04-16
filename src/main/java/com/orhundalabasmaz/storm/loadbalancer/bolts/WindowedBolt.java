@@ -4,6 +4,7 @@ import backtype.storm.Config;
 import backtype.storm.Constants;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import com.orhundalabasmaz.storm.common.ObjectObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * @author Orhun Dalabasmaz
  */
-public abstract class WindowedBolt extends BaseRichBolt {
+public abstract class WindowedBolt extends BaseRichBolt implements ObjectObserver {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WindowedBolt.class);
 	private long tickFrequencyInSeconds;
 
@@ -24,9 +25,10 @@ public abstract class WindowedBolt extends BaseRichBolt {
 	@Override
 	public final void execute(Tuple tuple) {
 		if (isTickTuple(tuple)) {
+			LOGGER.info("#WIN: {}", getObjectId());
 			emitCurrentWindowAndAdvance();
 		} else {
-			LOGGER.debug("countDataAndAck");
+			LOGGER.debug("countDataAndAck: {}", tuple);
 			countDataAndAck(tuple);
 		}
 	}
@@ -42,12 +44,9 @@ public abstract class WindowedBolt extends BaseRichBolt {
 		return conf;
 	}
 
-	private boolean isTickTuple(Tuple tuple) {
+	private static boolean isTickTuple(Tuple tuple) {
 		return tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID)
 				&& tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID);
 	}
 
-	protected final String getWorkerId() {
-		return this.toString().split("@")[1].toUpperCase();
-	}
 }

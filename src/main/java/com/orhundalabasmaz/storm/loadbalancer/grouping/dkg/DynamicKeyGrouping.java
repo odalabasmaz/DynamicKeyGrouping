@@ -3,6 +3,7 @@ package com.orhundalabasmaz.storm.loadbalancer.grouping.dkg;
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
+import com.orhundalabasmaz.storm.common.ObjectObserver;
 import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +19,12 @@ import java.util.concurrent.Executors;
 /**
  * @author Orhun Dalabasmaz
  */
-public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
+public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver, Serializable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DynamicKeyGrouping.class);
 	private static final long serialVersionUID = 398118264736370294L;
 
 	private long startingTime = 0L;
-	private long warmUpDuration = 5_000L;     // ms (default: 30 sec)
+	private long warmUpDuration = 15_000L;     // ms (default: 30 sec)
 	private int numberOfInitialTasks = 2;
 	private int numberOfAvailableTasks;
 	private long latestCheckTime = 0L;
@@ -144,15 +145,16 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 				if (newTaskLoad < minLoad) {
 					bestTaskIndex = newTaskIndex;
 					workerCountSizeMap.put(key, workerCount + 1);
+//					LOGGER.info("#WS: workerCountSizeMap.size() = {}", workerCountSizeMap.size());
 					LOGGER.info("Scaling up for key: {}, to: {} workers at dkg: {} with newTaskLoad/minLoad: {}/{}",
-							key, workerCount + 1, getDKGId(), newTaskLoad, minLoad);
+							key, workerCount + 1, getObjectId(), newTaskLoad, minLoad);
 
 				}
 			} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
 				// check if it should scale down
 				workerCountSizeMap.put(key, workerCount - 1);
 				LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {} for load: {}",
-						key, workerCount - 1, getDKGId(), minLoad);
+						key, workerCount - 1, getObjectId(), minLoad);
 				return chooseBestTask(key);
 			}
 		}
@@ -203,7 +205,4 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, Serializable {
 		return (int) (index % numberOfAvailableTasks);
 	}
 
-	private String getDKGId() {
-		return this.toString().split("@")[1].toUpperCase();
-	}
 }

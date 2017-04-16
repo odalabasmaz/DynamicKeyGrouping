@@ -22,23 +22,20 @@ public class WorkerBolt extends WindowedBolt {
 	private transient OutputCollector collector;
 	private transient Aggregator aggregator;
 	private long processDuration;
-	private long aggregationDuration;
 	private final int cycle;
 	private int currCycle;
 
-	public WorkerBolt(long tickFrequencyInSeconds, long processDuration, long aggregationDuration, int cycle) {
+	public WorkerBolt(long tickFrequencyInSeconds, long processDuration, int cycle) {
 		super(tickFrequencyInSeconds);
 		this.processDuration = processDuration;
-		this.aggregationDuration = aggregationDuration;
 		this.cycle = cycle;
-		LOGGER.info("WorkerBolt created with tickFrequencyInSeconds:{}, processDuration:{}, aggregationDuration:{}",
-				tickFrequencyInSeconds, processDuration, aggregationDuration);
+		LOGGER.info("WorkerBolt created with tickFrequencyInSeconds:{}, processDuration:{}", tickFrequencyInSeconds, processDuration);
 	}
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.collector = outputCollector;
-		this.aggregator = new KeyAggregator(aggregationDuration);
+		this.aggregator = new KeyAggregator();
 	}
 
 	@Override
@@ -53,13 +50,14 @@ public class WorkerBolt extends WindowedBolt {
 	@Override
 	public void emitCurrentWindowAndAdvance() {
 		Map<String, Long> counts = aggregator.getCountsThenAdvanceWindow();
-		String workerId = getWorkerId();
+		String workerId = getObjectId();
 		long timestamp = DKGUtils.getCurrentTimestamp();
 		for (Map.Entry<String, Long> entry : counts.entrySet()) {
 			String key = entry.getKey();
 			Long count = entry.getValue();
 			collector.emit(new Values(workerId, key, count, timestamp));
 		}
+//		LOGGER.info("#WC: worker.id: {}, worker.counts.size() = {}", getObjectId(), counts.size());
 	}
 
 	private void doToughJob() {

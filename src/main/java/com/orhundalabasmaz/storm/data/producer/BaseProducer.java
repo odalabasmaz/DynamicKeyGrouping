@@ -3,6 +3,7 @@ package com.orhundalabasmaz.storm.data.producer;
 import com.orhundalabasmaz.storm.data.message.Message;
 import com.orhundalabasmaz.storm.data.serializer.JsonSerializer;
 import com.orhundalabasmaz.storm.utils.DKGConstants;
+import com.orhundalabasmaz.storm.utils.DKGUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -22,7 +23,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 
 /**
  * @author Orhun Dalabasmaz
@@ -124,20 +124,25 @@ public abstract class BaseProducer implements StreamProducer {
 	}
 
 	private void printResult(Map<String, Long> map) {
-		long count = 0;
+		long totalCount = map.get("TOTAL_COUNT");
+		StringBuilder result = new StringBuilder("key,count,ratio(%)");
+
 		long begin = System.currentTimeMillis();
-		StringBuilder result = new StringBuilder("key,count");
-		TreeMap<String, Long> treeMap = new TreeMap<>(map);
-		for (Map.Entry<String, Long> entry : treeMap.entrySet()) {
-			String key = entry.getKey();
-			Long value = entry.getValue();
-			count += value;
-			result.append("\n").append(key).append(",").append(value);
-		}
+		Map<String, Long> sortedMap = DKGUtils.sortByValue(map);
 		long end = System.currentTimeMillis();
 		long duration = (end - begin) / 1000;
+
+		for (Map.Entry<String, Long> entry : sortedMap.entrySet()) {
+			String key = entry.getKey();
+			if ("TOTAL_COUNT".equals(key)) {
+				continue;
+			}
+			Long value = entry.getValue();
+			String ratio = String.format("%.4f", 100 * value / (double) totalCount).replace(',', '.');
+			result.append("\n").append(key).append(",").append(value).append(",").append(ratio);
+		}
 		LOGGER.info("### EMITTED RECORDS ###\n{}", result);
 		LOGGER.info(">>> Ordered in {} sec", duration);
-		LOGGER.info(">>> Total produced: {}", count);
+		LOGGER.info(">>> Total produced: {}", totalCount);
 	}
 }

@@ -28,7 +28,7 @@ public class StreamReactor {
 
 	private static final String[] dataTypes = SourceType.keys();
 
-	private static final List<String> spouts = Arrays.asList("5"); //, "10", "15", "20"
+	private static final List<String> spouts = Arrays.asList("5", "10", "15", "20");
 
 	private static final List<String> workers = Arrays.asList("5", "10", "50", "100");
 
@@ -56,18 +56,38 @@ public class StreamReactor {
 
 	private void generateResultList() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("#,SOURCE_TYPE,ALGO,SPOUT,WORKER").append(NL);
+		StringBuilder runnerShBuilder = new StringBuilder();
+		builder.append("#,SOURCE TYPE,ALGO,SPOUT,WORKER,SLEEP (ms),TOTAL COUNT,DURATION (ms),STD DEV,DIST COST,THROUGHPUT (rec/sec),STATUS,DETAIL,RUNNER SH").append(NL);
 		int count = 1;
-		for (SourceType dataType : SourceType.values()) {
-			for (GroupingType algo : GroupingType.values()) {
-				for (String spout : spouts) {
-					for (String worker : workers) {
+		for (String spout : spouts) {
+			for (String worker : workers) {
+				for (SourceType dataType : SourceType.values()) {
+					for (GroupingType algo : GroupingType.values()) {
+						String speed = dataType.getKey().contains("wikipedia") ? "x10" : "x1";
+						String sleep = dataType.getKey().contains("wikipedia") ? "0.1" : "1.0";
+						runnerShBuilder.setLength(0);
+						runnerShBuilder.append("nohup java $JAVA_OPTS -jar dkg-wd.jar LOCAL ").append(dataType).append(" ")
+								.append(algo).append(" ").append(dataType.getKey()).append("-").append(spout).append(" ")
+								.append(spout).append(" ").append(worker).append(" ").append(speed)
+								.append(" > ").append("/home/logs/dkg/").append(dataType.getKey()).append("-").append(spout).append("-")
+								.append("s").append(spout).append("-").append("w").append(worker).append("-").append(algo.getType())
+								.append(".out &");
+
 						builder
 								.append(count++).append(",")
 								.append(dataType).append(",")
 								.append(algo).append(",")
 								.append(spout).append(",")
 								.append(worker).append(",")
+								.append(sleep).append(",")
+								.append("").append(",")
+								.append("").append(",")
+								.append("").append(",")
+								.append("").append(",")
+								.append("").append(",")
+								.append("awaiting").append(",")
+								.append("").append(",")
+								.append(runnerShBuilder.toString())
 								.append(NL);
 					}
 				}

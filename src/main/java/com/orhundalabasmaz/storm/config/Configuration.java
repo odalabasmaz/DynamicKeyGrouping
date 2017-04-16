@@ -2,7 +2,6 @@ package com.orhundalabasmaz.storm.config;
 
 import com.orhundalabasmaz.storm.common.SourceType;
 import com.orhundalabasmaz.storm.common.StormMode;
-import com.orhundalabasmaz.storm.common.StreamType;
 import com.orhundalabasmaz.storm.loadbalancer.grouping.GroupingType;
 
 import java.io.Serializable;
@@ -14,7 +13,7 @@ import java.util.Map;
  */
 public class Configuration implements Serializable {
 	// APP VERSION
-	private String appVersion = "v1.1";
+	private String appVersion = "v1.3";
 	private String testId;
 
 	// NUMBER OF PROCESS UNITS
@@ -37,14 +36,11 @@ public class Configuration implements Serializable {
 	private long topologyTimeout;                   // ms
 
 	// RUNTIME PROPS
-	private StreamType streamType;
 	private SourceType sourceType;
 	private GroupingType groupingType;
 	private long processDuration;                   //ms
-	private long aggregationDuration;               //ms
 	private int countCycle;
 	private boolean isLogEnabled;
-	private int retryCount;
 	private StormMode stormMode;
 	private Map<String, String> groupingProps = new HashMap<>();
 
@@ -211,14 +207,6 @@ public class Configuration implements Serializable {
 		this.processDuration = processDuration;
 	}
 
-	public long getAggregationDuration() {
-		return aggregationDuration;
-	}
-
-	public void setAggregationDuration(long aggregationDuration) {
-		this.aggregationDuration = aggregationDuration;
-	}
-
 	public int getCountCycle() {
 		return countCycle;
 	}
@@ -233,14 +221,6 @@ public class Configuration implements Serializable {
 
 	public void setLogEnabled(boolean logEnabled) {
 		isLogEnabled = logEnabled;
-	}
-
-	public int getRetryCount() {
-		return retryCount;
-	}
-
-	public void setRetryCount(int retryCount) {
-		this.retryCount = retryCount;
 	}
 
 	public StormMode getStormMode() {
