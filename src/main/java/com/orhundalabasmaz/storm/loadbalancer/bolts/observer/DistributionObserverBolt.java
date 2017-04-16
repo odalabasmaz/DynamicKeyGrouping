@@ -82,6 +82,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 		long distinctKeys = keyWorkers.size();
 //		long totalWorkers = keyWorkers.values().parallelStream().mapToLong(Set::size).sum();
 		calculateDistributionCost(distinctKeys, totalWorkers);
+		printKeyWorkerCounts();
 //		LOGGER.info("#KS: keyWorkers.size() = {}", keyWorkers.size());
 		LOGGER.info("#KW: DistinctKeys: {}, TotalWorkers: {}", distinctKeys, totalWorkers);
 	}
@@ -100,20 +101,22 @@ public class DistributionObserverBolt extends WindowedBolt {
 		return totalWorkers;
 	}
 
-	private int calculateKeyDistribution(long timestamp) {
-		int totalWorkers = 0;
+	private void printKeyWorkerCounts() {
+		long numberOfTotalWorkers = 0;
+		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, Set<String>> entry : keyWorkers.entrySet()) {
 			String key = entry.getKey();
 			int numberOfWorkers = entry.getValue().size();
-			totalWorkers += numberOfWorkers;
+			numberOfTotalWorkers += numberOfWorkers;
 //			Message message = new Message(key, timestamp);
 //			message.addTag("key", key);
 //			message.addField("numberOfWorkers", numberOfWorkers);
-//			sb.append("\"").append(key).append("\": ").append(numberOfWorkers).append(", ");
+			sb.append(key).append(",").append(numberOfWorkers).append("\n");
 //			collector.emit(new Values(message.getKey(), message));
 //			LOGGER.info("#KD: Key: {}, Workers: {}", key, numberOfWorkers);
 		}
-		return totalWorkers;
+		sb.append("TotalWorkerCount: ").append(numberOfTotalWorkers);
+		LOGGER.info("#KWC: Key,WorkerCount:\n{}", sb);
 	}
 
 	private void calculateDistributionCost(long distinctKeys, long totalWorkers) {
