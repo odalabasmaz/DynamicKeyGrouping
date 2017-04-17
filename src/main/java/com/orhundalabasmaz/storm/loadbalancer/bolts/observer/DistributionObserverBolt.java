@@ -31,6 +31,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 	private long latestTotalCount;
 	private long latestTimeConsumption;
 	private long totalWorkers;
+	private boolean canPrintOut;
 
 	public DistributionObserverBolt(long tickFrequencyInSeconds) {
 		super(tickFrequencyInSeconds);
@@ -75,14 +76,18 @@ public class DistributionObserverBolt extends WindowedBolt {
 	@Override
 	protected void emitCurrentWindowAndAdvance() {
 		if (totalCount <= latestTotalCount) {
+			if (canPrintOut) {
+				canPrintOut = false;
+				printKeyWorkerCounts();
+			}
 			return;
 		}
 
+		canPrintOut = true;
 		latestTotalCount = totalCount;
 		long distinctKeys = keyWorkers.size();
 //		long totalWorkers = keyWorkers.values().parallelStream().mapToLong(Set::size).sum();
 		calculateDistributionCost(distinctKeys, totalWorkers);
-		printKeyWorkerCounts();
 //		LOGGER.info("#KS: keyWorkers.size() = {}", keyWorkers.size());
 		LOGGER.info("#KW: DistinctKeys: {}, TotalWorkers: {}", distinctKeys, totalWorkers);
 	}
