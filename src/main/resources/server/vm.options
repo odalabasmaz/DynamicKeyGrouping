@@ -1,0 +1,32 @@
+# kafka
+export CONFLUENT_HOME=/home/programs/confluent-3.2.0
+export KAFKA_HOME=$CONFLUENT_HOME
+export KAFKA_PROPS=$KAFKA_HOME/etc/kafka
+alias startZookeeper="nohup $KAFKA_HOME/bin/zookeeper-server-start $KAFKA_HOME/etc/kafka/zookeeper.properties &"
+alias stopZookeeper="nohup $KAFKA_HOME/bin/zookeeper-server-stop &"
+alias startKafka="nohup $KAFKA_HOME/bin/kafka-server-start $KAFKA_HOME/etc/kafka/server.properties &"
+alias stopKafka="nohup $KAFKA_HOME/bin/kafka-server-stop &"
+
+alias klist="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --list"
+alias kcreate="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic"
+alias kcreate5="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --create --replication-factor 1 --partitions 5 --topic"
+alias kcreate10="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --create --replication-factor 1 --partitions 10 --topic"
+alias kcreate15="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --create --replication-factor 1 --partitions 15 --topic"
+alias kcreate20="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --create --replication-factor 1 --partitions 20 --topic"
+alias kdelete="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --delete --topic"
+alias kdescribe="$KAFKA_HOME/bin/kafka-topics --zookeeper localhost:2181 --describe --topic"
+#alias kconsume="$KAFKA_HOME/bin/kafka-console-consumer --zookeeper localhost:2181 --topic"
+alias kconsume="$KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --property print.key=true --property key.separator=, --topic"
+#alias kconsumeAll="$KAFKA_HOME/bin/kafka-console-consumer --zookeeper localhost:2181 --from-beginning --topic"
+alias kconsumeAll="$KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --property print.key=true --property key.separator=, --from-beginning --topic"
+
+# influxdb
+export INFLUXDB_CONFIG_PATH=/etc/influxdb/influxdb.conf
+export INFLUXDB_ADMIN_ENABLED=true
+
+# kafka vm
+export KAFKA_HEAP_OPTS="-Xms1g -Xmx8g"
+export JAVA_OPTS="-server -Xms1g -Xmx16g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+PrintFlagsFinal -XX:+PrintReferenceGC  -XX:+DisableExplicitGC -XX:MaxGCPauseMillis=20 -XX:+CMSParallelRemarkEnabled -Xloggc:/home/logs/gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintAdaptiveSizePolicy -XX:+UnlockDiagnosticVMOptions -XX:+G1SummarizeConcMark -XX:InitiatingHeapOccupancyPercent=35 -XX:ConcGCThreads=4 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Djava.rmi.server.hostname=192.168.1.39 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=5012 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+# common
+alias psg="ps -ef | grep"
