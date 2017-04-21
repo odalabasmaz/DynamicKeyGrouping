@@ -38,7 +38,6 @@ public class WorkerObserverBolt extends BaseRichBolt {
 		message.addTag("key", key);
 		message.addTag("workerId", workerId);
 		message.addField("count", count);
-		//todo tuple,
 		collector.emit(tuple, new Values(message.getKey(), message));
 		collector.ack(tuple);
 	}
