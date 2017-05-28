@@ -6,7 +6,7 @@
 
 	<groupId>com.orhundalabasmaz.storm</groupId>
 	<artifactId>dynamic-key-grouping</artifactId>
-	<version>1.3</version>
+	<version>1.3.2</version>
 	<packaging>jar</packaging>
 
 	<name>Dynamic-Key-Grouping</name>
@@ -221,7 +221,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.shortName}-wd</finalName>
+					<finalName>${project.shortName}-wd-${project.version}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>

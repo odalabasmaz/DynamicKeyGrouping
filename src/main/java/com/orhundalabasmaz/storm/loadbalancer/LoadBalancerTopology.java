@@ -183,7 +183,7 @@ public class LoadBalancerTopology implements Topology {
 
 		// distribution observer
 		builder.setBolt(distributionObserverName,
-				new DistributionObserverBolt(runtimeConf.getTimeIntervalOfAggregatorBolts()), 1)
+				new DistributionObserverBolt(runtimeConf.getNumberOfWorkerBolts(), runtimeConf.getTimeIntervalOfAggregatorBolts()), 1)
 				.shuffleGrouping(workerName);
 
 		// output

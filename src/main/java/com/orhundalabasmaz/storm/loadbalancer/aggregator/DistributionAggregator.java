@@ -10,7 +10,12 @@ import java.util.Map;
  */
 public class DistributionAggregator {
 	private Long totalCount = 0L;
+	private final int numberOfWorkers;
 	private final Map<String, Long> map = new HashMap<>();
+
+	public DistributionAggregator(int numberOfWorkers) {
+		this.numberOfWorkers = numberOfWorkers;
+	}
 
 	public void aggregate(String workerId, Long count) {
 		totalCount += count;
@@ -19,8 +24,7 @@ public class DistributionAggregator {
 
 	public double stdDev() {
 		double[] metrics;
-		int size = map.size();
-		metrics = new double[size];
+		metrics = new double[numberOfWorkers];
 		int i = 0;
 		for (Long value : map.values()) {
 			metrics[i++] = 100 * (value / (double) totalCount);

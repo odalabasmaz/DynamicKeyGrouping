@@ -10,7 +10,7 @@ public class Statistics {
 
 	public static double standardDeviation(double[] values) {
 		if (values == null || values.length == 0) {
-			return 0;
+			return -1;
 		}
 
 		double avg = 0;

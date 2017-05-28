@@ -33,15 +33,15 @@ public class DistributionObserverBolt extends WindowedBolt {
 	private long totalWorkers;
 	private boolean canPrintOut;
 
-	public DistributionObserverBolt(long tickFrequencyInSeconds) {
+	public DistributionObserverBolt(int numberOfWorkers, long tickFrequencyInSeconds) {
 		super(tickFrequencyInSeconds);
+		this.distributionAggregator = new DistributionAggregator(numberOfWorkers);
+		this.keyWorkers = new HashMap<>();
 	}
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.collector = outputCollector;
-		this.distributionAggregator = new DistributionAggregator();
-		this.keyWorkers = new HashMap<>();
 	}
 
 	@Override
