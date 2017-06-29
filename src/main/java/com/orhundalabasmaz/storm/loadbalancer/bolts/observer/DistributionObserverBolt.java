@@ -87,6 +87,7 @@ public class DistributionObserverBolt extends WindowedBolt {
 		latestTotalCount = totalCount;
 		long distinctKeys = keyWorkers.size();
 //		long totalWorkers = keyWorkers.values().parallelStream().mapToLong(Set::size).sum();
+		emitKeyWorkerCounts();
 		calculateDistributionCost(distinctKeys, totalWorkers);
 //		LOGGER.info("#KS: keyWorkers.size() = {}", keyWorkers.size());
 		LOGGER.info("#KW: DistinctKeys: {}, TotalWorkers: {}", distinctKeys, totalWorkers);
@@ -104,6 +105,22 @@ public class DistributionObserverBolt extends WindowedBolt {
 			totalWorkers += numberOfWorkers;
 		}
 		return totalWorkers;
+	}
+
+	private void emitKeyWorkerCounts() {
+		long timestamp = DKGUtils.getCurrentTimestamp();
+		for (Map.Entry<String, Set<String>> entry : keyWorkers.entrySet()) {
+			String key = entry.getKey();
+			int numberOfWorkers = entry.getValue().size();
+			Message message = new Message(key, timestamp);
+			message.addTag("key", key);
+			message.addField("numberOfWorkers", numberOfWorkers);
+			collector.emit(new Values(message.getKey(), message));
+
+			if ("turkey".equalsIgnoreCase(key)) {
+				LOGGER.info("#KWCT: {},{}", timestamp, numberOfWorkers);
+			}
+		}
 	}
 
 	private void printKeyWorkerCounts() {

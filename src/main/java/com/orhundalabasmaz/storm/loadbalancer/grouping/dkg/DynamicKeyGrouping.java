@@ -158,8 +158,19 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 				return chooseBestTask(key);
 			}
 		}
-
+		printKeyWorkerCount();
 		return bestTaskIndex;
+	}
+
+	private long lastTimestamp = 0L;
+
+	private void printKeyWorkerCount() {
+		long now = DKGUtils.getCurrentTimestamp();
+		if (now - lastTimestamp > 30_000) {
+			lastTimestamp = now;
+			Integer count = workerCountSizeMap.get("Turkey");
+			LOGGER.info("#TC: {},{}", now, count);
+		}
 	}
 
 	private boolean canCheckForScaling(String key) {
