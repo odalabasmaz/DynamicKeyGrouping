@@ -22,6 +22,13 @@ public class KeySpaceGC implements Runnable {
 		while (run) {
 			// garbage collecting: retiring
 			LOGGER.info("garbage collecting");
+
+			//todo: iterate KeyItems in TeenSpace & OldSpace and check latestUpdateTime then delete if not seen for a long time
+			//or we may put it into teenage space
+			synchronized (keySpace) {
+				keySpace.gc();
+			}
+
 			DKGUtils.sleepInSeconds(TIME_INTERVAL);
 		}
 	}

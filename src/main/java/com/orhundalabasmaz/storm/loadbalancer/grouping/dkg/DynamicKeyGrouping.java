@@ -152,9 +152,11 @@ public class DynamicKeyGrouping implements CustomStreamGrouping, ObjectObserver,
 				}
 			} else if (shouldScaleDown(workerCount, numberOfLessLoad)) {
 				// check if it should scale down
-				workerCountSizeMap.put(key, workerCount - 1);
+				int newCount = workerCount - 1;
+				if (newCount <= 2) workerCountSizeMap.remove(key);
+				else workerCountSizeMap.put(key, newCount);
 				LOGGER.info("Scaling down for key: {}, to: {} workers at dkg: {} for load: {}",
-						key, workerCount - 1, getObjectId(), minLoad);
+						key, newCount, getObjectId(), minLoad);
 				return chooseBestTask(key);
 			}
 		}
