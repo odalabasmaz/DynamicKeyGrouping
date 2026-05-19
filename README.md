@@ -2,6 +2,12 @@
 
 A load-balancing stream grouping algorithm for Apache Storm that solves the **data skew problem** in stateful stream processing. DKG dynamically assigns hot keys to multiple worker bolts instead of pinning each key to a single worker, trading a small amount of aggregation overhead for significantly better load distribution.
 
+> **Research paper:** This project is the reference implementation for the MS thesis work published as:
+>
+> Orhun Dalabasmaz, Ahmet Burak Can — *"Dynamic Key Grouping: A Load Balancing Algorithm for Distributed Stream Processing Engines"*
+> IEEE Transactions on Parallel and Distributed Systems, 2020.
+> [Read the paper](https://orhundalabasmaz.com/files/article-dkg.pdf)
+
 ---
 
 ## The Problem
@@ -15,6 +21,10 @@ DKG sits between these two extremes: it routes hot keys to multiple workers (acc
 ---
 
 ## Architecture
+
+![System Topology](docs/dkg-system-topology.png)
+
+The topology connects a Kafka source through Storm bolts to output sinks (Kafka, InfluxDB for metrics, Grafana for dashboards). The custom stream grouping between the Splitter and Worker layers is where DKG operates.
 
 ### Storm Topology Pipeline
 
@@ -268,3 +278,9 @@ DKG's key advantage over Partial Key Grouping is that it adapts to the actual ob
 ## Author
 
 **Orhun Dalabasmaz** — [odalabasmaz@gmail.com](mailto:odalabasmaz@gmail.com)
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
